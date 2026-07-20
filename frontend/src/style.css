@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-bg text-text font-sans antialiased;
+    background-image:
+      linear-gradient(rgba(0, 217, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 217, 255, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  /* 卡片 */
+  .card {
+    @apply bg-card border border-border rounded-2xl transition-all duration-300;
+  }
+  .card:hover {
+    @apply border-border-light bg-card-hover;
+  }
+
+  /* 章节标题 */
+  .section-title {
+    @apply text-cyan text-xs font-semibold tracking-[0.2em] uppercase;
+  }
+
+  /* 渐变文字 */
+  .gradient-text {
+    background: linear-gradient(135deg, #00d9ff 0%, #a78bfa 50%, #f472b6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .gradient-text-cyan {
+    background: linear-gradient(135deg, #00d9ff 0%, #34d399 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* 标签 chip */
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border border-border-light bg-bg-2;
+  }
+
+  /* 导航链接 */
+  .nav-link {
+    @apply text-text-dim transition-colors relative text-sm;
+  }
+  .nav-link:hover {
+    @apply text-cyan;
+  }
+  .nav-link.router-link-active {
+    @apply text-cyan;
+  }
+  .nav-link.router-link-active::after {
+    content: '';
+    @apply absolute -bottom-1.5 left-0 w-full h-0.5 bg-cyan;
+  }
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #070b16;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a3754;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0891b2;
+}
+
+/* SSE 流式时新元素滑入 */
+.stream-item {
+  animation: slide-up 0.4s ease-out;
+}

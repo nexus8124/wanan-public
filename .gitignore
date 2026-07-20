@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+.python-version
+
+# Virtual envs
+.venv/
+venv/
+env/
+ENV/
+
+# uv
+.uv-cache/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+*.key
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Data artifacts（向量库、运行缓存 —— 不入库）
+data/chroma_db/
+data/processed/
+data/raw/
+# 评测结果（每次跑会产生，不纳入版本管理）
+**/eval_results.json
+
+# Frontend（Week 5 才创建）
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+# dist 是构建产物，不入库（评委本地 npm run build 或我们交付时打包）
+frontend/dist/
+# TypeScript 增量构建缓存
+frontend/*.tsbuildinfo
