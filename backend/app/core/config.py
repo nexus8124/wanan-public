@@ -29,6 +29,14 @@ class Settings(BaseSettings):
 
     # ----- LLM Providers -----
     deepseek_api_key: str = Field(default="", alias="DEEPSEEK_API_KEY")
+    deepseek_base_url: str = Field(
+    default="https://api.deepseek.com",
+    alias="DEEPSEEK_BASE_URL",
+    )
+    deepseek_send_thinking: bool = Field(
+    default=False,
+    alias="DEEPSEEK_SEND_THINKING",
+    )
     qwen_api_key: str = Field(default="", alias="QWEN_API_KEY")
     sangfor_api_key: str = Field(default="", alias="SANGFOR_API_KEY")
     sangfor_base_url: str = Field(default="", alias="SANGFOR_BASE_URL")

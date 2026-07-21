@@ -24,9 +24,11 @@ from app.api.stats import router as stats_router
 from app.api.stream import router as stream_router
 from app.core.config import get_settings
 from app.core.logging import setup_logging
+from app.eval.history import mark_stale_runs_interrupted
 
 # 启动时配置日志
 setup_logging(level="INFO")
+mark_stale_runs_interrupted()
 
 settings = get_settings()
 

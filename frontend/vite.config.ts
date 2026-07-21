@@ -2,10 +2,6 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { fileURLToPath, URL } from 'node:url'
-
 // 端口固定写死（与 launcher.py 保持一致）。
 // 不用环境变量：Windows 下 npm/vite 子进程传参不稳定。
 const FRONTEND_PORT = 15173

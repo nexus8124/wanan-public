@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from app.eval.metrics import compute_metrics, format_report
+from app.eval.run import run_eval
 
 
 class TestMetrics:
@@ -62,3 +63,24 @@ class TestMetrics:
         assert "准确率" in report
         assert "precision" in report
         assert "TP=" in report
+
+
+def test_run_eval_reports_incremental_progress_and_stops():
+    """评测应逐条回调进度，并能在样本边界安全停止。"""
+    events: list[dict] = []
+
+    result = run_eval(
+        mock=True,
+        save_results=False,
+        progress_callback=events.append,
+        should_stop=lambda: len(events) >= 2,
+    )
+
+    assert len(events) == 2
+    assert events[-1]["completed"] == 2
+    assert events[-1]["total"] == 50
+    assert events[-1]["metrics"]["n"] == 2
+    assert len(result["details"]) == 2
+    assert events[0]["detail"]["alert"]["alert_id"] == "TP-001"
+    assert events[0]["detail"]["agent_result"]["cot_trace"]
+    assert events[0]["detail"]["agent_result"]["disposition"]

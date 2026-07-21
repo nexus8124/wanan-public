@@ -20,6 +20,7 @@ import argparse
 import json
 import time
 from pathlib import Path
+from typing import Callable
 
 from app.agent.graph import judge_alert
 from app.core.logging import get_logger, setup_logging
@@ -36,6 +37,8 @@ def run_eval(
     dataset_path: str | Path | None = None,
     mock: bool = False,
     save_results: bool = True,
+    progress_callback: Callable[[dict], None] | None = None,
+    should_stop: Callable[[], bool] | None = None,
 ) -> dict:
     """跑评测，返回 metrics dict + 明细。
 
@@ -43,6 +46,8 @@ def run_eval(
         dataset_path: 数据集 JSON 路径；None 则用 eval_alerts.json（不存在则回退 sample）
         mock: True 用 mock LLM；False 用真实 DeepSeek
         save_results: 是否把明细存到 data/eval_results.json
+        progress_callback: 每完成一条样本后回调，供 SSE 实时推送
+        should_stop: 返回 True 时在下一条样本前安全停止
     """
     setup_logging(level="INFO")
 
@@ -72,16 +77,21 @@ def run_eval(
     details: list[dict] = []
 
     for i, alert in enumerate(labeled, 1):
+        if should_stop and should_stop():
+            logger.warning("评测收到停止请求，已完成 %d/%d 条", len(details), len(labeled))
+            break
+
         alert_dict = alert.model_dump(mode="json")
         # 隐藏 label，避免泄露给 Agent
         alert_dict.pop("label", None)
 
         t0 = time.perf_counter()
+        agent_result: dict | None = None
         try:
-            result = judge_alert(alert_dict, llm=llm)
-            pred = result["judgment"]
-            conf = result["confidence"]
-            reason = result["reason"]
+            agent_result = judge_alert(alert_dict, llm=llm)
+            pred = agent_result["judgment"]
+            conf = agent_result["confidence"]
+            reason = agent_result["reason"]
         except Exception as e:
             # 双重兜底：即使 judge_node 的兜底也崩了，整轮评测仍继续
             logger.exception("[%d] 异常跳过 %s: %s", i, alert.alert_id, e)
@@ -91,23 +101,35 @@ def run_eval(
         latency = time.perf_counter() - t0
         predictions.append((alert.label, pred))  # type: ignore[arg-type]
         latencies.append(latency)
-        details.append(
-            {
-                "alert_id": alert.alert_id,
-                "label": alert.label,
-                "pred": pred,
-                "confidence": conf,
-                "latency_s": round(latency, 3),
-                "correct": pred == alert.label,
-                "reason": reason,
-            }
-        )
+        detail = {
+            "alert_id": alert.alert_id,
+            "label": alert.label,
+            "pred": pred,
+            "confidence": conf,
+            "latency_s": round(latency, 3),
+            "correct": pred == alert.label,
+            "reason": reason,
+            # 保留本次已经生成的完整流程，前端点开即可查看，不重复调用模型。
+            "alert": alert_dict,
+            "agent_result": agent_result,
+        }
+        details.append(detail)
         mark = "✓" if pred == alert.label else "✗"
         logger.info(
             "[%d/%d] %s %s label=%s pred=%s conf=%.2f %.2fs",
             i, len(labeled), mark, alert.alert_id,
-            alert.label, pred, result["confidence"], latency,
+            alert.label, pred, conf, latency,
         )
+
+        if progress_callback:
+            progress_callback(
+                {
+                    "completed": len(details),
+                    "total": len(labeled),
+                    "detail": detail,
+                    "metrics": compute_metrics(predictions, latencies).as_dict(),
+                }
+            )
 
     metrics = compute_metrics(predictions, latencies)
     report = format_report(metrics)

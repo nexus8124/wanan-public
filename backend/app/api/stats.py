@@ -6,12 +6,17 @@ eval 接口复用 run.py 逻辑给评测页用。
 
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
+import threading
 from collections import Counter
 from pathlib import Path
+from typing import AsyncGenerator
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
+from sse_starlette.sse import EventSourceResponse
 
 from app.core.config import get_settings
 from app.data.generator import EVAL_DATASET
@@ -95,3 +100,110 @@ def run_eval_endpoint(mock: bool = True) -> dict:
     except Exception as e:
         logger.exception("eval run failed: %s", e)
         raise HTTPException(status_code=500, detail=f"eval failed: {e}")
+
+
+async def _stream_eval(mock: bool) -> AsyncGenerator[dict, None]:
+    """在线程池运行同步评测，并把逐样本进度转换成 SSE。"""
+    from app.eval.history import create_run, finish_run, save_progress
+    from app.eval.run import run_eval
+
+    loop = asyncio.get_running_loop()
+    queue: asyncio.Queue[tuple[str, dict] | None] = asyncio.Queue()
+    stop_event = threading.Event()
+    dataset_path = EVAL_DATASET if EVAL_DATASET.exists() else DEFAULT_DATASET
+    total = len([a for a in load_alerts(dataset_path) if a.label in {"真阳", "假阳"}])
+    mode = "mock" if mock else "deepseek"
+    run_id = create_run(mode=mode, dataset=str(dataset_path), total=total)
+
+    def put_event(event: str, data: dict) -> None:
+        # progress_callback 在工作线程中触发，必须线程安全地投递到事件循环。
+        loop.call_soon_threadsafe(queue.put_nowait, (event, data))
+
+    def producer() -> None:
+        try:
+            put_event(
+                "start",
+                {"run_id": run_id, "mock": mock, "mode": mode, "total": total},
+            )
+
+            def handle_progress(data: dict) -> None:
+                save_progress(run_id, data)
+                put_event("progress", {**data, "run_id": run_id})
+
+            result = run_eval(
+                dataset_path=None,
+                mock=mock,
+                save_results=False,
+                progress_callback=handle_progress,
+                should_stop=stop_event.is_set,
+            )
+            was_stopped = stop_event.is_set()
+            finish_run(
+                run_id,
+                status="interrupted" if was_stopped else "completed",
+                metrics=result.get("metrics"),
+                error="用户中止或浏览器连接断开" if was_stopped else None,
+            )
+            if not was_stopped:
+                put_event("complete", {**result, "run_id": run_id})
+        except Exception as e:
+            logger.exception("stream eval failed: %s", e)
+            finish_run(run_id, status="failed", error=str(e))
+            put_event("error", {"run_id": run_id, "message": f"eval failed: {e}"})
+        finally:
+            loop.call_soon_threadsafe(queue.put_nowait, None)
+
+    loop.run_in_executor(None, producer)
+
+    try:
+        while True:
+            item = await queue.get()
+            if item is None:
+                break
+            event, data = item
+            yield {
+                "event": event,
+                "data": json.dumps(data, ensure_ascii=False, default=str),
+            }
+    finally:
+        # 浏览器中止或断开后，不再启动下一条样本；正在进行的模型请求会自然结束。
+        stop_event.set()
+
+
+@router.post("/eval/run/stream")
+async def run_eval_stream_endpoint(mock: bool = True) -> EventSourceResponse:
+    """流式评测：逐条推送进度，完成后返回最终指标和全部明细。"""
+    return EventSourceResponse(_stream_eval(mock))
+
+
+@router.get("/eval/history")
+def list_eval_history(limit: int = 50) -> dict:
+    """列出最近的评测历史，包括完成、中断和失败记录。"""
+    from app.eval.history import list_runs
+
+    runs = list_runs(limit=limit)
+    return {"runs": runs, "count": len(runs)}
+
+
+@router.get("/eval/history/{run_id}")
+def get_eval_history(run_id: str) -> dict:
+    """读取一次历史评测及其中已持久化的全部样本流程。"""
+    from app.eval.history import get_run
+
+    result = get_run(run_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="eval history not found")
+    return result
+
+
+@router.delete("/eval/history/{run_id}")
+def delete_eval_history(run_id: str) -> dict:
+    """删除已结束的历史评测；运行中的评测不可删除。"""
+    from app.eval.history import delete_run
+
+    status = delete_run(run_id)
+    if status == "not_found":
+        raise HTTPException(status_code=404, detail="eval history not found")
+    if status == "running":
+        raise HTTPException(status_code=409, detail="running eval cannot be deleted")
+    return {"deleted": True, "run_id": run_id}

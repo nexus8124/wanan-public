@@ -47,6 +47,81 @@ export async function runEval(mock = true): Promise<any> {
   return res.json()
 }
 
+export interface EvalStreamCallbacks {
+  onStart?: (data: any) => void
+  onProgress: (data: any) => void
+  onComplete: (result: any) => void
+  onError?: (err: string) => void
+}
+
+/** 流式批量评测：后端每完成一条样本就推送一次 progress 事件。 */
+export async function streamRunEval(
+  mock: boolean,
+  callbacks: EvalStreamCallbacks,
+  signal?: AbortSignal,
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/eval/run/stream?mock=${mock}`, {
+    method: 'POST',
+    headers: { Accept: 'text/event-stream' },
+    signal,
+  })
+
+  if (!res.ok) {
+    throw new Error(`eval stream failed: ${res.status} ${await res.text()}`)
+  }
+
+  const reader = res.body!.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    buffer = buffer.replace(/\r\n/g, '\n')
+
+    const parts = buffer.split('\n\n')
+    buffer = parts.pop() || ''
+
+    for (const part of parts) {
+      let eventName = ''
+      let dataStr = ''
+      for (const line of part.split('\n')) {
+        if (line.startsWith('event:')) eventName = line.slice(6).trim()
+        else if (line.startsWith('data:')) dataStr += line.slice(5).trim()
+      }
+      if (!dataStr) continue
+
+      try {
+        const data = JSON.parse(dataStr)
+        if (eventName === 'start') callbacks.onStart?.(data)
+        else if (eventName === 'progress') callbacks.onProgress(data)
+        else if (eventName === 'complete') callbacks.onComplete(data)
+        else if (eventName === 'error') callbacks.onError?.(data.message || '未知错误')
+      } catch (e) {
+        console.warn('parse eval SSE failed:', dataStr, e)
+      }
+    }
+  }
+}
+
+export async function listEvalHistory(limit = 50): Promise<{ runs: any[]; count: number }> {
+  const res = await fetch(`${API_BASE}/eval/history?limit=${limit}`)
+  if (!res.ok) throw new Error(`load eval history failed: ${res.status} ${await res.text()}`)
+  return res.json()
+}
+
+export async function getEvalHistory(runId: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/eval/history/${runId}`)
+  if (!res.ok) throw new Error(`load eval history detail failed: ${res.status} ${await res.text()}`)
+  return res.json()
+}
+
+export async function deleteEvalHistory(runId: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/eval/history/${runId}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error(`delete eval history failed: ${res.status} ${await res.text()}`)
+}
+
 // ---------- SSE 流式接口 ----------
 // EventSource 只支持 GET，用 fetch + ReadableStream 处理 POST SSE
 
@@ -84,6 +159,11 @@ export async function streamJudgeAlert(
     const { done, value } = await reader.read()
     if (done) break
     buffer += decoder.decode(value, { stream: true })
+
+    // EventSourceResponse 按 SSE 标准使用 CRLF（\r\n）换行。
+    // 统一成 LF 后再分块，否则只查找 "\n\n" 会导致所有事件积压到流结束，
+    // 页面只显示“完成”却收不到任何节点结果。
+    buffer = buffer.replace(/\r\n/g, '\n')
 
     // 按空行分割事件块
     const parts = buffer.split('\n\n')

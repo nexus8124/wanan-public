@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from app.models.llm import get_llm
+from app.models.schemas import ReactDecision
 
 
 def test_mock_llm_returns_chat_model():
@@ -15,6 +16,20 @@ def test_mock_llm_returns_chat_model():
     result = llm.invoke("anything")
     assert hasattr(result, "content")
     assert isinstance(result.content, str)
+
+
+def test_mock_llm_supports_react_decision_schema():
+    """Mock ReAct 输出必须满足 ReactDecision，防止复现字段缺失漏洞。"""
+    llm = get_llm(mock=True)
+    structured_llm = llm.with_structured_output(ReactDecision)
+
+    result = structured_llm.invoke("健康检查告警")
+
+    assert isinstance(result, ReactDecision)
+    assert result.need_more_info is False
+    assert result.next_action is None
+    assert result.analysis
+    assert result.reasoning
 
 
 def test_unknown_provider_raises():
