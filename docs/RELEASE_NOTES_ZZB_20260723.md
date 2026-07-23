@@ -1,5 +1,29 @@
 # zzb 分支阶段版本优化说明（2026-07-23）
 
+数据集来源与下载
+
+### AIT Alert Data Set（AIT-ADS）
+
+- 官方发布页：<https://zenodo.org/records/8263181>
+- DOI：<https://doi.org/10.5281/zenodo.8263181>
+- 数据压缩包：<https://zenodo.org/records/8263181/files/ait_ads.zip?download=1>
+- 标签文件：<https://zenodo.org/records/8263181/files/labels.csv?download=1>
+- 官方代码：<https://github.com/ait-aecid/alert-data-set>
+- 许可证：Creative Commons Attribution 4.0 International（CC BY 4.0）
+- `ait_ads.zip` MD5：`43db6b1f0996e0024befd617706c50e9`
+- `labels.csv` MD5：`60ff33796c77fd2136c4d1a4bc841bd9`
+
+### Cyber Attack Manifestations Log Data Set（CAM-LDS）
+
+- 官方发布页（v2）：<https://zenodo.org/records/18861762>
+- DOI：<https://doi.org/10.5281/zenodo.18861762>
+- 本项目使用的过滤数据：
+  <https://zenodo.org/records/18861762/files/manifestations_filtered.zip?download=1>
+- 官方处理与 LLM 实验代码：
+  <https://github.com/ait-aecid/attack-manifestations-interpretation>
+- 论文：<https://arxiv.org/abs/2603.04186>
+- 许可证：Creative Commons Attribution 4.0 International（CC BY 4.0）
+- `manifestations_filtered.zip` MD5：`cfc14140b2e396a60989b8379eafca1f`
 ## 版本范围
 
 - 对比基线：`bc4bebe`（增加流式评测、历史持久化及第三方模型兼容）
