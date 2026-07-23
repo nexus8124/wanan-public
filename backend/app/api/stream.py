@@ -33,50 +33,54 @@ def _safe_json(obj: Any) -> str:
 async def _stream_graph(alert_dict: dict, use_mock: bool) -> AsyncGenerator[dict, None]:
     """把 LangGraph 同步 stream 包成 async generator（供 SSE）。"""
     import asyncio
+    import threading
 
     graph = build_graph(llm=get_llm(mock=use_mock))
     config = {"recursion_limit": 25}
 
     # 在线程池里跑同步 stream，避免阻塞事件循环
     queue: asyncio.Queue = asyncio.Queue()
+    stop_event = threading.Event()
+    loop = asyncio.get_running_loop()
+
+    def put(item: Any) -> None:
+        loop.call_soon_threadsafe(queue.put_nowait, item)
 
     def _producer():
         try:
             for event in graph.stream(
                 {"alert": alert_dict}, config=config, stream_mode="updates"
             ):
-                queue.put_nowait(event)
+                if stop_event.is_set():
+                    break
+                put(event)
         except Exception as e:
-            queue.put_nowait({"__error__": str(e)})
+            put({"__error__": str(e)})
         finally:
-            queue.put_nowait(None)  # 结束信号
+            put(None)  # 结束信号
 
-    loop = asyncio.get_event_loop()
     loop.run_in_executor(None, _producer)
 
     sent_count = 0
-    while True:
-        item = await queue.get()
-        if item is None:
-            break
-        if isinstance(item, dict) and "__error__" in item:
-            yield {"event": "error", "data": _safe_json({"message": item["__error__"]})}
-            break
-        # 每个 event 是 {node_name: state_update}
-        for node_name, update in item.items():
-            if not isinstance(update, dict):
-                continue
-            sent_count += 1
-            # 推一个 SSE 事件：event=node名, data=该节点产出的 state 更新
-            payload = {
-                "step": sent_count,
-                "node": node_name,
-                "update": update,
-            }
-            yield {"event": node_name, "data": _safe_json(payload)}
+    try:
+        while True:
+            item = await queue.get()
+            if item is None:
+                break
+            if isinstance(item, dict) and "__error__" in item:
+                yield {"event": "error", "data": _safe_json({"message": item["__error__"]})}
+                break
+            # 每个 event 是 {node_name: state_update}
+            for node_name, update in item.items():
+                if not isinstance(update, dict):
+                    continue
+                sent_count += 1
+                payload = {"step": sent_count, "node": node_name, "update": update}
+                yield {"event": node_name, "data": _safe_json(payload)}
 
-    # 完成信号
-    yield {"event": "done", "data": _safe_json({"total_steps": sent_count})}
+        yield {"event": "done", "data": _safe_json({"total_steps": sent_count})}
+    finally:
+        stop_event.set()
 
 
 @router.post("/judge/stream")

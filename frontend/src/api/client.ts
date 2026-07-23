@@ -49,6 +49,7 @@ export async function runEval(mock = true): Promise<any> {
 
 export interface EvalStreamCallbacks {
   onStart?: (data: any) => void
+  onAgentEvent?: (data: any) => void
   onProgress: (data: any) => void
   onComplete: (result: any) => void
   onError?: (err: string) => void
@@ -57,10 +58,14 @@ export interface EvalStreamCallbacks {
 /** 流式批量评测：后端每完成一条样本就推送一次 progress 事件。 */
 export async function streamRunEval(
   mock: boolean,
+  limit: number | null,
+  strategy: 'judge_only' | 'react',
   callbacks: EvalStreamCallbacks,
   signal?: AbortSignal,
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/eval/run/stream?mock=${mock}`, {
+  const params = new URLSearchParams({ mock: String(mock), strategy })
+  if (limit && limit > 0) params.set('limit', String(limit))
+  const res = await fetch(`${API_BASE}/eval/run/stream?${params.toString()}`, {
     method: 'POST',
     headers: { Accept: 'text/event-stream' },
     signal,
@@ -95,6 +100,7 @@ export async function streamRunEval(
       try {
         const data = JSON.parse(dataStr)
         if (eventName === 'start') callbacks.onStart?.(data)
+        else if (eventName === 'agent_event') callbacks.onAgentEvent?.(data)
         else if (eventName === 'progress') callbacks.onProgress(data)
         else if (eventName === 'complete') callbacks.onComplete(data)
         else if (eventName === 'error') callbacks.onError?.(data.message || '未知错误')
@@ -120,6 +126,53 @@ export async function getEvalHistory(runId: string): Promise<any> {
 export async function deleteEvalHistory(runId: string): Promise<void> {
   const res = await fetch(`${API_BASE}/eval/history/${runId}`, { method: 'DELETE' })
   if (!res.ok) throw new Error(`delete eval history failed: ${res.status} ${await res.text()}`)
+}
+
+export interface EvalDatasetInfo {
+  id: string
+  name: string
+  filename: string
+  count: number
+  labels: Record<string, number>
+  sources: Record<string, number>
+  label_storage: string
+  label_basis: string
+  label_warning?: string | null
+  source?: string | null
+  active: boolean
+}
+
+export async function listEvalDatasets(): Promise<{
+  datasets: EvalDatasetInfo[]
+  active_id: string
+  errors: { filename: string; error: string }[]
+}> {
+  const res = await fetch(`${API_BASE}/eval/datasets`)
+  if (!res.ok) throw new Error(`load datasets failed: ${res.status} ${await res.text()}`)
+  return res.json()
+}
+
+export async function selectEvalDataset(datasetId: string): Promise<EvalDatasetInfo> {
+  const res = await fetch(`${API_BASE}/eval/datasets/select`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dataset_id: datasetId }),
+  })
+  if (!res.ok) throw new Error(`select dataset failed: ${res.status} ${await res.text()}`)
+  const data = await res.json()
+  return data.dataset
+}
+
+export async function uploadEvalDataset(file: File): Promise<EvalDatasetInfo> {
+  const query = new URLSearchParams({ filename: file.name })
+  const res = await fetch(`${API_BASE}/eval/datasets/upload?${query}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: file,
+  })
+  if (!res.ok) throw new Error(`upload dataset failed: ${res.status} ${await res.text()}`)
+  const data = await res.json()
+  return data.dataset
 }
 
 // ---------- SSE 流式接口 ----------

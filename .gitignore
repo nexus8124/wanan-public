@@ -46,6 +46,8 @@ coverage.xml
 data/chroma_db/
 data/processed/
 data/raw/
+data/uploaded/
+data/active_eval_dataset.json
 # 评测结果（每次跑会产生，不纳入版本管理）
 **/eval_results.json
 # SQLite 评测历史（运行时持久化，含 WAL/SHM 辅助文件）

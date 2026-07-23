@@ -260,6 +260,9 @@ def get_llm(
             "api_key": s.deepseek_api_key,
             "base_url": s.deepseek_base_url.rstrip("/"),
             "temperature": temp,
+            # Node calls pass the remaining global budget dynamically; this is
+            # the client-level fallback for direct/non-graph invocations.
+            "timeout": s.react_global_timeout_s,
             "default_headers": {
                 "User-Agent": "Mozilla/5.0",
             },
@@ -283,6 +286,7 @@ def get_llm(
             api_key=s.qwen_api_key,
             base_url=defaults["base_url"],
             temperature=temp,
+            timeout=s.react_global_timeout_s,
         )
 
     if provider == "sangfor":

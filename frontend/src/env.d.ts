@@ -12,12 +12,19 @@ export interface AgentResult {
   judgment: '真阳' | '假阳' | '待查'
   confidence: number
   reason: string
+  initial_judgment?: '真阳' | '假阳' | '待查'
+  initial_confidence?: number
+  initial_reason?: string
   cot_trace: string[]
   features: Record<string, any>
   react_used: boolean
   react_steps: ReactStep[]
   tools_called: string[]
   disposition: Disposition | null
+  evidence?: Array<Record<string, any>>
+  cited_evidence?: string[]
+  evidence_grounded?: boolean
+  execution?: Record<string, any>
 }
 
 export interface ReactStep {

@@ -49,6 +49,28 @@ class Settings(BaseSettings):
     # ----- 应用 -----
     app_env: str = Field(default="dev", alias="APP_ENV")
     app_port: int = Field(default=8000, alias="APP_PORT")
+    eval_dataset_path: str = Field(default="", alias="EVAL_DATASET_PATH")
+
+    # ----- ReAct 执行护栏（第二阶段） -----
+    react_max_steps: int = Field(default=3, ge=1, le=10, alias="REACT_MAX_STEPS")
+    react_tool_timeout_s: float = Field(
+        default=10.0, gt=0, le=120, alias="REACT_TOOL_TIMEOUT_S"
+    )
+    react_global_timeout_s: float = Field(
+        default=120.0, gt=0, le=900, alias="REACT_GLOBAL_TIMEOUT_S"
+    )
+    react_tool_retries: int = Field(
+        default=1, ge=0, le=3, alias="REACT_TOOL_RETRIES"
+    )
+    react_max_llm_calls: int = Field(
+        default=5, ge=1, le=20, alias="REACT_MAX_LLM_CALLS"
+    )
+    react_max_estimated_tokens: int = Field(
+        default=30_000, ge=1000, alias="REACT_MAX_ESTIMATED_TOKENS"
+    )
+    react_max_no_evidence: int = Field(
+        default=2, ge=1, le=10, alias="REACT_MAX_NO_EVIDENCE"
+    )
 
     @property
     def data_dir(self) -> Path:

@@ -38,6 +38,7 @@ def init_db() -> None:
             CREATE TABLE IF NOT EXISTS eval_runs (
                 id TEXT PRIMARY KEY,
                 mode TEXT NOT NULL,
+                strategy TEXT NOT NULL DEFAULT 'react',
                 dataset TEXT NOT NULL,
                 status TEXT NOT NULL,
                 total INTEGER NOT NULL,
@@ -45,6 +46,9 @@ def init_db() -> None:
                 started_at TEXT NOT NULL,
                 finished_at TEXT,
                 metrics_json TEXT,
+                initial_metrics_json TEXT,
+                paired_react_json TEXT,
+                experiment_config_json TEXT,
                 error TEXT
             );
 
@@ -58,12 +62,38 @@ def init_db() -> None:
                 FOREIGN KEY (run_id) REFERENCES eval_runs(id) ON DELETE CASCADE
             );
 
+            CREATE TABLE IF NOT EXISTS eval_events (
+                run_id TEXT NOT NULL,
+                seq INTEGER NOT NULL,
+                event_type TEXT NOT NULL,
+                alert_id TEXT,
+                payload_json TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                PRIMARY KEY (run_id, seq),
+                FOREIGN KEY (run_id) REFERENCES eval_runs(id) ON DELETE CASCADE
+            );
+
             CREATE INDEX IF NOT EXISTS idx_eval_runs_started
                 ON eval_runs(started_at DESC);
             CREATE INDEX IF NOT EXISTS idx_eval_samples_run
                 ON eval_samples(run_id, seq);
+            CREATE INDEX IF NOT EXISTS idx_eval_events_run
+                ON eval_events(run_id, seq);
             """
         )
+        columns = {
+            row["name"] for row in conn.execute("PRAGMA table_info(eval_runs)").fetchall()
+        }
+        if "strategy" not in columns:
+            conn.execute(
+                "ALTER TABLE eval_runs ADD COLUMN strategy TEXT NOT NULL DEFAULT 'react'"
+            )
+        if "experiment_config_json" not in columns:
+            conn.execute("ALTER TABLE eval_runs ADD COLUMN experiment_config_json TEXT")
+        if "initial_metrics_json" not in columns:
+            conn.execute("ALTER TABLE eval_runs ADD COLUMN initial_metrics_json TEXT")
+        if "paired_react_json" not in columns:
+            conn.execute("ALTER TABLE eval_runs ADD COLUMN paired_react_json TEXT")
 
 
 def mark_stale_runs_interrupted() -> None:
@@ -81,17 +111,19 @@ def mark_stale_runs_interrupted() -> None:
         )
 
 
-def create_run(*, mode: str, dataset: str, total: int) -> str:
+def create_run(
+    *, mode: str, dataset: str, total: int, strategy: str = "react"
+) -> str:
     init_db()
     run_id = uuid.uuid4().hex
     with _connect() as conn:
         conn.execute(
             """
             INSERT INTO eval_runs
-                (id, mode, dataset, status, total, completed, started_at)
-            VALUES (?, ?, ?, 'running', ?, 0, ?)
+                (id, mode, strategy, dataset, status, total, completed, started_at)
+            VALUES (?, ?, ?, ?, 'running', ?, 0, ?)
             """,
-            (run_id, mode, dataset, total, _now()),
+            (run_id, mode, strategy, dataset, total, _now()),
         )
     return run_id
 
@@ -118,15 +150,47 @@ def save_progress(run_id: str, progress: dict[str, Any]) -> None:
         conn.execute(
             """
             UPDATE eval_runs
-            SET completed = ?, metrics_json = ?
+            SET completed = ?, metrics_json = ?,
+                initial_metrics_json = ?, paired_react_json = ?,
+                experiment_config_json = COALESCE(?, experiment_config_json)
             WHERE id = ?
             """,
             (
                 completed,
                 json.dumps(progress.get("metrics", {}), ensure_ascii=False),
+                json.dumps(progress.get("initial_metrics", {}), ensure_ascii=False),
+                json.dumps(progress.get("paired_react", {}), ensure_ascii=False),
+                json.dumps(progress.get("experiment_config"), ensure_ascii=False)
+                if progress.get("experiment_config") is not None else None,
                 run_id,
             ),
         )
+
+
+def save_event(run_id: str, event: dict[str, Any]) -> int:
+    """Append one internal Agent event immediately; survives interrupted runs."""
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT COALESCE(MAX(seq), 0) + 1 AS next_seq FROM eval_events WHERE run_id = ?",
+            (run_id,),
+        ).fetchone()
+        seq = int(row["next_seq"])
+        conn.execute(
+            """
+            INSERT INTO eval_events
+                (run_id, seq, event_type, alert_id, payload_json, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                run_id,
+                seq,
+                str(event.get("type", "agent_updated")),
+                str(event.get("alert_id", "")) or None,
+                json.dumps(event, ensure_ascii=False, default=str),
+                _now(),
+            ),
+        )
+    return seq
 
 
 def finish_run(
@@ -134,6 +198,9 @@ def finish_run(
     *,
     status: str,
     metrics: dict[str, Any] | None = None,
+    initial_metrics: dict[str, Any] | None = None,
+    paired_react: dict[str, Any] | None = None,
+    experiment_config: dict[str, Any] | None = None,
     error: str | None = None,
 ) -> None:
     with _connect() as conn:
@@ -141,13 +208,23 @@ def finish_run(
             """
             UPDATE eval_runs
             SET status = ?, finished_at = ?,
-                metrics_json = COALESCE(?, metrics_json), error = ?
+                metrics_json = COALESCE(?, metrics_json),
+                initial_metrics_json = COALESCE(?, initial_metrics_json),
+                paired_react_json = COALESCE(?, paired_react_json),
+                experiment_config_json = COALESCE(?, experiment_config_json),
+                error = ?
             WHERE id = ?
             """,
             (
                 status,
                 _now(),
                 json.dumps(metrics, ensure_ascii=False) if metrics is not None else None,
+                json.dumps(initial_metrics, ensure_ascii=False)
+                if initial_metrics is not None else None,
+                json.dumps(paired_react, ensure_ascii=False)
+                if paired_react is not None else None,
+                json.dumps(experiment_config, ensure_ascii=False)
+                if experiment_config is not None else None,
                 error,
                 run_id,
             ),
@@ -157,6 +234,15 @@ def finish_run(
 def _decode_run(row: sqlite3.Row) -> dict[str, Any]:
     data = dict(row)
     data["metrics"] = json.loads(data.pop("metrics_json") or "null")
+    data["initial_metrics"] = json.loads(
+        data.pop("initial_metrics_json", None) or "null"
+    )
+    data["paired_react"] = json.loads(
+        data.pop("paired_react_json", None) or "null"
+    )
+    data["experiment_config"] = json.loads(
+        data.pop("experiment_config_json", None) or "null"
+    )
     return data
 
 
@@ -186,9 +272,20 @@ def get_run(run_id: str) -> dict[str, Any] | None:
             """,
             (run_id,),
         ).fetchall()
+        event_rows = conn.execute(
+            """
+            SELECT seq, payload_json FROM eval_events
+            WHERE run_id = ? ORDER BY seq ASC
+            """,
+            (run_id,),
+        ).fetchall()
 
     result = _decode_run(row)
     result["details"] = [json.loads(item["detail_json"]) for item in sample_rows]
+    result["events"] = [
+        {**json.loads(item["payload_json"]), "event_seq": item["seq"]}
+        for item in event_rows
+    ]
     return result
 
 

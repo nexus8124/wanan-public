@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { streamRunEval, listEvalHistory, getEvalHistory, deleteEvalHistory } from '../api/client'
+import {
+  streamRunEval,
+  listEvalHistory,
+  getEvalHistory,
+  deleteEvalHistory,
+  listEvalDatasets,
+  selectEvalDataset,
+  uploadEvalDataset,
+  type EvalDatasetInfo,
+} from '../api/client'
 import StatCard from '../components/StatCard.vue'
 import JudgmentBadge from '../components/JudgmentBadge.vue'
 import ConfidenceGauge from '../components/ConfidenceGauge.vue'
@@ -18,9 +27,30 @@ const historyRuns = ref<any[]>([])
 const historyLoading = ref(false)
 const activeRunId = ref('')
 const viewingRunId = ref('')
+const datasets = ref<EvalDatasetInfo[]>([])
+const selectedDatasetId = ref('')
+const datasetBusy = ref(false)
+const uploadInput = ref<HTMLInputElement | null>(null)
+const evalLimit = ref(20)
+const evalStrategy = ref<'judge_only' | 'react'>('judge_only')
+const liveAgentEvents = ref<any[]>([])
+
+const eventLabels: Record<string, string> = {
+  sample_started: '开始处理样本',
+  preprocess_completed: '预处理完成',
+  judge_completed: '初步研判完成',
+  decision_updated: 'ReAct 决策更新',
+  tool_started: '开始调用工具',
+  tool_completed: '工具返回证据',
+  disposition_completed: '处置建议生成',
+  sample_completed: '样本流程完成',
+}
 
 const metrics = computed(() => result.value?.metrics || null)
 const details = computed(() => result.value?.details || [])
+const activeDataset = computed(() =>
+  datasets.value.find((item) => item.id === selectedDatasetId.value) || null,
+)
 
 async function loadHistory() {
   historyLoading.value = true
@@ -34,10 +64,92 @@ async function loadHistory() {
   }
 }
 
-onMounted(loadHistory)
+async function loadDatasets() {
+  datasetBusy.value = true
+  try {
+    const data = await listEvalDatasets()
+    datasets.value = data.datasets
+    selectedDatasetId.value = data.active_id
+    const selected = datasets.value.find((item) => item.id === data.active_id)
+    progress.value.total = selected?.count || progress.value.total
+    if (data.errors?.length) {
+      console.warn('部分数据集校验失败:', data.errors)
+    }
+  } catch (e: any) {
+    errorMsg.value = e.message
+  } finally {
+    datasetBusy.value = false
+  }
+}
+
+onMounted(() => {
+  loadHistory()
+  loadDatasets()
+})
+
+async function changeDataset(event: Event) {
+  const datasetId = (event.target as HTMLSelectElement).value
+  if (!datasetId || datasetId === selectedDatasetId.value) return
+  datasetBusy.value = true
+  errorMsg.value = ''
+  try {
+    const selected = await selectEvalDataset(datasetId)
+    selectedDatasetId.value = selected.id
+    datasets.value = datasets.value.map((item) => ({
+      ...item,
+      active: item.id === selected.id,
+    }))
+    result.value = null
+    selectedDetail.value = null
+    viewingRunId.value = ''
+    progress.value = { completed: 0, total: selected.count }
+  } catch (e: any) {
+    errorMsg.value = e.message
+    await loadDatasets()
+  } finally {
+    datasetBusy.value = false
+  }
+}
+
+function openUploadDialog() {
+  uploadInput.value?.click()
+}
+
+async function handleDatasetUpload(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  input.value = ''
+  if (!file.name.toLowerCase().endsWith('.json')) {
+    errorMsg.value = '只支持标准评测 JSON 文件；AIT 原始 JSONL 请先运行后端适配器。'
+    return
+  }
+  if (file.size > 25 * 1024 * 1024) {
+    errorMsg.value = '上传文件不能超过 25 MiB。'
+    return
+  }
+  datasetBusy.value = true
+  errorMsg.value = ''
+  try {
+    const uploaded = await uploadEvalDataset(file)
+    await loadDatasets()
+    selectedDatasetId.value = uploaded.id
+    progress.value = { completed: 0, total: uploaded.count }
+    result.value = null
+    viewingRunId.value = ''
+  } catch (e: any) {
+    errorMsg.value = e.message
+  } finally {
+    datasetBusy.value = false
+  }
+}
 
 async function startEval(useMock: boolean) {
-  if (!useMock && !confirm('真实评测会消耗约 5-10 万 token（DeepSeek V4），确认继续？')) {
+  const datasetCount = activeDataset.value?.count || progress.value.total
+  const requestedLimit = evalLimit.value > 0 ? Math.min(evalLimit.value, datasetCount) : null
+  const sampleCount = requestedLimit || datasetCount
+  const strategyText = evalStrategy.value === 'judge_only' ? '单次 Judge 基线' : '完整 ReAct'
+  if (!useMock && !confirm(`将以“${strategyText}”对 ${sampleCount} 条均衡样本调用真实模型并消耗 Token，确认继续？`)) {
     return
   }
   loading.value = true
@@ -46,16 +158,22 @@ async function startEval(useMock: boolean) {
   selectedDetail.value = null
   viewingRunId.value = ''
   activeRunId.value = ''
-  progress.value = { completed: 0, total: 50 }
+  liveAgentEvents.value = []
+  progress.value = { completed: 0, total: sampleCount }
   abortCtrl.value = new AbortController()
   try {
     await streamRunEval(
       useMock,
+      requestedLimit,
+      evalStrategy.value,
       {
         onStart: (data) => {
           activeRunId.value = data.run_id
           progress.value.total = data.total || progress.value.total
           loadHistory()
+        },
+        onAgentEvent: (data) => {
+          liveAgentEvents.value = [...liveAgentEvents.value.slice(-99), data]
         },
         onProgress: (data) => {
           progress.value = {
@@ -65,7 +183,11 @@ async function startEval(useMock: boolean) {
           const currentDetails = result.value?.details || []
           result.value = {
             mode: useMock ? 'mock' : 'deepseek',
+            strategy: evalStrategy.value,
+            experiment_config: data.experiment_config,
             metrics: data.metrics,
+            initial_metrics: data.initial_metrics,
+            paired_react: data.paired_react,
             details: [...currentDetails, data.detail],
           }
           const history = historyRuns.value.find((item) => item.id === data.run_id)
@@ -109,13 +231,18 @@ async function viewHistory(run: any) {
     const saved = await getEvalHistory(run.id)
     result.value = {
       mode: saved.mode,
+      strategy: saved.strategy,
+      experiment_config: saved.experiment_config,
       dataset: saved.dataset,
       metrics: saved.metrics,
+      initial_metrics: saved.initial_metrics,
+      paired_react: saved.paired_react,
       details: saved.details,
     }
     progress.value = { completed: saved.completed, total: saved.total }
     viewingRunId.value = saved.id
     selectedDetail.value = null
+    liveAgentEvents.value = saved.events || []
   } catch (e: any) {
     errorMsg.value = e.message
   }
@@ -173,13 +300,13 @@ const progressPercent = computed(() => {
             <span>📊</span> 批量评测
           </h3>
           <p class="text-xs text-text-dim">
-            在 50 条标注样本上跑完整 Agent，输出准确率/精确率/召回率/F1
+            在 {{ activeDataset?.count || progress.total }} 条标注样本上运行完整 Agent，输出准确率/精确率/召回率/F1
           </p>
         </div>
         <div class="flex gap-2">
           <button
             @click="startEval(true)"
-            :disabled="loading"
+            :disabled="loading || datasetBusy || !activeDataset"
             class="px-4 py-2 rounded-lg text-sm font-bold transition-all"
             :class="loading
               ? 'bg-bg-2 text-text-mute'
@@ -189,7 +316,7 @@ const progressPercent = computed(() => {
           </button>
           <button
             @click="startEval(false)"
-            :disabled="loading"
+            :disabled="loading || datasetBusy || !activeDataset"
             class="px-4 py-2 rounded-lg text-sm font-bold transition-all"
             :class="loading
               ? 'bg-bg-2 text-text-mute'
@@ -204,6 +331,79 @@ const progressPercent = computed(() => {
           >
             ⏹ 停止评测
           </button>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-4 border-t border-border flex flex-wrap items-end gap-3">
+        <label class="min-w-[280px] flex-1 max-w-xl">
+          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">评测数据集</span>
+          <select
+            :value="selectedDatasetId"
+            @change="changeDataset"
+            :disabled="loading || datasetBusy"
+            class="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+          >
+            <option v-for="item in datasets" :key="item.id" :value="item.id">
+              {{ item.name }}（{{ item.count }} 条）
+            </option>
+          </select>
+        </label>
+
+        <button
+          @click="openUploadDialog"
+          :disabled="loading || datasetBusy"
+          class="px-4 py-2.5 rounded-lg border border-border text-xs text-text-dim hover:border-cyan hover:text-cyan disabled:opacity-50"
+        >
+          {{ datasetBusy ? '处理中...' : '上传评测 JSON' }}
+        </button>
+        <input
+          ref="uploadInput"
+          type="file"
+          accept=".json,application/json"
+          class="hidden"
+          @change="handleDatasetUpload"
+        />
+
+        <label class="min-w-[150px]">
+          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">本次样本预算</span>
+          <select
+            v-model.number="evalLimit"
+            :disabled="loading || datasetBusy"
+            class="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+          >
+            <option :value="10">10 条（快速验证）</option>
+            <option :value="20">20 条（推荐）</option>
+            <option :value="50">50 条</option>
+            <option :value="100">100 条</option>
+            <option :value="0">全部样本</option>
+          </select>
+        </label>
+
+        <label class="min-w-[210px]">
+          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">评测策略</span>
+          <select
+            v-model="evalStrategy"
+            :disabled="loading || datasetBusy"
+            class="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+          >
+            <option value="judge_only">Judge-only（无工具基线）</option>
+            <option value="react">完整 ReAct（多轮调用）</option>
+          </select>
+        </label>
+
+        <div v-if="activeDataset" class="w-full flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-text-mute">
+          <span>真阳 {{ activeDataset.labels?.['真阳'] || 0 }}</span>
+          <span>假阳 {{ activeDataset.labels?.['假阳'] || 0 }}</span>
+          <span>标签：{{ activeDataset.label_basis }}</span>
+          <span v-if="activeDataset.label_basis === 'time_window_weak'" class="text-yellow">
+            攻击时间窗弱标签
+          </span>
+          <span v-if="activeDataset.label_warning" class="truncate max-w-2xl" :title="activeDataset.label_warning">
+            {{ activeDataset.label_warning }}
+          </span>
+        </div>
+        <div class="w-full text-[10px] text-text-mute">
+          Judge-only 每条只调用一次模型且禁用 ReAct/RAG，适合作为无工具基线；子集按真实标签均衡抽样，标签不会传给 Agent。
         </div>
       </div>
     </div>
@@ -235,7 +435,13 @@ const progressPercent = computed(() => {
             <span class="text-xs" :class="run.mode === 'mock' ? 'text-purple' : 'text-pink'">
               {{ run.mode === 'mock' ? 'Mock' : '真实模型' }}
             </span>
+            <span class="chip text-[10px] text-text-dim">
+              {{ run.strategy === 'judge_only' ? 'Judge-only' : 'ReAct' }}
+            </span>
             <span class="text-[10px] text-text-mute">{{ formatTime(run.started_at) }}</span>
+            <span v-if="run.experiment_config?.model" class="text-[10px] text-text-mute font-mono">
+              {{ run.experiment_config.model }} · {{ run.experiment_config.prompt_version }}
+            </span>
             <span class="ml-auto text-xs font-mono text-text-dim">{{ run.completed }} / {{ run.total }}</span>
           </div>
 
@@ -250,6 +456,9 @@ const progressPercent = computed(() => {
             <template v-if="run.metrics">
               <span class="text-[10px] text-text-mute">准确率 <b class="text-green">{{ (run.metrics.accuracy * 100).toFixed(1) }}%</b></span>
               <span class="text-[10px] text-text-mute">F1 <b class="text-cyan">{{ (run.metrics.f1 * 100).toFixed(1) }}</b></span>
+              <span class="text-[10px] text-text-mute">Macro-F1 <b class="text-purple">{{ ((run.metrics.macro_f1 ?? run.metrics.f1) * 100).toFixed(1) }}</b></span>
+              <span class="text-[10px] text-text-mute">调用 <b class="text-text-dim">{{ run.metrics.llm_calls ?? '-' }}</b></span>
+              <span class="text-[10px] text-text-mute">Token <b class="text-text-dim">{{ run.metrics.total_tokens ?? '-' }}</b></span>
               <span class="text-[10px] text-text-mute">平均延迟 <b class="text-text-dim">{{ run.metrics.avg_latency_s.toFixed(2) }}s</b></span>
             </template>
             <span v-if="run.error" class="text-[10px] text-yellow truncate max-w-md" :title="run.error">{{ run.error }}</span>
@@ -294,16 +503,64 @@ const progressPercent = computed(() => {
         {{ details[details.length - 1].pred }} ·
         {{ (details[details.length - 1].confidence * 100).toFixed(0) }}%
       </div>
+      <div
+        v-if="liveAgentEvents.length"
+        class="max-w-3xl mx-auto mt-5 text-left border border-border rounded-lg bg-bg-1/70 overflow-hidden"
+      >
+        <div class="px-4 py-2 border-b border-border text-xs text-text-dim flex justify-between">
+          <span>实时 Agent 轨迹</span>
+          <span class="font-mono">{{ liveAgentEvents.length }} events</span>
+        </div>
+        <div class="max-h-52 overflow-y-auto divide-y divide-border/60">
+          <div
+            v-for="event in liveAgentEvents.slice(-8)"
+            :key="`${event.event_seq}-${event.type}`"
+            class="px-4 py-2 text-xs flex gap-3"
+          >
+            <span class="font-mono text-cyan shrink-0">{{ event.sample_index || '-' }}/{{ event.sample_total || progress.total }}</span>
+            <span class="text-text w-32 shrink-0">{{ eventLabels[event.type] || event.type }}</span>
+            <span class="text-text-mute truncate">
+              {{ event.alert_id }}
+              <template v-if="event.tool"> · {{ event.tool }}</template>
+              <template v-else-if="event.data?.next_action?.tool"> · {{ event.data.next_action.tool }}</template>
+              <template v-else-if="event.data?.judgment"> · {{ event.data.judgment }} {{ Math.round((event.data.confidence || 0) * 100) }}%</template>
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 结果 -->
     <template v-if="metrics">
+      <div class="card px-4 py-3 flex flex-wrap items-center gap-4 text-xs text-text-dim">
+        <span>策略：<b class="text-cyan">{{ result?.strategy === 'judge_only' ? 'Judge-only 无工具基线' : '完整 ReAct' }}</b></span>
+        <span>模型：<b class="font-mono text-text">{{ result?.experiment_config?.model || '-' }}</b></span>
+        <span>Prompt：<b class="font-mono text-text">{{ result?.experiment_config?.prompt_version || '-' }}</b></span>
+        <span>RAG：<b class="text-text">{{ result?.experiment_config?.rag_enabled ? '开启' : '关闭' }}</b></span>
+      </div>
+      <div
+        v-if="result?.strategy === 'react' && result?.paired_react"
+        class="card px-5 py-4 grid grid-cols-2 md:grid-cols-6 gap-4 text-xs"
+      >
+        <div><div class="text-text-mute">同轮初判</div><div class="text-lg font-bold text-text">{{ (result.paired_react.initial_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">ReAct 最终</div><div class="text-lg font-bold text-cyan">{{ (result.paired_react.final_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">净变化</div><div class="text-lg font-bold" :class="result.paired_react.accuracy_delta >= 0 ? 'text-green' : 'text-red'">{{ result.paired_react.accuracy_delta >= 0 ? '+' : '' }}{{ (result.paired_react.accuracy_delta * 100).toFixed(1) }} pp</div></div>
+        <div><div class="text-text-mute">修正</div><div class="text-lg font-bold text-green">{{ result.paired_react.fixes }}</div></div>
+        <div><div class="text-text-mute">退化</div><div class="text-lg font-bold text-red">{{ result.paired_react.regressions }}</div></div>
+        <div><div class="text-text-mute">改变但仍错</div><div class="text-lg font-bold text-yellow">{{ result.paired_react.changed_wrong }}</div></div>
+      </div>
       <!-- 指标卡 -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard label="样本数" :value="metrics.n" color="cyan" />
         <StatCard label="准确率 (Accuracy)" :value="(metrics.accuracy * 100).toFixed(1) + '%'" color="green" />
         <StatCard label="精确率 (Precision)" :value="(metrics.precision * 100).toFixed(1) + '%'" color="purple" />
         <StatCard label="召回率 (Recall)" :value="(metrics.recall * 100).toFixed(1) + '%'" color="pink" />
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard label="Macro-F1" :value="((metrics.macro_f1 ?? metrics.f1) * 100).toFixed(1)" color="purple" />
+        <StatCard label="覆盖率" :value="(metrics.coverage * 100).toFixed(1) + '%'" color="cyan" />
+        <StatCard label="LLM 调用" :value="metrics.llm_calls ?? 0" color="pink" />
+        <StatCard label="Token" :value="metrics.total_tokens ?? 0" color="green" />
       </div>
 
       <!-- F1 + 混淆矩阵 -->
@@ -321,16 +578,25 @@ const progressPercent = computed(() => {
               <span class="text-text-dim">待查数</span>
               <span class="font-mono text-yellow">{{ metrics.unknown_count }}</span>
             </div>
+            <div class="flex justify-between">
+              <span class="text-text-dim">平均调用/样本</span>
+              <span class="font-mono text-text-dim">{{ (metrics.avg_llm_calls_per_sample ?? 0).toFixed(2) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-text-dim">平均 Token/样本</span>
+              <span class="font-mono text-text-dim">{{ (metrics.avg_tokens_per_sample ?? 0).toFixed(0) }}</span>
+            </div>
           </div>
         </div>
 
         <!-- 混淆矩阵 -->
         <div class="card p-6 lg:col-span-2">
           <h3 class="font-bold text-sm mb-4">混淆矩阵</h3>
-          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+          <div class="grid grid-cols-4 gap-2 text-center text-xs">
             <div></div>
             <div class="text-text-dim pb-2">预测：真阳</div>
             <div class="text-text-dim pb-2">预测：假阳</div>
+            <div class="text-text-dim pb-2">预测：待查</div>
 
             <div class="text-text-dim pr-2 flex items-center">真实：真阳</div>
             <div class="p-4 rounded-lg bg-green/10 border border-green/30">
@@ -338,8 +604,12 @@ const progressPercent = computed(() => {
               <div class="text-[10px] text-text-mute mt-1">TP（正确识别攻击）</div>
             </div>
             <div class="p-4 rounded-lg bg-red/10 border border-red/30">
-              <div class="text-2xl font-black text-red">{{ metrics.confusion_matrix.fn }}</div>
-              <div class="text-[10px] text-text-mute mt-1">FN（漏报攻击）</div>
+              <div class="text-2xl font-black text-red">{{ metrics.confusion_matrix.explicit_fn ?? metrics.confusion_matrix.fn }}</div>
+              <div class="text-[10px] text-text-mute mt-1">真阳误判为假阳</div>
+            </div>
+            <div class="p-4 rounded-lg bg-yellow/10 border border-yellow/30">
+              <div class="text-2xl font-black text-yellow">{{ metrics.confusion_matrix.abstain_positive ?? 0 }}</div>
+              <div class="text-[10px] text-text-mute mt-1">真阳待查</div>
             </div>
 
             <div class="text-text-dim pr-2 flex items-center">真实：假阳</div>
@@ -350,6 +620,10 @@ const progressPercent = computed(() => {
             <div class="p-4 rounded-lg bg-cyan/10 border border-cyan/30">
               <div class="text-2xl font-black text-cyan">{{ metrics.confusion_matrix.tn }}</div>
               <div class="text-[10px] text-text-mute mt-1">TN（正确识别误报）</div>
+            </div>
+            <div class="p-4 rounded-lg bg-yellow/10 border border-yellow/30">
+              <div class="text-2xl font-black text-yellow">{{ metrics.confusion_matrix.abstain_negative ?? 0 }}</div>
+              <div class="text-[10px] text-text-mute mt-1">假阳待查</div>
             </div>
           </div>
         </div>
@@ -372,6 +646,7 @@ const progressPercent = computed(() => {
                 <th class="px-4 py-3 text-left font-medium">预测</th>
                 <th class="px-4 py-3 text-left font-medium">置信度</th>
                 <th class="px-4 py-3 text-left font-medium">延迟</th>
+                <th class="px-4 py-3 text-left font-medium">调用/Token</th>
                 <th class="px-4 py-3 text-left font-medium">结果</th>
                 <th class="px-4 py-3 text-left font-medium">理由</th>
               </tr>
@@ -394,6 +669,9 @@ const progressPercent = computed(() => {
                 </td>
                 <td class="px-4 py-2.5 font-mono text-text-dim">{{ (d.confidence * 100).toFixed(0) }}%</td>
                 <td class="px-4 py-2.5 font-mono text-text-mute">{{ d.latency_s.toFixed(2) }}s</td>
+                <td class="px-4 py-2.5 font-mono text-text-mute">
+                  {{ d.llm_calls ?? '-' }} / {{ d.token_usage?.total_tokens ?? '-' }}
+                </td>
                 <td class="px-4 py-2.5">
                   <span :class="d.correct ? 'text-green' : 'text-red'" class="font-bold">
                     {{ d.correct ? '✓' : '✗' }}

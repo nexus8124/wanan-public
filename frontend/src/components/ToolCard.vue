@@ -22,8 +22,13 @@ function icon(tool: string): string {
   return toolIcons[tool] || '🔧'
 }
 
+function rawData(result: Record<string, any>): Record<string, any> {
+  return result.evidence?.[0]?.data || result
+}
+
 // 从 result 提取关键证据
 function keyEvidence(result: Record<string, any>): string[] {
+  result = rawData(result)
   const out: string[] = []
   if (result.suspicious_processes?.length) {
     for (const p of result.suspicious_processes) {
@@ -93,9 +98,15 @@ function keyEvidence(result: Record<string, any>): string[] {
     </div>
 
     <!-- 结论 verdict -->
-    <div v-if="step.result.verdict" class="mt-2 text-xs px-2 py-1.5 rounded bg-bg border-l-2 border-cyan">
+    <div class="mt-2 flex flex-wrap gap-2 text-[10px] font-mono">
+      <span class="chip border-border-light text-text-dim">{{ step.result.status || 'legacy' }}</span>
+      <span v-if="step.result.latency_ms !== undefined" class="chip border-border-light text-text-mute">{{ step.result.latency_ms }}ms</span>
+      <span v-for="ev in step.result.evidence || []" :key="ev.evidence_id" class="chip border-cyan/40 text-cyan">{{ ev.evidence_id }}</span>
+    </div>
+
+    <div v-if="step.result.summary || rawData(step.result).verdict" class="mt-2 text-xs px-2 py-1.5 rounded bg-bg border-l-2 border-cyan">
       <span class="text-text-dim">判定：</span>
-      <span class="text-text">{{ step.result.verdict }}</span>
+      <span class="text-text">{{ step.result.summary || rawData(step.result).verdict }}</span>
     </div>
   </div>
 </template>

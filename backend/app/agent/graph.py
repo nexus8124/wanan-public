@@ -16,6 +16,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.graph import END, START, StateGraph
 
@@ -33,7 +35,7 @@ from app.models.llm import get_llm
 # 触发 ReAct 的置信度阈值（低于此值进入循环）
 REACT_CONFIDENCE_THRESHOLD = 0.85
 # 最大 ReAct 步数（硬上限，防止无限循环）
-REACT_MAX_STEPS = 5
+REACT_MAX_STEPS = 3
 
 
 def _judge_router(state: AgentState) -> str:
@@ -42,6 +44,11 @@ def _judge_router(state: AgentState) -> str:
     Returns: "disposition" 或 "react_decide"
     """
     confidence = state.get("confidence", 0.0)
+    payload = (state.get("alert") or {}).get("raw_payload") or {}
+    # Multi-source benchmark cases must execute at least one evidence query;
+    # otherwise a high-confidence initial Judge would bypass the ReAct experiment.
+    if payload.get("_evidence_ref") and payload.get("_evidence_store"):
+        return "react_decide"
     # 真阳/假阳且高置信 → 直接处置；待查或低置信 → ReAct
     if confidence >= REACT_CONFIDENCE_THRESHOLD and state.get("judgment") in {"真阳", "假阳"}:
         return "disposition"
@@ -57,20 +64,56 @@ def _react_router(state: AgentState) -> str:
     """
     react_steps = state.get("react_steps", [])
     # 硬上限：步数用尽
-    if len(react_steps) >= REACT_MAX_STEPS:
+    max_steps = int(state.get("execution_policy", {}).get(
+        "max_steps", REACT_MAX_STEPS
+    ))
+    if len(react_steps) >= max_steps:
         return "disposition"
     # LLM 说不需要更多信息了
     next_action = state.get("next_action")
     if not next_action:
         return "disposition"
+    # 不重复执行完全相同的查询。重复调用不会产生新证据，只会额外消耗一次
+    # 工具后的 LLM 决策；此时保留 react_decide 已给出的最新判定并结束。
+    if any(
+        step.get("tool") == next_action.get("tool")
+        and step.get("args", {}) == next_action.get("args", {})
+        for step in react_steps
+    ):
+        return "disposition"
     # 置信度够高了，不必再调
-    if state.get("confidence", 0.0) >= REACT_CONFIDENCE_THRESHOLD:
+    payload = (state.get("alert") or {}).get("raw_payload") or {}
+    capabilities = set(payload.get("evidence_capabilities") or [])
+    called_tools = {str(step.get("tool")) for step in react_steps}
+    query_targets = payload.get("query_targets") or {}
+    required_tools: set[str] = set()
+    if "endpoint_logs" in capabilities and query_targets.get("endpoint"):
+        required_tools.add("fetch_endpoint_logs")
+    if "network_alerts" in capabilities and query_targets.get("network_ips"):
+        required_tools.add("fetch_network_flows")
+    pending_real_sources = required_tools - called_tools
+    must_query_external = bool(
+        payload.get("_evidence_ref")
+        and payload.get("_evidence_store")
+        and (
+            not react_steps
+            or pending_real_sources
+        )
+    )
+    if (
+        state.get("confidence", 0.0) >= REACT_CONFIDENCE_THRESHOLD
+        and not must_query_external
+    ):
         return "disposition"
     # 继续调工具
     return "tool_executor"
 
 
-def build_graph(llm: BaseChatModel | None = None):
+def build_graph(
+    llm: BaseChatModel | None = None,
+    *,
+    enable_react: bool = True,
+):
     """构建并编译带 ReAct 循环的 Agent 图。
 
     参数：
@@ -94,11 +137,15 @@ def build_graph(llm: BaseChatModel | None = None):
     graph.add_edge("preprocess", "judge")
 
     # judge 后分叉
-    graph.add_conditional_edges(
-        "judge",
-        _judge_router,
-        {"disposition": "disposition", "react_decide": "react_decide"},
-    )
+    if enable_react:
+        graph.add_conditional_edges(
+            "judge",
+            _judge_router,
+            {"disposition": "disposition", "react_decide": "react_decide"},
+        )
+    else:
+        # 可复现的无工具基线：每条样本只经过一次 judge 模型调用。
+        graph.add_edge("judge", "disposition")
 
     # react_decide 后分叉（自循环 or 跳出）
     graph.add_conditional_edges(
@@ -117,14 +164,57 @@ def build_graph(llm: BaseChatModel | None = None):
     return graph.compile()
 
 
-def judge_alert(alert: dict, llm: BaseChatModel | None = None) -> dict:
+def judge_alert(
+    alert: dict,
+    llm: BaseChatModel | None = None,
+    *,
+    enable_react: bool = True,
+    callbacks: list[Any] | None = None,
+    event_callback: Any | None = None,
+) -> dict:
     """便捷函数：传入一条告警 dict，返回最终研判结果。
 
     给 API / 评测脚本用。
     """
-    graph = build_graph(llm=llm)
-    final_state = graph.invoke({"alert": alert})
-    return final_state["result"]  # type: ignore[no-any-return]
+    graph = build_graph(llm=llm, enable_react=enable_react)
+    config = {"callbacks": callbacks} if callbacks else None
+    if event_callback is None:
+        final_state = graph.invoke({"alert": alert}, config=config)
+        return final_state["result"]  # type: ignore[no-any-return]
+
+    event_callback({"type": "sample_started", "alert_id": alert.get("alert_id")})
+    final_result: dict | None = None
+    node_event_types = {
+        "preprocess": "preprocess_completed",
+        "judge": "judge_completed",
+        "react_decide": "decision_updated",
+        "tool_executor": "tool_completed",
+        "disposition": "disposition_completed",
+        "output": "sample_completed",
+    }
+    for update in graph.stream(
+        {"alert": alert}, config=config, stream_mode="updates"
+    ):
+        for node_name, node_update in update.items():
+            if node_name == "react_decide" and node_update.get("next_action"):
+                event_callback({
+                    "type": "tool_started",
+                    "alert_id": alert.get("alert_id"),
+                    "node": node_name,
+                    "tool": node_update["next_action"].get("tool"),
+                    "args": node_update["next_action"].get("args", {}),
+                })
+            event_callback({
+                "type": node_event_types.get(node_name, "agent_updated"),
+                "alert_id": alert.get("alert_id"),
+                "node": node_name,
+                "data": node_update,
+            })
+            if node_name == "output":
+                final_result = node_update.get("result")
+    if final_result is None:
+        raise RuntimeError("Agent graph ended without an output result")
+    return final_result
 
 
 def _main() -> None:

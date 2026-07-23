@@ -92,7 +92,7 @@ class Judgment(BaseModel):
         description="置信度 0.0-1.0，0.85 以上为高置信（ReAct 触发阈值参考）",
     )
     reason: str = Field(
-        ..., description="一句话总结判定理由", max_length=200
+        ..., description="简要总结判定理由"
     )
 
 
@@ -122,7 +122,7 @@ class ReactDecision(BaseModel):
     """
 
     analysis: str = Field(
-        ..., description="对当前已有证据的分析（一两句话）", max_length=300
+        ..., description="对当前已有证据的分析"
     )
     judgment: Literal["真阳", "假阳", "待查"] = Field(
         ..., description="基于当前证据的判定（必须三选一）"
@@ -138,7 +138,11 @@ class ReactDecision(BaseModel):
         description="下一步要调的工具；need_more_info=false 时必须为 null",
     )
     reasoning: str = Field(
-        ..., description="本次决策的推理过程（一两句话）", max_length=300
+        ..., description="本次决策的推理过程"
+    )
+    cited_evidence: list[str] = Field(
+        default_factory=list,
+        description="支撑本次判定的 evidence_id 列表；没有可引用证据时为空",
     )
 
 

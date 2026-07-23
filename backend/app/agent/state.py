@@ -39,6 +39,9 @@ class AgentState(TypedDict, total=False):
     judgment: str          # "真阳" | "假阳" | "待查"
     confidence: float      # 0.0 - 1.0
     reason: str            # 一句话总结
+    initial_judgment: str  # ReAct 前的 Judge 原始判定（用于同轮配对评测）
+    initial_confidence: float
+    initial_reason: str
 
     # ----- 节点5a output 输出 -----
     result: dict           # 给 API/前端的最终结构化结果
@@ -54,3 +57,14 @@ class AgentState(TypedDict, total=False):
     tools_called: list[str]   # 调用过的工具名
     disposition: dict         # 处置建议
     react_entered: bool       # 是否进入过 react_decide（即使没调工具）
+
+    # ----- 第二阶段：受控执行、证据链与可观测性 -----
+    evidence: list[dict]       # 统一 ToolResult 中抽取的 Evidence
+    cited_evidence: list[str]  # LLM 最终结论显式引用的 evidence_id
+    tool_call_fingerprints: list[str]
+    execution_policy: dict
+    agent_started_monotonic: float
+    llm_calls_used: int
+    estimated_tokens_used: int
+    no_evidence_count: int
+    termination_reason: str | None

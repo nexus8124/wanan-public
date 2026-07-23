@@ -137,6 +137,13 @@ uv run python -m app.eval.run --mock
 uv run pytest -v
 ```
 
+阶段文档：
+
+- [AIT-ADS 第一阶段评测基线](docs/AIT_ADS_BASELINE.md)
+- [第二阶段 ReAct 受控执行说明](docs/REACT_PHASE2.md)
+- [CAM-LDS 多源证据 Pilot](docs/CAM_LDS_PILOT.md)
+- [zzb 分支阶段版本优化说明（2026-07-23）](docs/RELEASE_NOTES_ZZB_20260723.md)
+
 ---
 
 ## 目录结构
