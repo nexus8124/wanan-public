@@ -4,7 +4,7 @@
     preprocess_node (节点1) → judge_node (节点3) → output_node (节点5a)
 
 后续扩展（Week 4-5）：
-    在 judge 前插入 rag_node；在 output 前根据 confidence 分叉到 react_loop。
+    在 judge 后按置信度选择性执行 RAG 后融合；在 output 前分叉到 react_loop。
 """
 
 from __future__ import annotations
@@ -12,6 +12,7 @@ from __future__ import annotations
 import ipaddress
 import json
 import logging
+import re
 import time
 from datetime import datetime
 from typing import Any
@@ -20,6 +21,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 
 from app.agent.prompts import (
     build_judge_prompt,
+    build_rag_refine_prompt,
     build_react_prompt,
     features_to_text,
     format_evidence,
@@ -56,7 +58,9 @@ def _remaining_global_timeout(state: AgentState) -> float:
     return max(0.001, limit - (time.monotonic() - started))
 
 
-def _bind_structured_output(llm: BaseChatModel, schema):
+def _bind_structured_output(
+    llm: BaseChatModel, schema, *, include_raw: bool = False
+):
     """根据 LLM 类型选合适的结构化输出绑定方式。
 
     DeepSeek V4 实测发现：
@@ -69,13 +73,116 @@ def _bind_structured_output(llm: BaseChatModel, schema):
     from app.models.llm import FakeJudgeLLM
 
     if isinstance(llm, FakeJudgeLLM):
-        return llm.with_structured_output(schema)
+        return llm.with_structured_output(schema, include_raw=include_raw)
 
     # DeepSeek V4：json_mode 最稳定
     try:
-        return llm.with_structured_output(schema, method="json_mode")
+        return llm.with_structured_output(
+            schema, method="json_mode", include_raw=include_raw
+        )
     except (TypeError, NotImplementedError):
-        return llm.with_structured_output(schema)
+        return llm.with_structured_output(schema, include_raw=include_raw)
+
+
+def _message_content_text(message: Any) -> str:
+    """Extract text from OpenAI-compatible message content shapes."""
+    content = getattr(message, "content", message)
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict):
+                text = item.get("text")
+                if isinstance(text, str):
+                    parts.append(text)
+        return "\n".join(parts)
+    return str(content or "")
+
+
+def _parse_judgment_text(text: str) -> Judgment | None:
+    """Parse a JSON judgment from plain text or a fenced model response."""
+    cleaned = text.strip()
+    cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.I)
+    cleaned = re.sub(r"\s*```$", "", cleaned)
+    candidates = [cleaned]
+    first, last = cleaned.find("{"), cleaned.rfind("}")
+    if first >= 0 and last > first:
+        candidates.append(cleaned[first:last + 1])
+    for candidate_text in candidates:
+        try:
+            payload = json.loads(candidate_text)
+        except (TypeError, ValueError):
+            continue
+        if not isinstance(payload, dict):
+            continue
+        if isinstance(payload.get("cot"), str):
+            payload["cot"] = [payload["cot"]]
+        if not payload.get("cot"):
+            fallback_trace = (
+                payload.get("analysis")
+                or payload.get("reasoning")
+                or payload.get("reason")
+            )
+            if fallback_trace:
+                payload["cot"] = [str(fallback_trace)]
+        if "reason" not in payload:
+            payload["reason"] = str(
+                payload.get("reasoning") or payload.get("analysis") or ""
+            )
+        confidence = payload.get("confidence")
+        if isinstance(confidence, str):
+            try:
+                payload["confidence"] = float(
+                    confidence.strip().rstrip("%")
+                ) / (100.0 if "%" in confidence else 1.0)
+            except ValueError:
+                pass
+        if isinstance(payload.get("confidence"), (int, float)):
+            if payload["confidence"] > 1:
+                payload["confidence"] = payload["confidence"] / 100.0
+        payload.setdefault("cited_knowledge", [])
+        try:
+            return Judgment.model_validate(payload)
+        except Exception:
+            continue
+    return None
+
+
+def _safe_error_summary(error: BaseException | None) -> str | None:
+    """Keep diagnostics useful without persisting credentials."""
+    if error is None:
+        return None
+    summary = f"{type(error).__name__}: {error}"
+    summary = re.sub(r"Bearer\s+\S+", "Bearer [REDACTED]", summary, flags=re.I)
+    summary = re.sub(r"\bsk-[A-Za-z0-9_-]{8,}\b", "sk-[REDACTED]", summary)
+    return summary[:500]
+
+
+def _unwrap_structured_judgment(
+    response: Any,
+) -> tuple[Judgment | None, str, BaseException | None]:
+    """Handle both normal Pydantic and include_raw LangChain responses."""
+    if isinstance(response, Judgment):
+        return response, "structured", None
+    if isinstance(response, dict) and {
+        "raw", "parsed", "parsing_error"
+    }.issubset(response):
+        parsed = response.get("parsed")
+        parsing_error = response.get("parsing_error")
+        if isinstance(parsed, Judgment):
+            return parsed, "structured", parsing_error
+        raw_text = _message_content_text(response.get("raw"))
+        recovered = _parse_judgment_text(raw_text)
+        return recovered, "raw_recovered" if recovered else "parse_failed", parsing_error
+    if isinstance(response, dict):
+        try:
+            return Judgment.model_validate(response), "structured_dict", None
+        except Exception as exc:
+            return None, "parse_failed", exc
+    return None, "empty_response", None
 
 
 # ============================================================
@@ -179,6 +286,413 @@ def preprocess_node(state: AgentState) -> AgentState:
 
 
 # ============================================================
+# 节点 2：RAG 安全知识检索（可选）
+# ============================================================
+
+
+def make_rag_retrieve_node(rag_service=None):
+    """构建失败时自动降级的选择性 RAG 节点。
+
+    RAG 在无知识初判之后执行，处理待查、低置信样本，以及命中弱信号
+    校准策略的高置信样本。KB-* 是通用知识而非当前事件的 EV-* 证据，
+    不能单独证明攻击发生。
+    """
+    if rag_service is None:
+        from app.rag.service import get_rag_service
+
+        rag_service = get_rag_service()
+
+    def rag_retrieve_node(state: AgentState) -> AgentState:
+        from app.core.config import get_settings
+
+        alert = state["alert"]
+        features = state.get("normalized_features", {})
+        settings = get_settings()
+        initial_judgment = state.get("judgment", "待查")
+        initial_confidence = float(state.get("confidence", 0.0))
+        try:
+            calibration = rag_service.calibration_policy(alert, features)
+        except Exception as exc:
+            logger.warning("rag calibration policy failed open: %s", exc)
+            calibration = {
+                "forced": False,
+                "enabled": settings.rag_calibrate_weak_signals,
+                "profiles": [],
+                "reason": "policy_error",
+            }
+        profile_eligible = bool(
+            calibration.get("eligible", calibration.get("forced", False))
+        )
+        calibration_forced = bool(
+            profile_eligible
+            and initial_judgment == "真阳"
+            and initial_confidence >= settings.rag_trigger_confidence
+        )
+        calibration = {
+            **calibration,
+            "eligible": profile_eligible,
+            "forced": calibration_forced,
+            "force_suppressed_reason": (
+                None
+                if calibration_forced
+                else "normal_selective_gate_applies"
+                if initial_judgment == "待查"
+                or initial_confidence < settings.rag_trigger_confidence
+                else "initial_verdict_not_true_positive"
+                if profile_eligible
+                else "profile_not_eligible"
+            ),
+        }
+        should_retrieve = (
+            initial_judgment == "待查"
+            or initial_confidence < settings.rag_trigger_confidence
+            or calibration_forced
+        )
+        trigger_reason = (
+            "pending_initial_judgment"
+            if initial_judgment == "待查"
+            else "low_confidence_initial_judgment"
+            if initial_confidence < settings.rag_trigger_confidence
+            else "weak_signal_calibration"
+            if calibration_forced
+            else "high_confidence_initial_judgment"
+        )
+        if not should_retrieve:
+            return {
+                "rag_attempted": False,
+                "rag_used": False,
+                "rag_context": "",
+                "knowledge_hits": [],
+                "retrieval_trace": {
+                    "strategy": "selective_weak_signal_calibration_v3",
+                    "hit_count": 0,
+                    "trigger_judgment": initial_judgment,
+                    "trigger_confidence": initial_confidence,
+                    "trigger_threshold": settings.rag_trigger_confidence,
+                    "trigger_reason": trigger_reason,
+                    "calibration": calibration,
+                    "skipped_reason": "high_confidence_initial_judgment",
+                },
+                "rag_refinement": {
+                    "attempted": False,
+                    "accepted": False,
+                    "verdict_changed": False,
+                    "reason": "high_confidence_initial_judgment",
+                },
+            }
+        try:
+            retrieval = rag_service.retrieve_for_alert(alert, features)
+            hits = [hit.model_dump(mode="json") for hit in retrieval.hits]
+            trace = {
+                "strategy": "selective_weak_signal_calibration_v3",
+                "query": retrieval.query,
+                "sources": retrieval.sources,
+                "hit_count": len(hits),
+                "skipped_reason": retrieval.skipped_reason,
+                "corpus_version": retrieval.corpus_version,
+                "embedding_model": retrieval.embedding_model,
+                "routing": retrieval.routing,
+                "trigger_judgment": initial_judgment,
+                "trigger_confidence": initial_confidence,
+                "trigger_threshold": settings.rag_trigger_confidence,
+                "trigger_reason": trigger_reason,
+                "calibration": calibration,
+            }
+            logger.info(
+                "rag_retrieve: alert=%s hits=%d sources=%s",
+                alert.get("alert_id"),
+                len(hits),
+                retrieval.sources,
+            )
+            return {
+                "rag_context": retrieval.context,
+                "rag_attempted": True,
+                "rag_used": bool(hits),
+                "knowledge_hits": hits,
+                "retrieval_trace": trace,
+            }
+        except Exception as exc:
+            logger.exception("rag_retrieve failed open: %s", exc)
+            return {
+                "rag_context": "",
+                "rag_attempted": True,
+                "rag_used": False,
+                "knowledge_hits": [],
+                "retrieval_trace": {
+                    "strategy": "selective_weak_signal_calibration_v3",
+                    "hit_count": 0,
+                    "trigger_reason": trigger_reason,
+                    "calibration": calibration,
+                    "skipped_reason": "retrieval_error",
+                    "error": type(exc).__name__,
+                },
+            }
+
+    return rag_retrieve_node
+
+
+def _rag_refinement_acceptance(
+    *,
+    initial_judgment: str,
+    initial_confidence: float,
+    candidate_judgment: str,
+    candidate_confidence: float,
+    valid_citations: list[str],
+    weak_signal_calibration: bool = False,
+) -> tuple[bool, str]:
+    """Return whether knowledge may update the initial event judgment.
+
+    Knowledge can clarify an uncertain sample, but it cannot replace missing
+    event evidence or degrade a resolved verdict to "待查".
+    """
+    if not valid_citations:
+        return False, "no_valid_knowledge_citation"
+    if initial_judgment in {"真阳", "假阳"} and candidate_judgment == "待查":
+        return False, "resolved_verdict_cannot_be_downgraded_to_pending"
+    if (
+        initial_judgment in {"真阳", "假阳"}
+        and candidate_judgment in {"真阳", "假阳"}
+        and candidate_judgment != initial_judgment
+    ):
+        calibrated_false_positive = (
+            weak_signal_calibration
+            and initial_judgment == "真阳"
+            and candidate_judgment == "假阳"
+            and candidate_confidence >= 0.9
+            and any(
+                citation.startswith("KB-PLAYBOOK-")
+                for citation in valid_citations
+            )
+        )
+        if calibrated_false_positive:
+            return True, "weak_signal_false_positive_calibration"
+        if not (initial_confidence < 0.5 and candidate_confidence >= 0.9):
+            return False, "opposite_verdict_requires_exceptional_confidence"
+    if (
+        initial_judgment == "待查"
+        and candidate_judgment in {"真阳", "假阳"}
+        and candidate_confidence < 0.7
+    ):
+        return False, "pending_resolution_confidence_too_low"
+    return True, "knowledge_grounded_refinement"
+
+
+def make_rag_refine_node(llm: BaseChatModel):
+    """Use relevant knowledge once, then conservatively fuse it with Judge."""
+    prompt = build_rag_refine_prompt()
+    # include_raw keeps the provider response available when LangChain's
+    # Pydantic parser rejects otherwise recoverable JSON.
+    structured_llm = _bind_structured_output(
+        llm, Judgment, include_raw=True
+    )
+
+    def rag_refine_node(state: AgentState) -> AgentState:
+        hits = state.get("knowledge_hits", [])
+        if not hits or not state.get("rag_context"):
+            skipped_reason = state.get("retrieval_trace", {}).get(
+                "skipped_reason", "no_high_relevance_knowledge"
+            )
+            return {
+                "post_rag_judgment": state.get("judgment", "待查"),
+                "post_rag_confidence": state.get("confidence", 0.0),
+                "post_rag_reason": state.get("reason", ""),
+                "rag_refinement": {
+                    "attempted": False,
+                    "accepted": False,
+                    "verdict_changed": False,
+                    "reason": skipped_reason,
+                }
+            }
+
+        alert_json = json.dumps(
+            _agent_visible_alert(state["alert"]), ensure_ascii=False, default=str
+        )
+        features_text = features_to_text(state.get("normalized_features", {}))
+        prompt_value = prompt.invoke(
+            {
+                "alert_json": alert_json,
+                "features_text": features_text,
+                "initial_judgment": state.get("initial_judgment", state.get("judgment")),
+                "initial_confidence": state.get(
+                    "initial_confidence", state.get("confidence", 0.0)
+                ),
+                "initial_reason": state.get("initial_reason", state.get("reason", "")),
+                "rag_context": state["rag_context"],
+            }
+        )
+        policy = state.get("execution_policy", {})
+        remaining_calls = max(
+            0,
+            int(policy.get("max_llm_calls", 5))
+            - int(state.get("llm_calls_used", 0)),
+        )
+        max_attempts = min(2, remaining_calls)
+        attempts = 0
+        candidate: Judgment | None = None
+        parse_mode = "not_called"
+        diagnostics: list[str] = []
+
+        if max_attempts:
+            attempts += 1
+            try:
+                response = structured_llm.invoke(
+                    prompt_value,
+                    timeout=_remaining_global_timeout(state),
+                )
+                candidate, parse_mode, parsing_error = (
+                    _unwrap_structured_judgment(response)
+                )
+                error_summary = _safe_error_summary(parsing_error)
+                if error_summary:
+                    diagnostics.append(error_summary)
+            except Exception as exc:
+                logger.warning(
+                    "rag_refine structured call failed, trying plain JSON fallback: %s",
+                    exc,
+                )
+                diagnostics.append(_safe_error_summary(exc) or type(exc).__name__)
+                parse_mode = "structured_request_failed"
+
+        # DeepSeek-compatible fallback: no response_format/tool binding, while
+        # the prompt still explicitly requires JSON. This handles gateways that
+        # reject json_mode and malformed responses that LangChain cannot parse.
+        if candidate is None and attempts < max_attempts:
+            attempts += 1
+            try:
+                raw_message = llm.invoke(
+                    prompt_value,
+                    timeout=_remaining_global_timeout(state),
+                )
+                candidate = _parse_judgment_text(
+                    _message_content_text(raw_message)
+                )
+                parse_mode = (
+                    "plain_json_fallback"
+                    if candidate is not None
+                    else "plain_json_parse_failed"
+                )
+            except Exception as exc:
+                diagnostics.append(_safe_error_summary(exc) or type(exc).__name__)
+                parse_mode = "plain_json_request_failed"
+
+        if candidate is None:
+            logger.error(
+                "rag_refine failed open: alert=%s mode=%s diagnostics=%s",
+                state["alert"].get("alert_id"),
+                parse_mode,
+                diagnostics,
+            )
+            return {
+                "post_rag_judgment": state.get("judgment", "待查"),
+                "post_rag_confidence": state.get("confidence", 0.0),
+                "post_rag_reason": state.get("reason", ""),
+                "rag_refinement": {
+                    "attempted": True,
+                    "accepted": False,
+                    "verdict_changed": False,
+                    "reason": (
+                        "refinement_budget_exhausted"
+                        if max_attempts == 0
+                        else "refinement_error"
+                    ),
+                    "parse_mode": parse_mode,
+                    "attempts": attempts,
+                    "diagnostics": diagnostics,
+                },
+                "llm_calls_used": state.get("llm_calls_used", 0) + attempts,
+                "estimated_tokens_used": state.get("estimated_tokens_used", 0)
+                + attempts * _estimate_tokens(
+                    alert_json, features_text, state["rag_context"]
+                ),
+            }
+
+        available = {
+            item.get("knowledge_id") for item in hits if item.get("knowledge_id")
+        }
+        valid_citations = list(dict.fromkeys(
+            item for item in candidate.cited_knowledge if item in available
+        ))
+        initial_judgment = str(
+            state.get("initial_judgment", state.get("judgment", "待查"))
+        )
+        initial_confidence = float(
+            state.get("initial_confidence", state.get("confidence", 0.0))
+        )
+        accepted, acceptance_reason = _rag_refinement_acceptance(
+            initial_judgment=initial_judgment,
+            initial_confidence=initial_confidence,
+            candidate_judgment=candidate.judgment,
+            candidate_confidence=candidate.confidence,
+            valid_citations=valid_citations,
+            weak_signal_calibration=bool(
+                state.get("retrieval_trace", {})
+                .get("calibration", {})
+                .get("forced", False)
+            ),
+        )
+        refinement = {
+            "attempted": True,
+            "accepted": accepted,
+            "verdict_changed": accepted and candidate.judgment != initial_judgment,
+            "reason": acceptance_reason,
+            "candidate_judgment": candidate.judgment,
+            "candidate_confidence": candidate.confidence,
+            "cited_knowledge": valid_citations,
+            "parse_mode": parse_mode,
+            "attempts": attempts,
+            "diagnostics": diagnostics,
+        }
+        update: AgentState = {
+            "rag_refinement": refinement,
+            "llm_calls_used": state.get("llm_calls_used", 0) + attempts,
+            "estimated_tokens_used": state.get("estimated_tokens_used", 0)
+            + attempts * _estimate_tokens(
+                alert_json,
+                features_text,
+                state["rag_context"],
+                candidate.model_dump(),
+            ),
+        }
+        if accepted:
+            effective_confidence = candidate.confidence
+            if (
+                initial_judgment in {"真阳", "假阳"}
+                and candidate.judgment == initial_judgment
+            ):
+                effective_confidence = max(
+                    initial_confidence, candidate.confidence
+                )
+            update.update(
+                judgment=candidate.judgment,
+                confidence=effective_confidence,
+                reason=candidate.reason,
+                cited_knowledge=valid_citations,
+                cot_trace=state.get("cot_trace", [])
+                + [f"[RAG 后融合] {step}" for step in candidate.cot],
+            )
+        update["post_rag_judgment"] = (
+            candidate.judgment if accepted else state.get("judgment", "待查")
+        )
+        update["post_rag_confidence"] = (
+            effective_confidence if accepted else state.get("confidence", 0.0)
+        )
+        update["post_rag_reason"] = (
+            candidate.reason if accepted else state.get("reason", "")
+        )
+        logger.info(
+            "rag_refine: alert=%s accepted=%s initial=%s candidate=%s citations=%s",
+            state["alert"].get("alert_id"),
+            accepted,
+            initial_judgment,
+            candidate.judgment,
+            valid_citations,
+        )
+        return update
+
+    return rag_refine_node
+
+
+# ============================================================
 # 节点 3：LLM 研判 + CoT（MVP 最核心）
 # ============================================================
 
@@ -221,7 +735,12 @@ def make_judge_node(llm: BaseChatModel):
         timed_out = False
         try:
             prompt_value = prompt.invoke(
-                {"alert_json": alert_json, "features_text": features_text}
+                {
+                    "alert_json": alert_json,
+                    "features_text": features_text,
+                    "rag_context": state.get("rag_context")
+                    or "(本次未启用 RAG)",
+                }
             )
             result = structured_llm.invoke(
                 prompt_value,
@@ -246,6 +765,21 @@ def make_judge_node(llm: BaseChatModel):
             result.confidence,
             alert.get("alert_id"),
         )
+        available_knowledge = {
+            item.get("knowledge_id")
+            for item in state.get("knowledge_hits", [])
+            if item.get("knowledge_id")
+        }
+        valid_knowledge = [
+            knowledge_id
+            for knowledge_id in result.cited_knowledge
+            if knowledge_id in available_knowledge
+        ]
+        if len(valid_knowledge) != len(result.cited_knowledge):
+            logger.warning(
+                "judge discarded unknown knowledge citations: %s",
+                sorted(set(result.cited_knowledge) - available_knowledge),
+            )
         update: AgentState = {
             "cot_trace": result.cot,
             "judgment": result.judgment,
@@ -254,9 +788,15 @@ def make_judge_node(llm: BaseChatModel):
             "initial_judgment": result.judgment,
             "initial_confidence": result.confidence,
             "initial_reason": result.reason,
+            "cited_knowledge": list(dict.fromkeys(valid_knowledge)),
             "llm_calls_used": state.get("llm_calls_used", 0) + 1,
             "estimated_tokens_used": state.get("estimated_tokens_used", 0)
-            + _estimate_tokens(alert_json, features_text, result.model_dump()),
+            + _estimate_tokens(
+                alert_json,
+                features_text,
+                state.get("rag_context", ""),
+                result.model_dump(),
+            ),
         }
         if timed_out:
             update["termination_reason"] = "global_timeout"
@@ -297,6 +837,18 @@ def output_node(state: AgentState) -> AgentState:
         "initial_judgment": state.get("initial_judgment", state.get("judgment")),
         "initial_confidence": state.get("initial_confidence", state.get("confidence")),
         "initial_reason": state.get("initial_reason", state.get("reason")),
+        "post_rag_judgment": state.get(
+            "post_rag_judgment",
+            state.get("initial_judgment", state.get("judgment")),
+        ),
+        "post_rag_confidence": state.get(
+            "post_rag_confidence",
+            state.get("initial_confidence", state.get("confidence")),
+        ),
+        "post_rag_reason": state.get(
+            "post_rag_reason",
+            state.get("initial_reason", state.get("reason")),
+        ),
         "cot_trace": state.get("cot_trace", []),
         "features": state.get("normalized_features", {}),
         # ----- D4 ReAct 扩展 -----
@@ -307,6 +859,14 @@ def output_node(state: AgentState) -> AgentState:
         "evidence": state.get("evidence", []),
         "cited_evidence": state.get("cited_evidence", []),
         "evidence_grounded": bool(state.get("cited_evidence", [])),
+        # ----- 第三阶段 RAG：知识引用与检索可观测性 -----
+        "rag_used": bool(state.get("rag_used", False)),
+        "rag_attempted": bool(state.get("rag_attempted", False)),
+        "knowledge_hits": state.get("knowledge_hits", []),
+        "cited_knowledge": state.get("cited_knowledge", []),
+        "knowledge_grounded": bool(state.get("cited_knowledge", [])),
+        "retrieval_trace": state.get("retrieval_trace", {}),
+        "rag_refinement": state.get("rag_refinement", {}),
         "execution": {
             "policy": state.get("execution_policy", {}),
             "llm_calls_used": state.get("llm_calls_used", 0),
@@ -418,6 +978,8 @@ def make_react_decide_node(llm: BaseChatModel):
                     "current_confidence": state.get("confidence", 0.0),
                     "current_reason": state.get("reason", ""),
                     "evidence_text": evidence_text,
+                    "rag_context": state.get("rag_context")
+                    or "(本次未启用 RAG)",
                     "tools_called_text": tools_called_text,
                     "step": step,
                 }
@@ -470,7 +1032,9 @@ def make_react_decide_node(llm: BaseChatModel):
         )
         available_evidence = {
             item.get("evidence_id") for item in state.get("evidence", [])
-            if item.get("evidence_id") and item.get("usable", True)
+            if item.get("evidence_id")
+            and item.get("usable", True)
+            and item.get("kind") != "knowledge_reference"
         }
         valid_citations = [
             evidence_id for evidence_id in decision.cited_evidence
@@ -481,11 +1045,29 @@ def make_react_decide_node(llm: BaseChatModel):
                 "react_decide discarded unknown evidence citations: %s",
                 sorted(set(decision.cited_evidence) - available_evidence),
             )
+        available_knowledge = {
+            item.get("knowledge_id")
+            for item in state.get("knowledge_hits", [])
+            if item.get("knowledge_id")
+        }
+        for item in state.get("evidence", []):
+            if item.get("kind") != "knowledge_reference":
+                continue
+            data = item.get("data") or {}
+            available_knowledge.update(data.get("knowledge_ids") or [])
+        valid_knowledge = [
+            knowledge_id
+            for knowledge_id in decision.cited_knowledge
+            if knowledge_id in available_knowledge
+        ]
         update: AgentState = {
             "next_action": next_action,
             "react_entered": react_entered,
             "cited_evidence": list(dict.fromkeys(
                 state.get("cited_evidence", []) + valid_citations
+            )),
+            "cited_knowledge": list(dict.fromkeys(
+                state.get("cited_knowledge", []) + valid_knowledge
             )),
             "llm_calls_used": state.get("llm_calls_used", 0) + 1,
             "estimated_tokens_used": state.get("estimated_tokens_used", 0)
@@ -497,11 +1079,34 @@ def make_react_decide_node(llm: BaseChatModel):
         # Committing its provisional verdict used to leak temporary "待查"
         # into the final result whenever the following response failed.
         if next_action is None:
-            update.update(
-                confidence=decision.confidence,
-                judgment=decision.judgment,
-                reason=decision.reasoning,
-            )
+            prior_judgment = state.get("judgment", "待查")
+            verdict_changed = decision.judgment != prior_judgment
+            grounded_change = bool(valid_citations)
+            reject_reason = None
+            if (
+                prior_judgment in {"真阳", "假阳"}
+                and decision.judgment == "待查"
+            ):
+                reject_reason = "resolved_verdict_cannot_be_downgraded_to_pending"
+            elif verdict_changed and not grounded_change:
+                reject_reason = "react_verdict_change_requires_event_evidence"
+            if reject_reason:
+                logger.warning(
+                    "react_decide rejected ungrounded change: %s -> %s (%s)",
+                    prior_judgment,
+                    decision.judgment,
+                    reject_reason,
+                )
+                update["termination_reason"] = reject_reason
+                update["cot_trace"] = update["cot_trace"] + [
+                    f"[ReAct 保护] 拒绝无事件证据的结论变化：{reject_reason}"
+                ]
+            else:
+                update.update(
+                    confidence=decision.confidence,
+                    judgment=decision.judgment,
+                    reason=decision.reasoning,
+                )
         return update
 
     return react_decide_node

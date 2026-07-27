@@ -94,6 +94,10 @@ class Judgment(BaseModel):
     reason: str = Field(
         ..., description="简要总结判定理由"
     )
+    cited_knowledge: list[str] = Field(
+        default_factory=list,
+        description="本次结论实际使用的 KB-* 知识编号；未使用则为空",
+    )
 
 
 # ============================================================
@@ -143,6 +147,10 @@ class ReactDecision(BaseModel):
     cited_evidence: list[str] = Field(
         default_factory=list,
         description="支撑本次判定的 evidence_id 列表；没有可引用证据时为空",
+    )
+    cited_knowledge: list[str] = Field(
+        default_factory=list,
+        description="本次使用的 KB-* 知识编号；知识不能替代事件证据",
     )
 
 

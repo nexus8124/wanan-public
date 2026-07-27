@@ -1,0 +1,12 @@
+id: PB-AUTH-001
+title: 暴力破解与异常认证研判手册
+version: "1.0"
+tags: [authentication, ssh, rdp, brute-force, login]
+content: |
+  适用场景：SSH、RDP、VPN、SMB 或应用登录失败激增。
+  支持真阳的事件证据：短时间跨多个账户或主机的连续失败；失败后紧跟成功登录；
+  来源地理位置、资产角色、时间窗口与历史基线不符；成功后出现异常进程或横向连接。
+  常见误报：密码变更后的服务账户、漏洞扫描器、健康检查、已备案压测。
+  单纯登录失败只说明尝试，不等价于账户失陷。需结合认证成功事件和后续行为判断，
+  无法确认影响时保持待查。确认失陷后冻结账户、撤销会话并隔离源终端。
+source_uri: local://playbooks/authentication

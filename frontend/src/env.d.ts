@@ -24,6 +24,11 @@ export interface AgentResult {
   evidence?: Array<Record<string, any>>
   cited_evidence?: string[]
   evidence_grounded?: boolean
+  rag_used?: boolean
+  knowledge_hits?: Array<Record<string, any>>
+  cited_knowledge?: string[]
+  knowledge_grounded?: boolean
+  retrieval_trace?: Record<string, any>
   execution?: Record<string, any>
 }
 

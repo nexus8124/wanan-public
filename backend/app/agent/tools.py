@@ -61,13 +61,23 @@ TOOL_CATALOG: list[dict[str, Any]] = [
     },
     {
         "name": "search_attck_technique",
-        "description": "查询 ATT&CK 战术技术图谱匹配",
+        "description": "从 RAG 知识库查询 ATT&CK 技术；结果是通用知识，不是当前事件证据",
         "args": {"keyword": "关键词（如 powershell / smb / reverse shell）"},
     },
     {
+        "name": "search_sigma_rule",
+        "description": "从 RAG 知识库查询 Sigma 检测规则及已知误报；不是当前事件证据",
+        "args": {"keyword": "规则名、日志源或行为关键词"},
+    },
+    {
+        "name": "search_playbook",
+        "description": "从 RAG 知识库查询研判与处置手册；不是当前事件证据",
+        "args": {"keyword": "告警类型或调查关键词"},
+    },
+    {
         "name": "lookup_cve",
-        "description": "查询 CVE 漏洞详情",
-        "args": {"keyword": "产品名或漏洞关键词"},
+        "description": "查询已缓存 NVD CVE 知识；配置后可按明确 CVE 编号在线获取并缓存",
+        "args": {"keyword": "建议传入明确 CVE 编号"},
     },
     {
         "name": "suggest_block_ip",
@@ -476,31 +486,89 @@ def query_similar_alerts(alert_ctx: dict, rule_name: str) -> dict:
 
 
 def search_attck_technique(alert_ctx: dict, keyword: str) -> dict:
-    """查询 ATT&CK 战术技术匹配（跳过 RAG，用内置简表 + LLM 自身知识）。"""
-    kw = keyword.lower()
-    matches = [
-        t for t in _ATTCK_TECHNIQUES
-        if kw in t["name"].lower() or kw in t["desc"].lower() or kw in t["tactic"]
-    ]
+    """查询本地 RAG 中的 ATT&CK 知识。"""
+    from app.rag.service import get_rag_service
+
+    retrieval = get_rag_service().search(
+        keyword, sources=["mitre_attack"], min_score=0.0
+    )
+    matches = []
+    for hit in retrieval.hits:
+        item = hit.model_dump(mode="json")
+        # id/name/desc keep the original tool response backward compatible.
+        item["id"] = (
+            item.get("metadata", {}).get("technique_id")
+            or item["knowledge_id"].removeprefix("KB-ATTCK-")
+        )
+        item["name"] = item["title"]
+        item["desc"] = item["content"]
+        matches.append(item)
     return {
         "keyword": keyword,
-        "matches": matches[:5],  # 最多返回 5 条
+        "matches": matches,
         "total": len(matches),
-        "note": "（基于内置 ATT&CK 简表 + LLM 内置知识；如需完整图谱需接入向量库）",
+        "knowledge_ids": [item["knowledge_id"] for item in matches],
+        "note": "KB-* 是通用 ATT&CK 知识，不是当前事件实际发生的证据。",
+    }
+
+
+def search_sigma_rule(alert_ctx: dict, keyword: str) -> dict:
+    """查询已导入的 Sigma 规则与误报说明。"""
+    from app.rag.service import get_rag_service
+
+    retrieval = get_rag_service().search(
+        keyword, sources=["sigma"], min_score=0.0
+    )
+    matches = [hit.model_dump(mode="json") for hit in retrieval.hits]
+    return {
+        "keyword": keyword,
+        "matches": matches,
+        "total": len(matches),
+        "knowledge_ids": [item["knowledge_id"] for item in matches],
+        "note": "规则命中知识不能代替当前事件证据。",
+    }
+
+
+def search_playbook(alert_ctx: dict, keyword: str) -> dict:
+    """查询本地研判与处置手册。"""
+    from app.rag.service import get_rag_service
+
+    retrieval = get_rag_service().search(
+        keyword, sources=["playbook"], min_score=0.0
+    )
+    matches = [hit.model_dump(mode="json") for hit in retrieval.hits]
+    return {
+        "keyword": keyword,
+        "matches": matches,
+        "total": len(matches),
+        "knowledge_ids": [item["knowledge_id"] for item in matches],
+        "note": "手册用于给出调查条件，不能单独决定当前告警真伪。",
     }
 
 
 def lookup_cve(alert_ctx: dict, keyword: str) -> dict:
-    """查询 CVE 漏洞详情（跳过 RAG，用内置简表）。"""
-    kw = keyword.lower()
-    matches = [
-        c for c in _CVE_DB
-        if kw in c["product"].lower() or kw in c["desc"].lower() or kw in c["id"].lower()
-    ]
+    """查询本地 NVD 快照；可配置为按明确 CVE ID 在线获取。"""
+    from app.rag.service import get_rag_service
+
+    retrieval = get_rag_service().lookup_cve(keyword)
+    matches = [hit.model_dump(mode="json") for hit in retrieval.hits]
+    # Keep the old tiny fixture as an offline compatibility fallback.
+    if not matches:
+        kw = keyword.lower()
+        matches = [
+            c for c in _CVE_DB
+            if kw in c["product"].lower()
+            or kw in c["desc"].lower()
+            or kw in c["id"].lower()
+        ][:3]
     return {
         "keyword": keyword,
-        "matches": matches[:3],
+        "matches": matches,
         "total": len(matches),
+        "knowledge_ids": [
+            item["knowledge_id"] for item in matches if "knowledge_id" in item
+        ],
+        "note": "漏洞知识说明产品风险，不证明当前资产存在或已被利用。",
     }
 
 
@@ -544,6 +612,8 @@ RAW_TOOL_REGISTRY: dict[str, Callable[..., dict]] = {
     "check_threat_intel": check_threat_intel,
     "query_similar_alerts": query_similar_alerts,
     "search_attck_technique": search_attck_technique,
+    "search_sigma_rule": search_sigma_rule,
+    "search_playbook": search_playbook,
     "lookup_cve": lookup_cve,
     "suggest_block_ip": suggest_block_ip,
     "suggest_isolate_host": suggest_isolate_host,
@@ -567,6 +637,8 @@ _TOOL_SOURCES = {
     "check_threat_intel": "threat_intelligence",
     "query_similar_alerts": "alert_history",
     "search_attck_technique": "mitre_attck",
+    "search_sigma_rule": "sigma_rules",
+    "search_playbook": "security_playbooks",
     "lookup_cve": "cve_catalog",
     "suggest_block_ip": "firewall_workflow",
     "suggest_isolate_host": "edr_workflow",
@@ -579,9 +651,18 @@ _TOOL_REQUIRED_ARGUMENTS = {
     "check_threat_intel": ("indicator",),
     "query_similar_alerts": ("rule_name",),
     "search_attck_technique": ("keyword",),
+    "search_sigma_rule": ("keyword",),
+    "search_playbook": ("keyword",),
     "lookup_cve": ("keyword",),
     "suggest_block_ip": ("ip",),
     "suggest_isolate_host": ("host_ip",),
+}
+
+_KNOWLEDGE_TOOLS = {
+    "search_attck_technique",
+    "search_sigma_rule",
+    "search_playbook",
+    "lookup_cve",
 }
 
 TOOL_REGISTRY = ToolRegistry()
@@ -594,6 +675,11 @@ for _meta in TOOL_CATALOG:
             source=_TOOL_SOURCES[_name],
             function=RAW_TOOL_REGISTRY[_name],
             required_arguments=_TOOL_REQUIRED_ARGUMENTS[_name],
+            evidence_kind=(
+                "knowledge_reference"
+                if _name in _KNOWLEDGE_TOOLS
+                else "event_observation"
+            ),
         )
     )
 

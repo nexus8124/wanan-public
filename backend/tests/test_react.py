@@ -289,6 +289,51 @@ class TestNodes:
         assert out["termination_reason"] is None
         assert out["confidence"] == 0.9
 
+    def test_final_react_decision_cannot_downgrade_resolved_verdict_to_pending(
+        self, monkeypatch
+    ):
+        """Missing extra evidence is not evidence against a resolved verdict."""
+        from app.agent import nodes
+        from app.models.llm import get_llm
+        from app.models.schemas import ReactDecision
+
+        decision = ReactDecision(
+            analysis="外部查询无记录，因此仍有不确定性。",
+            judgment="待查",
+            confidence=0.3,
+            need_more_info=False,
+            next_action=None,
+            reasoning="没有获得更多日志，建议待查。",
+        )
+        monkeypatch.setattr(
+            nodes,
+            "_bind_structured_output",
+            lambda *_args, **_kwargs: RunnableLambda(
+                lambda _inp, **_invoke_kwargs: decision
+            ),
+        )
+        node = make_react_decide_node(get_llm(mock=True))
+        out = node({
+            "alert": {"alert_id": "CASE-GUARD"},
+            "judgment": "真阳",
+            "confidence": 0.9,
+            "reason": "初始告警存在明确攻击证据。",
+            "react_steps": [{
+                "tool": "fetch_endpoint_logs",
+                "args": {"host_ip": "10.0.0.5"},
+                "result": {"status": "no_records", "evidence": []},
+            }],
+            "evidence": [],
+            "execution_policy": {},
+            "cot_trace": [],
+        })
+        assert "judgment" not in out
+        assert "confidence" not in out
+        assert (
+            out["termination_reason"]
+            == "resolved_verdict_cannot_be_downgraded_to_pending"
+        )
+
     def test_tool_executor_appends_step(self):
         """tool_executor 正确追加步骤到 react_steps。"""
         state: AgentState = {  # type: ignore

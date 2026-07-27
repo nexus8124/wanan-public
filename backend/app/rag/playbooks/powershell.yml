@@ -1,0 +1,13 @@
+id: PB-POWERSHELL-001
+title: PowerShell 可疑执行研判手册
+version: "1.0"
+tags: [powershell, command-line, endpoint, living-off-the-land]
+content: |
+  适用场景：PowerShell、pwsh、EncodedCommand、下载执行或由 Office/脚本宿主拉起的告警。
+  支持真阳的事件证据：父进程为 winword.exe、excel.exe、wscript.exe 等异常宿主；
+  命令行含 EncodedCommand、IEX、DownloadString、隐藏窗口或外联后执行；
+  同一时间窗存在新建计划任务、凭据访问、横向连接或恶意域名通信。
+  常见误报：受控的软件部署、管理员签名脚本、固定运维窗口中的已知任务。
+  研判要求：知识中的攻击模式只能解释风险，不能替代当前事件证据。
+  处置建议：确认恶意后隔离终端、封禁目标、保存进程树和脚本内容；证据不足则待查。
+source_uri: local://playbooks/powershell

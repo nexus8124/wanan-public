@@ -10,6 +10,35 @@
 本文记录的是上次推送 `zzb` 分支后产生的改动。原始数据集、派生评测集、
 SQLite 评测历史、上传文件、`.env` 和 API Key 均不属于本版本源码。
 
+## 数据集来源与下载
+
+### AIT Alert Data Set（AIT-ADS）
+
+- 官方发布页：<https://zenodo.org/records/8263181>
+- DOI：<https://doi.org/10.5281/zenodo.8263181>
+- 数据压缩包：<https://zenodo.org/records/8263181/files/ait_ads.zip?download=1>
+- 标签文件：<https://zenodo.org/records/8263181/files/labels.csv?download=1>
+- 官方代码：<https://github.com/ait-aecid/alert-data-set>
+- 许可证：Creative Commons Attribution 4.0 International（CC BY 4.0）
+- `ait_ads.zip` MD5：`43db6b1f0996e0024befd617706c50e9`
+- `labels.csv` MD5：`60ff33796c77fd2136c4d1a4bc841bd9`
+
+### Cyber Attack Manifestations Log Data Set（CAM-LDS）
+
+- 官方发布页（v2）：<https://zenodo.org/records/18861762>
+- DOI：<https://doi.org/10.5281/zenodo.18861762>
+- 本项目使用的过滤数据：
+  <https://zenodo.org/records/18861762/files/manifestations_filtered.zip?download=1>
+- 官方处理与 LLM 实验代码：
+  <https://github.com/ait-aecid/attack-manifestations-interpretation>
+- 论文：<https://arxiv.org/abs/2603.04186>
+- 许可证：Creative Commons Attribution 4.0 International（CC BY 4.0）
+- `manifestations_filtered.zip` MD5：`cfc14140b2e396a60989b8379eafca1f`
+
+Zenodo 的直接下载偶尔会限流或超时；遇到这种情况应打开对应官方发布页，
+在文件列表中点击下载，而不是使用来源不明的镜像。数据体积较大，因此仓库只提交适配器、
+生成命令和实验说明，不提交原始数据或派生文件。
+
 ## 一、可信评测基线
 
 ### 1. AIT-ADS 数据适配

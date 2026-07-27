@@ -7,13 +7,13 @@
 
 | 任务 | 节点 | 进度 |
 |---|---|---|
-| 🥉 基础（70 分）告警研判 Agent | preprocess → judge → output | 🚧 Week 2-3 |
-| 🥈 进阶（20 分）RAG 知识增强 | rag_node | 🚧 Week 4 |
-| 🥇 挑战（10 分）ReAct 自主闭环 | react_loop → disposition | 🚧 Week 5 |
+| 🥉 基础（70 分）告警研判 Agent | preprocess → judge → output | ✅ |
+| 🥈 进阶（20 分）RAG 知识增强 | judge → selective RAG → guarded refine | ✅ v2 |
+| 🥇 挑战（10 分）ReAct 自主闭环 | react_loop → disposition | ✅ |
 
 ---
 
-## 当前状态：Week 5 · ReAct 闭环完成（任务 D1-D4）
+## 当前状态：可信评测基线 + 受控 ReAct + 选择性 RAG v2
 
 ### ✅ 已完成
 - **Week 1 基础设施**：脚手架 + LLM 工厂 + Hello World + 数据 schema
@@ -24,6 +24,15 @@
   - `tool_executor` 节点：执行工具、收集证据
   - `disposition` 节点：真阳→封禁+隔离工单，假阳→加白，待查→升级人工
   - 循环终止三重保护：业务停止 / 置信度阈值 / 步数硬上限
+- **第三阶段选择性 RAG v2**：
+  - SQLite FTS5 + 本地稠密向量的混合检索，离线可运行
+  - 内置 20 条高频 ATT&CK 技术与 19 条 SOC 研判手册，覆盖 17 类当前数据集行为域
+  - 支持导入 MITRE ATT&CK STIX、Sigma YAML 与按需查询 NVD CVE
+  - `KB-*` 知识与 `EV-*` 事件证据分离，引用编号经过校验
+  - 先产出 No-RAG 初判，对待查/低置信及低特异性高置信真阳进行严格行为域检索
+  - 引用门控和防退化保护避免无关知识把已决样本改成待查
+  - 知识库版本不一致时自动补建，并提供不含标签的离线检索覆盖审计
+  - 页面支持 No-RAG、RAG、ReAct、RAG+ReAct 四组实验
 
 ### 📊 真实 DeepSeek V4 + ReAct 评测结果（50 条样本）
 
@@ -63,12 +72,11 @@ F1 分数:            1.0000
    - `json_mode` → 稳定可靠（response_format=json_object + Pydantic 解析）
 
 ### 🚧 下一步
+- 在冻结的 AIT-ADS 与 CAM-LDS 同样本上运行四组 RAG A/B 实验
+- 选取官方 Sigma 规则子集并完成规则质量、许可证和重复项审计
 - Week 6 工程化：Docker 部署、日志、红队样本
 - Week 5-6 前端：CoTViewer / ToolCallTrace 可视化（评委视觉记忆点）
 - Week 7 文档：设计/开发/测试/总结四份文档 + 3 分钟演示视频
-
-跳过 Week 4 RAG：实测 DeepSeek V4 自身安全知识足够（能引用 ATT&CK 战术编号），
-当前没有高质量知识库，强行 RAG 反而拖累准确率。
 
 ---
 
@@ -133,6 +141,12 @@ uv run python -m app.data.generator
 # 跑评测（mock 模式不耗 token；去掉 --mock 走真实 DeepSeek）
 uv run python -m app.eval.run --mock
 
+# 构建/检查 RAG；增加 --rag 运行 RAG 对照组
+uv run python -m app.rag.cli build
+uv run python -m app.rag.cli status
+uv run python -m app.rag.cli audit
+uv run python -m app.eval.run --strategy judge_only --rag --limit 50
+
 # 跑测试
 uv run pytest -v
 ```
@@ -141,8 +155,11 @@ uv run pytest -v
 
 - [AIT-ADS 第一阶段评测基线](docs/AIT_ADS_BASELINE.md)
 - [第二阶段 ReAct 受控执行说明](docs/REACT_PHASE2.md)
+- [第三阶段安全知识 RAG 与 A/B 实验](docs/RAG_PHASE3.md)
+- [AIT-ADS-20 选择性 RAG 校准实验 v3](docs/experiments/AIT_ADS_20_RAG_SELECTIVE_CALIBRATION_V3.md)
 - [CAM-LDS 多源证据 Pilot](docs/CAM_LDS_PILOT.md)
 - [zzb 分支阶段版本优化说明（2026-07-23）](docs/RELEASE_NOTES_ZZB_20260723.md)
+- [zzb 分支第三阶段 RAG 版本说明（2026-07-27）](docs/RELEASE_NOTES_ZZB_RAG_V3_20260727.md)
 
 ---
 

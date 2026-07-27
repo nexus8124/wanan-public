@@ -33,6 +33,7 @@ from app.data.loader import DEFAULT_DATASET
 from app.eval.dataset import load_eval_dataset
 from app.eval.metrics import compute_metrics, format_report
 from app.models.llm import get_llm
+from app.rag.service import get_rag_service
 
 logger = get_logger(__name__)
 
@@ -64,12 +65,16 @@ def _usage_delta(after: dict[str, int], before: dict[str, int]) -> dict[str, int
     return {key: max(0, after[key] - before[key]) for key in after}
 
 
-def _paired_react_summary(details: list[dict]) -> dict[str, int | float]:
-    """Measure ReAct's effect against the initial Judge from the same requests."""
+def _paired_stage_summary(
+    details: list[dict], *, before_key: str, after_key: str
+) -> dict[str, int | float]:
+    """Measure one stage against its input using the same model requests."""
     changed = fixes = regressions = changed_wrong = 0
     for detail in details:
-        initial = detail.get("initial_pred", detail.get("pred"))
-        final = detail.get("pred")
+        initial = detail.get(
+            before_key, detail.get("initial_pred", detail.get("pred"))
+        )
+        final = detail.get(after_key, detail.get("pred"))
         truth = detail.get("label")
         if initial == final:
             continue
@@ -82,10 +87,15 @@ def _paired_react_summary(details: list[dict]) -> dict[str, int | float]:
             changed_wrong += 1
     n = len(details)
     initial_correct = sum(
-        detail.get("initial_pred", detail.get("pred")) == detail.get("label")
+        detail.get(
+            before_key, detail.get("initial_pred", detail.get("pred"))
+        ) == detail.get("label")
         for detail in details
     )
-    final_correct = sum(detail.get("pred") == detail.get("label") for detail in details)
+    final_correct = sum(
+        detail.get(after_key, detail.get("pred")) == detail.get("label")
+        for detail in details
+    )
     return {
         "n": n,
         "initial_correct": initial_correct,
@@ -100,6 +110,46 @@ def _paired_react_summary(details: list[dict]) -> dict[str, int | float]:
         "net_fixes": fixes - regressions,
     }
 
+
+def _paired_react_summary(details: list[dict]) -> dict[str, int | float]:
+    """Measure ReAct after RAG; without RAG, post-RAG equals initial Judge."""
+    return _paired_stage_summary(
+        details, before_key="post_rag_pred", after_key="pred"
+    )
+
+
+def _paired_rag_summary(details: list[dict]) -> dict[str, int | float]:
+    """Measure only RAG late fusion, before any subsequent ReAct changes."""
+    summary = _paired_stage_summary(
+        details, before_key="initial_pred", after_key="post_rag_pred"
+    )
+    agent_results = [
+        detail.get("agent_result") or {} for detail in details
+    ]
+    summary.update({
+        "triggered": sum(
+            bool(result.get("rag_attempted")) for result in agent_results
+        ),
+        "retrieval_used": sum(
+            bool(result.get("rag_used")) for result in agent_results
+        ),
+        "refinement_attempted": sum(
+            bool(result.get("rag_refinement", {}).get("attempted"))
+            for result in agent_results
+        ),
+        "refinement_accepted": sum(
+            bool(result.get("rag_refinement", {}).get("accepted"))
+            for result in agent_results
+        ),
+        "refinement_errors": sum(
+            result.get("rag_refinement", {}).get("reason")
+            == "refinement_error"
+            for result in agent_results
+        ),
+    })
+    return summary
+
+
 def run_eval(
     dataset_path: str | Path | None = None,
     mock: bool = False,
@@ -109,6 +159,7 @@ def run_eval(
     should_stop: Callable[[], bool] | None = None,
     max_samples: int | None = None,
     strategy: EvalStrategy = "judge_only",
+    enable_rag: bool = False,
 ) -> dict:
     """跑评测，返回 metrics dict + 明细。
 
@@ -145,7 +196,10 @@ def run_eval(
     callbacks = [usage_handler, call_counter]
     experiment_config = {
         "strategy": strategy,
-        "rag_enabled": False,
+        "rag_enabled": enable_rag,
+        "rag_strategy": (
+            "selective_weak_signal_calibration_v3" if enable_rag else None
+        ),
         "tools_enabled": strategy == "react",
         "provider": "mock" if mock else settings.llm_provider,
         "model": "mock" if mock else (
@@ -161,6 +215,7 @@ def run_eval(
         "dataset_selection_basis": dataset.metadata.get("selection_basis"),
         "context_basis": dataset.metadata.get("context_basis"),
         "context_window_seconds": dataset.metadata.get("context_window_seconds"),
+        "rag": get_rag_service().status() if enable_rag else None,
         "react_policy": {
             "max_steps": settings.react_max_steps,
             "tool_timeout_s": settings.react_tool_timeout_s,
@@ -195,6 +250,7 @@ def run_eval(
                 alert_dict,
                 llm=llm,
                 enable_react=strategy == "react",
+                enable_rag=enable_rag,
                 callbacks=callbacks,
                 event_callback=(
                     lambda event, sample_index=i, sample_total=len(labeled):
@@ -207,6 +263,9 @@ def run_eval(
             )
             pred = agent_result["judgment"]
             initial_pred = agent_result.get("initial_judgment", pred)
+            post_rag_pred = agent_result.get(
+                "post_rag_judgment", initial_pred
+            )
             conf = agent_result["confidence"]
             reason = agent_result["reason"]
         except Exception as e:
@@ -214,6 +273,7 @@ def run_eval(
             logger.exception("[%d] 异常跳过 %s: %s", i, alert.alert_id, e)
             pred = "待查"
             initial_pred = pred
+            post_rag_pred = pred
             conf = 0.0
             reason = f"eval 异常: {e}"
         latency = time.perf_counter() - t0
@@ -229,6 +289,8 @@ def run_eval(
             "truth_metadata": sample.truth_metadata,
             "pred": pred,
             "initial_pred": initial_pred,
+            "post_rag_pred": post_rag_pred,
+            "rag_changed": initial_pred != post_rag_pred,
             "react_changed": initial_pred != pred,
             "confidence": conf,
             "latency_s": round(latency, 3),
@@ -264,6 +326,7 @@ def run_eval(
                     ).as_dict(),
                     "initial_metrics": compute_metrics(initial_predictions).as_dict(),
                     "paired_react": _paired_react_summary(details),
+                    "paired_rag": _paired_rag_summary(details),
                 }
             )
 
@@ -276,6 +339,17 @@ def run_eval(
     report = format_report(metrics)
     print("\n" + report)
     paired_react = _paired_react_summary(details)
+    paired_rag = _paired_rag_summary(details)
+    if enable_rag:
+        print(
+            "同轮 RAG 配对: "
+            f"初判={paired_rag['initial_accuracy']:.4f} "
+            f"RAG后={paired_rag['final_accuracy']:.4f} "
+            f"净变化={paired_rag['accuracy_delta']:+.4f} "
+            f"修正={paired_rag['fixes']} 退化={paired_rag['regressions']} "
+            f"触发={paired_rag['triggered']} 采纳={paired_rag['refinement_accepted']} "
+            f"失败={paired_rag['refinement_errors']}"
+        )
     if strategy == "react":
         print(
             "同轮 ReAct 配对: "
@@ -294,6 +368,7 @@ def run_eval(
         "metrics": metrics.as_dict(),
         "initial_metrics": compute_metrics(initial_predictions).as_dict(),
         "paired_react": paired_react,
+        "paired_rag": paired_rag,
         "details": details,
     }
 
@@ -362,6 +437,10 @@ def _main() -> None:
         "--strategy", choices=("judge_only", "react"), default="judge_only",
         help="judge_only=无工具单次调用基线；react=完整 ReAct Agent",
     )
+    parser.add_argument(
+        "--rag", action="store_true",
+        help="启用本地安全知识 RAG（默认关闭，用于公平基线）",
+    )
     args = parser.parse_args()
     run_eval(
         dataset_path=args.dataset,
@@ -369,6 +448,7 @@ def _main() -> None:
         save_results=not args.no_save,
         max_samples=args.limit,
         strategy=args.strategy,
+        enable_rag=args.rag,
     )
 
 

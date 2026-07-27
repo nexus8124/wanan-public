@@ -105,6 +105,7 @@ def run_eval_endpoint(
     mock: bool = True,
     limit: int | None = None,
     strategy: str = "judge_only",
+    rag: bool = False,
 ) -> dict:
     """触发评测（给评测页用）。
 
@@ -123,6 +124,7 @@ def run_eval_endpoint(
             save_results=False,
             max_samples=limit,
             strategy=strategy,  # type: ignore[arg-type]
+            enable_rag=rag,
         )
         return result
     except Exception as e:
@@ -134,6 +136,7 @@ async def _stream_eval(
     mock: bool,
     limit: int | None = None,
     strategy: str = "judge_only",
+    rag: bool = False,
 ) -> AsyncGenerator[dict, None]:
     """在线程池运行同步评测，并把逐样本进度转换成 SSE。"""
     from app.eval.history import create_run, finish_run, save_event, save_progress
@@ -168,6 +171,7 @@ async def _stream_eval(
                     "mock": mock,
                     "mode": mode,
                     "strategy": strategy,
+                    "rag": rag,
                     "total": total,
                     "dataset_id": dataset_id,
                     "dataset": str(dataset_path),
@@ -195,6 +199,7 @@ async def _stream_eval(
                 should_stop=stop_event.is_set,
                 max_samples=limit,
                 strategy=strategy,  # type: ignore[arg-type]
+                enable_rag=rag,
             )
             was_stopped = stop_event.is_set()
             finish_run(
@@ -203,6 +208,7 @@ async def _stream_eval(
                 metrics=result.get("metrics"),
                 initial_metrics=result.get("initial_metrics"),
                 paired_react=result.get("paired_react"),
+                paired_rag=result.get("paired_rag"),
                 experiment_config=result.get("experiment_config"),
                 error="用户中止或浏览器连接断开" if was_stopped else None,
             )
@@ -237,9 +243,10 @@ async def run_eval_stream_endpoint(
     mock: bool = True,
     limit: int | None = None,
     strategy: str = "judge_only",
+    rag: bool = False,
 ) -> EventSourceResponse:
     """流式评测：逐条推送进度，完成后返回最终指标和全部明细。"""
-    return EventSourceResponse(_stream_eval(mock, limit, strategy))
+    return EventSourceResponse(_stream_eval(mock, limit, strategy, rag))
 
 
 @router.get("/eval/datasets")

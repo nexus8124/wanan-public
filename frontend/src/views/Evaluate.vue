@@ -33,11 +33,14 @@ const datasetBusy = ref(false)
 const uploadInput = ref<HTMLInputElement | null>(null)
 const evalLimit = ref(20)
 const evalStrategy = ref<'judge_only' | 'react'>('judge_only')
+const ragEnabled = ref(false)
 const liveAgentEvents = ref<any[]>([])
 
 const eventLabels: Record<string, string> = {
   sample_started: '开始处理样本',
   preprocess_completed: '预处理完成',
+  knowledge_retrieved: '安全知识检索完成',
+  knowledge_refined: '安全知识后融合完成',
   judge_completed: '初步研判完成',
   decision_updated: 'ReAct 决策更新',
   tool_started: '开始调用工具',
@@ -149,7 +152,8 @@ async function startEval(useMock: boolean) {
   const requestedLimit = evalLimit.value > 0 ? Math.min(evalLimit.value, datasetCount) : null
   const sampleCount = requestedLimit || datasetCount
   const strategyText = evalStrategy.value === 'judge_only' ? '单次 Judge 基线' : '完整 ReAct'
-  if (!useMock && !confirm(`将以“${strategyText}”对 ${sampleCount} 条均衡样本调用真实模型并消耗 Token，确认继续？`)) {
+  const ragText = ragEnabled.value ? '启用 RAG' : '不启用 RAG'
+  if (!useMock && !confirm(`将以“${strategyText} + ${ragText}”对 ${sampleCount} 条均衡样本调用真实模型并消耗 Token，确认继续？`)) {
     return
   }
   loading.value = true
@@ -166,6 +170,7 @@ async function startEval(useMock: boolean) {
       useMock,
       requestedLimit,
       evalStrategy.value,
+      ragEnabled.value,
       {
         onStart: (data) => {
           activeRunId.value = data.run_id
@@ -188,6 +193,7 @@ async function startEval(useMock: boolean) {
             metrics: data.metrics,
             initial_metrics: data.initial_metrics,
             paired_react: data.paired_react,
+            paired_rag: data.paired_rag,
             details: [...currentDetails, data.detail],
           }
           const history = historyRuns.value.find((item) => item.id === data.run_id)
@@ -237,6 +243,7 @@ async function viewHistory(run: any) {
       metrics: saved.metrics,
       initial_metrics: saved.initial_metrics,
       paired_react: saved.paired_react,
+      paired_rag: saved.paired_rag,
       details: saved.details,
     }
     progress.value = { completed: saved.completed, total: saved.total }
@@ -391,6 +398,18 @@ const progressPercent = computed(() => {
           </select>
         </label>
 
+        <label class="min-w-[180px]">
+          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">知识增强</span>
+          <select
+            v-model="ragEnabled"
+            :disabled="loading || datasetBusy"
+            class="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+          >
+            <option :value="false">No-RAG 基线</option>
+            <option :value="true">选择性安全知识 RAG</option>
+          </select>
+        </label>
+
         <div v-if="activeDataset" class="w-full flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-text-mute">
           <span>真阳 {{ activeDataset.labels?.['真阳'] || 0 }}</span>
           <span>假阳 {{ activeDataset.labels?.['假阳'] || 0 }}</span>
@@ -403,7 +422,7 @@ const progressPercent = computed(() => {
           </span>
         </div>
         <div class="w-full text-[10px] text-text-mute">
-          Judge-only 每条只调用一次模型且禁用 ReAct/RAG，适合作为无工具基线；子集按真实标签均衡抽样，标签不会传给 Agent。
+          RAG 先保留无知识初判，对待查、低置信及低特异性高置信真阳进行严格检索与后融合；高置信假阳和强攻击证据样本会跳过。标签不会传给 Agent。
         </div>
       </div>
     </div>
@@ -536,13 +555,24 @@ const progressPercent = computed(() => {
         <span>策略：<b class="text-cyan">{{ result?.strategy === 'judge_only' ? 'Judge-only 无工具基线' : '完整 ReAct' }}</b></span>
         <span>模型：<b class="font-mono text-text">{{ result?.experiment_config?.model || '-' }}</b></span>
         <span>Prompt：<b class="font-mono text-text">{{ result?.experiment_config?.prompt_version || '-' }}</b></span>
-        <span>RAG：<b class="text-text">{{ result?.experiment_config?.rag_enabled ? '开启' : '关闭' }}</b></span>
+        <span>RAG：<b class="text-text">{{ result?.experiment_config?.rag_enabled ? '选择性后融合' : '关闭' }}</b></span>
+      </div>
+      <div
+        v-if="result?.experiment_config?.rag_enabled && result?.paired_rag"
+        class="card px-5 py-4 grid grid-cols-2 md:grid-cols-6 gap-4 text-xs"
+      >
+        <div><div class="text-text-mute">无 RAG 初判</div><div class="text-lg font-bold text-text">{{ (result.paired_rag.initial_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">RAG 后融合</div><div class="text-lg font-bold text-cyan">{{ (result.paired_rag.final_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">RAG 净变化</div><div class="text-lg font-bold" :class="result.paired_rag.accuracy_delta >= 0 ? 'text-green' : 'text-red'">{{ result.paired_rag.accuracy_delta >= 0 ? '+' : '' }}{{ (result.paired_rag.accuracy_delta * 100).toFixed(1) }} pp</div></div>
+        <div><div class="text-text-mute">触发 / 采纳</div><div class="text-lg font-bold text-purple">{{ result.paired_rag.triggered }} / {{ result.paired_rag.refinement_accepted }}</div></div>
+        <div><div class="text-text-mute">修正 / 退化</div><div class="text-lg font-bold"><span class="text-green">{{ result.paired_rag.fixes }}</span> / <span class="text-red">{{ result.paired_rag.regressions }}</span></div></div>
+        <div><div class="text-text-mute">后融合失败</div><div class="text-lg font-bold" :class="result.paired_rag.refinement_errors ? 'text-red' : 'text-green'">{{ result.paired_rag.refinement_errors }}</div></div>
       </div>
       <div
         v-if="result?.strategy === 'react' && result?.paired_react"
         class="card px-5 py-4 grid grid-cols-2 md:grid-cols-6 gap-4 text-xs"
       >
-        <div><div class="text-text-mute">同轮初判</div><div class="text-lg font-bold text-text">{{ (result.paired_react.initial_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">{{ result?.experiment_config?.rag_enabled ? 'RAG 后判定' : '同轮初判' }}</div><div class="text-lg font-bold text-text">{{ (result.paired_react.initial_accuracy * 100).toFixed(1) }}%</div></div>
         <div><div class="text-text-mute">ReAct 最终</div><div class="text-lg font-bold text-cyan">{{ (result.paired_react.final_accuracy * 100).toFixed(1) }}%</div></div>
         <div><div class="text-text-mute">净变化</div><div class="text-lg font-bold" :class="result.paired_react.accuracy_delta >= 0 ? 'text-green' : 'text-red'">{{ result.paired_react.accuracy_delta >= 0 ? '+' : '' }}{{ (result.paired_react.accuracy_delta * 100).toFixed(1) }} pp</div></div>
         <div><div class="text-text-mute">修正</div><div class="text-lg font-bold text-green">{{ result.paired_react.fixes }}</div></div>
@@ -737,6 +767,57 @@ const progressPercent = computed(() => {
           <section v-if="selectedDetail.agent_result.cot_trace?.length">
             <div class="section-title mb-3">01 · CoT 思维链</div>
             <CoTTimeline :steps="selectedDetail.agent_result.cot_trace" :streaming="false" />
+          </section>
+
+          <section v-if="selectedDetail.agent_result.retrieval_trace?.strategy">
+            <div class="section-title mb-3">RAG · 检索知识与引用</div>
+            <div class="card p-3 mb-3 text-[10px] text-text-mute flex flex-wrap gap-x-5 gap-y-2">
+              <span>策略：选择性后融合</span>
+              <span>是否触发：{{ selectedDetail.agent_result.rag_attempted ? '是' : '否' }}</span>
+              <span>召回：{{ selectedDetail.agent_result.knowledge_hits?.length || 0 }} 条</span>
+              <span>
+                融合：{{
+                  selectedDetail.agent_result.rag_refinement?.accepted
+                    ? '已采纳'
+                    : (selectedDetail.agent_result.rag_refinement?.attempted ? '未采纳' : '未执行')
+                }}
+              </span>
+              <span v-if="selectedDetail.agent_result.retrieval_trace?.skipped_reason">
+                跳过原因：{{ selectedDetail.agent_result.retrieval_trace.skipped_reason }}
+              </span>
+              <span v-if="selectedDetail.agent_result.rag_refinement?.reason">
+                融合原因：{{ selectedDetail.agent_result.rag_refinement.reason }}
+              </span>
+              <span v-if="selectedDetail.agent_result.rag_refinement?.parse_mode">
+                解析路径：{{ selectedDetail.agent_result.rag_refinement.parse_mode }}
+              </span>
+              <span v-if="selectedDetail.agent_result.rag_refinement?.attempts">
+                请求次数：{{ selectedDetail.agent_result.rag_refinement.attempts }}
+              </span>
+            </div>
+            <div
+              v-if="selectedDetail.agent_result.rag_refinement?.diagnostics?.length"
+              class="mb-3 rounded-lg border border-red/30 bg-red/5 p-3 text-[10px] text-red"
+            >
+              {{ selectedDetail.agent_result.rag_refinement.diagnostics.join(' · ') }}
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div
+                v-for="hit in selectedDetail.agent_result.knowledge_hits"
+                :key="hit.knowledge_id"
+                class="card p-4"
+              >
+                <div class="flex items-center justify-between gap-3">
+                  <code class="text-[10px] text-cyan">{{ hit.knowledge_id }}</code>
+                  <span class="text-[10px] text-text-mute">{{ Math.round(hit.score * 100) }}%</span>
+                </div>
+                <div class="mt-2 text-xs font-semibold">{{ hit.title }}</div>
+                <div class="mt-2 text-[10px] text-text-mute line-clamp-3">{{ hit.content }}</div>
+              </div>
+            </div>
+            <div class="mt-2 text-[10px] text-text-mute">
+              本次实际引用：{{ selectedDetail.agent_result.cited_knowledge?.join(', ') || '无' }}
+            </div>
           </section>
 
           <section v-if="selectedDetail.agent_result.react_steps?.length">

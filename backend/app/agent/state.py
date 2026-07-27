@@ -42,12 +42,21 @@ class AgentState(TypedDict, total=False):
     initial_judgment: str  # ReAct 前的 Judge 原始判定（用于同轮配对评测）
     initial_confidence: float
     initial_reason: str
+    post_rag_judgment: str
+    post_rag_confidence: float
+    post_rag_reason: str
 
     # ----- 节点5a output 输出 -----
     result: dict           # 给 API/前端的最终结构化结果
 
     # ----- Week 4 RAG 接入（进阶任务） -----
     rag_context: str       # 知识库检索结果文本
+    rag_attempted: bool
+    rag_used: bool
+    knowledge_hits: list[dict]
+    cited_knowledge: list[str]
+    retrieval_trace: dict
+    rag_refinement: dict
 
     # ----- Week 5 ReAct 接入（挑战任务） -----
     # next_action: react_decide 输出、tool_executor 消费的中间字段

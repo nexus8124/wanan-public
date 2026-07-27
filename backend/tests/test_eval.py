@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from app.eval.metrics import compute_metrics, format_report
-from app.eval.run import _paired_react_summary, run_eval
+from app.eval.run import _paired_rag_summary, _paired_react_summary, run_eval
 from app.data.generator import EVAL_DATASET
 
 
@@ -107,6 +107,40 @@ def test_paired_react_summary_separates_fixes_and_regressions():
     assert summary["regressions"] == 1
     assert summary["changed_wrong"] == 1
     assert summary["accuracy_delta"] == 0.0
+
+
+def test_paired_rag_summary_is_separate_from_react_changes():
+    details = [
+        {
+            "label": "真阳",
+            "initial_pred": "待查",
+            "post_rag_pred": "真阳",
+            "pred": "真阳",
+            "agent_result": {
+                "rag_attempted": True,
+                "rag_used": True,
+                "rag_refinement": {"attempted": True, "accepted": True},
+            },
+        },
+        {
+            "label": "假阳",
+            "initial_pred": "假阳",
+            "post_rag_pred": "假阳",
+            "pred": "待查",
+            "agent_result": {
+                "rag_attempted": False,
+                "rag_used": False,
+                "rag_refinement": {"attempted": False, "accepted": False},
+            },
+        },
+    ]
+    rag = _paired_rag_summary(details)
+    react = _paired_react_summary(details)
+    assert rag["fixes"] == 1
+    assert rag["regressions"] == 0
+    assert rag["refinement_accepted"] == 1
+    assert react["fixes"] == 0
+    assert react["regressions"] == 1
 
 
 def test_run_eval_reports_incremental_progress_and_stops():

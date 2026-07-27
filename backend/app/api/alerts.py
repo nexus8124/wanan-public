@@ -21,7 +21,7 @@ router = APIRouter(prefix="/api/alerts", tags=["alerts"])
 
 
 @router.post("/judge")
-def judge(alert: Alert) -> JSONResponse:
+def judge(alert: Alert, rag: bool | None = None) -> JSONResponse:
     """研判单条告警，返回结构化判定结果 + CoT。
 
     入参：Alert（Pydantic schema，自动校验）
@@ -47,7 +47,11 @@ def judge(alert: Alert) -> JSONResponse:
         # 不把 label 传给 Agent（推理时不应看到答案）
         alert_dict = alert.model_dump(mode="json")
         alert_dict.pop("label", None)
-        result = judge_alert(alert_dict, llm=llm)
+        result = judge_alert(
+            alert_dict,
+            llm=llm,
+            enable_rag=settings.rag_enabled if rag is None else rag,
+        )
         return JSONResponse(content=result)
     except Exception as e:
         logger.exception("judge API failed: %s", e)

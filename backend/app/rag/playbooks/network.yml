@@ -1,0 +1,11 @@
+id: PB-NETWORK-001
+title: C2 外联与异常网络通信研判手册
+version: "1.0"
+tags: [c2, beacon, dns, network, netflow]
+content: |
+  适用场景：周期性外联、DNS 隧道、非常用端口、威胁情报命中与反向连接。
+  支持真阳的事件证据：稳定 beacon 周期、低抖动、小流量长连接；域名或 IP 有可靠情报；
+  发起进程异常且与主机角色不符；同时间窗存在持久化、下载或命令执行。
+  常见误报：CDN、软件更新、监控心跳、备份与企业代理。仅凭端口或目标地域不足以判恶意。
+  处置前应关联 NetFlow、DNS、代理日志和端点进程；证据不足时待查。
+source_uri: local://playbooks/network

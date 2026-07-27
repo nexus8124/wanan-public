@@ -60,10 +60,15 @@ export async function streamRunEval(
   mock: boolean,
   limit: number | null,
   strategy: 'judge_only' | 'react',
+  rag: boolean,
   callbacks: EvalStreamCallbacks,
   signal?: AbortSignal,
 ): Promise<void> {
-  const params = new URLSearchParams({ mock: String(mock), strategy })
+  const params = new URLSearchParams({
+    mock: String(mock),
+    strategy,
+    rag: String(rag),
+  })
   if (limit && limit > 0) params.set('limit', String(limit))
   const res = await fetch(`${API_BASE}/eval/run/stream?${params.toString()}`, {
     method: 'POST',
@@ -188,8 +193,9 @@ export async function streamJudgeAlert(
   alert: Record<string, any>,
   callbacks: StreamCallbacks,
   signal?: AbortSignal,
+  rag = false,
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/alerts/judge/stream`, {
+  const res = await fetch(`${API_BASE}/alerts/judge/stream?rag=${rag}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

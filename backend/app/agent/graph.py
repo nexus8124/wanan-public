@@ -1,9 +1,9 @@
 """LangGraph 主图（带 ReAct 循环版）。
 
 链路：
-    START → preprocess → judge ─┬─ 高置信 → disposition → output → END
-                                │
-                                └─ 低置信 → react_decide ─┐
+    START → preprocess → judge → selective_rag（可选）─┬─ 高置信 → disposition → output → END
+                                                        │
+                                                        └─ 低置信 → react_decide ─┐
                                            ↑               ↓
                                            └─ tool_executor ┘
                                            ↓ (证据够 / 步数满)
@@ -11,6 +11,7 @@
 
 赛题对齐：
   - 基础任务（70分）：preprocess + judge + output
+  - 进阶任务（20分）：selective RAG + guarded refinement
   - 挑战任务（10分）：react_decide 循环 + disposition 处置闭环
 """
 
@@ -24,6 +25,8 @@ from langgraph.graph import END, START, StateGraph
 from app.agent.nodes import (
     disposition_node,
     make_judge_node,
+    make_rag_refine_node,
+    make_rag_retrieve_node,
     make_react_decide_node,
     output_node,
     preprocess_node,
@@ -113,6 +116,8 @@ def build_graph(
     llm: BaseChatModel | None = None,
     *,
     enable_react: bool = True,
+    enable_rag: bool = False,
+    rag_service: Any | None = None,
 ):
     """构建并编译带 ReAct 循环的 Agent 图。
 
@@ -127,6 +132,9 @@ def build_graph(
 
     graph = StateGraph(AgentState)
     graph.add_node("preprocess", preprocess_node)
+    if enable_rag:
+        graph.add_node("rag_retrieve", make_rag_retrieve_node(rag_service))
+        graph.add_node("rag_refine", make_rag_refine_node(llm))
     graph.add_node("judge", judge_node)
     graph.add_node("react_decide", react_decide_node)
     graph.add_node("tool_executor", tool_executor_node)
@@ -136,16 +144,23 @@ def build_graph(
     graph.add_edge(START, "preprocess")
     graph.add_edge("preprocess", "judge")
 
-    # judge 后分叉
+    # RAG 采用选择性后融合：先形成无知识基线，再仅对低置信/待查样本检索。
+    post_judge_node = "judge"
+    if enable_rag:
+        graph.add_edge("judge", "rag_retrieve")
+        graph.add_edge("rag_retrieve", "rag_refine")
+        post_judge_node = "rag_refine"
+
+    # Judge / RAG 后融合之后分叉
     if enable_react:
         graph.add_conditional_edges(
-            "judge",
+            post_judge_node,
             _judge_router,
             {"disposition": "disposition", "react_decide": "react_decide"},
         )
     else:
         # 可复现的无工具基线：每条样本只经过一次 judge 模型调用。
-        graph.add_edge("judge", "disposition")
+        graph.add_edge(post_judge_node, "disposition")
 
     # react_decide 后分叉（自循环 or 跳出）
     graph.add_conditional_edges(
@@ -169,6 +184,8 @@ def judge_alert(
     llm: BaseChatModel | None = None,
     *,
     enable_react: bool = True,
+    enable_rag: bool = False,
+    rag_service: Any | None = None,
     callbacks: list[Any] | None = None,
     event_callback: Any | None = None,
 ) -> dict:
@@ -176,7 +193,12 @@ def judge_alert(
 
     给 API / 评测脚本用。
     """
-    graph = build_graph(llm=llm, enable_react=enable_react)
+    graph = build_graph(
+        llm=llm,
+        enable_react=enable_react,
+        enable_rag=enable_rag,
+        rag_service=rag_service,
+    )
     config = {"callbacks": callbacks} if callbacks else None
     if event_callback is None:
         final_state = graph.invoke({"alert": alert}, config=config)
@@ -186,6 +208,8 @@ def judge_alert(
     final_result: dict | None = None
     node_event_types = {
         "preprocess": "preprocess_completed",
+        "rag_retrieve": "knowledge_retrieved",
+        "rag_refine": "knowledge_refined",
         "judge": "judge_completed",
         "react_decide": "decision_updated",
         "tool_executor": "tool_completed",

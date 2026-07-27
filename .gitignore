@@ -47,6 +47,7 @@ data/chroma_db/
 data/processed/
 data/raw/
 data/uploaded/
+data/knowledge/*.sqlite3*
 data/active_eval_dataset.json
 # 评测结果（每次跑会产生，不纳入版本管理）
 **/eval_results.json

@@ -1,5 +1,12 @@
 # CAM-LDS 多源证据 Pilot
 
+官方数据来源：
+
+- Zenodo v2：<https://zenodo.org/records/18861762>
+- 本项目使用的 `manifestations_filtered.zip`：
+  <https://zenodo.org/records/18861762/files/manifestations_filtered.zip?download=1>
+- 官方处理代码：<https://github.com/ait-aecid/attack-manifestations-interpretation>
+
 ## 目标
 
 CAM-LDS Pilot 用于验证 ReAct 是否能通过真实的检测告警、主机日志和网络告警完成证据融合。它不替代 AIT-ADS 的真阳/假阳基线。

@@ -156,12 +156,14 @@ class FunctionAgentTool(AgentTool):
         source: str,
         function: Callable[..., dict[str, Any]],
         required_arguments: tuple[str, ...] = (),
+        evidence_kind: str = "event_observation",
     ) -> None:
         self.name = name
         self.description = description
         self.source = source
         self.function = function
         self.required_arguments = required_arguments
+        self.evidence_kind = evidence_kind
 
     async def execute(
         self, arguments: dict[str, Any], context: ToolContext
@@ -205,6 +207,7 @@ class FunctionAgentTool(AgentTool):
                 ),
                 source=self.source,
                 timestamp=utc_now(),
+                kind=self.evidence_kind,
                 summary=summary,
                 confidence=confidence,
                 usable=status == "found",

@@ -20,6 +20,7 @@ def test_history_persists_partial_interrupted_run(tmp_path, monkeypatch):
                 "metrics": {"n": i, "accuracy": 1.0, "f1": 1.0},
                 "initial_metrics": {"n": i, "accuracy": 0.5},
                 "paired_react": {"fixes": 1, "regressions": 0},
+                "paired_rag": {"fixes": 2, "regressions": 0},
                 "experiment_config": {"prompt_version": "test-v1"},
                 "detail": {
                     "alert_id": f"TP-{i:03d}",
@@ -43,6 +44,7 @@ def test_history_persists_partial_interrupted_run(tmp_path, monkeypatch):
         metrics={"n": 2, "accuracy": 1.0, "f1": 1.0},
         initial_metrics={"n": 2, "accuracy": 0.5},
         paired_react={"fixes": 1, "regressions": 0},
+        paired_rag={"fixes": 2, "regressions": 0},
         error="用户中止",
     )
 
@@ -55,6 +57,7 @@ def test_history_persists_partial_interrupted_run(tmp_path, monkeypatch):
     assert saved["experiment_config"]["prompt_version"] == "test-v1"
     assert saved["initial_metrics"]["accuracy"] == 0.5
     assert saved["paired_react"]["fixes"] == 1
+    assert saved["paired_rag"]["fixes"] == 2
     assert saved["details"][0]["agent_result"]["cot_trace"] == ["证据摘要"]
     assert saved["events"][0]["type"] == "tool_completed"
     assert saved["events"][0]["event_seq"] == 1

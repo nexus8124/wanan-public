@@ -30,12 +30,14 @@ def _safe_json(obj: Any) -> str:
     return json.dumps(obj, ensure_ascii=False, default=str)
 
 
-async def _stream_graph(alert_dict: dict, use_mock: bool) -> AsyncGenerator[dict, None]:
+async def _stream_graph(
+    alert_dict: dict, use_mock: bool, *, enable_rag: bool
+) -> AsyncGenerator[dict, None]:
     """把 LangGraph 同步 stream 包成 async generator（供 SSE）。"""
     import asyncio
     import threading
 
-    graph = build_graph(llm=get_llm(mock=use_mock))
+    graph = build_graph(llm=get_llm(mock=use_mock), enable_rag=enable_rag)
     config = {"recursion_limit": 25}
 
     # 在线程池里跑同步 stream，避免阻塞事件循环
@@ -84,7 +86,7 @@ async def _stream_graph(alert_dict: dict, use_mock: bool) -> AsyncGenerator[dict
 
 
 @router.post("/judge/stream")
-async def judge_stream(alert: Alert):
+async def judge_stream(alert: Alert, rag: bool | None = None):
     """SSE 流式研判接口。
 
     入参：Alert（与同步接口相同）
@@ -107,4 +109,10 @@ async def judge_stream(alert: Alert):
     alert_dict = alert.model_dump(mode="json")
     alert_dict.pop("label", None)
 
-    return EventSourceResponse(_stream_graph(alert_dict, use_mock))
+    return EventSourceResponse(
+        _stream_graph(
+            alert_dict,
+            use_mock,
+            enable_rag=settings.rag_enabled if rag is None else rag,
+        )
+    )
