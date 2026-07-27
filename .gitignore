@@ -42,9 +42,10 @@ logs/
 htmlcov/
 coverage.xml
 
-# Data artifacts（向量库、运行缓存 —— 不入库）
+# Data artifacts（向量库、运行缓�?—�?不入库）
 data/chroma_db/
 data/processed/
+data/knowledge/
 data/raw/
 # 评测结果（每次跑会产生，不纳入版本管理）
 **/eval_results.json
@@ -53,7 +54,6 @@ data/raw/
 frontend/node_modules/
 frontend/.next/
 frontend/out/
-# dist 是构建产物，不入库（评委本地 npm run build 或我们交付时打包）
-frontend/dist/
+# dist 是构建产物，不入库（评委本地 npm run build 或我们交付时打包�?frontend/dist/
 # TypeScript 增量构建缓存
 frontend/*.tsbuildinfo
