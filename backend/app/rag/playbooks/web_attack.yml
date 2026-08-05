@@ -1,0 +1,12 @@
+id: PB-WEB-ATTACK-001
+title: Web 注入与扫描告警研判手册
+version: "1.0"
+tags: [waf, sql-injection, webshell, http]
+content: |
+  适用场景：SQL 注入、命令注入、目录遍历、WebShell 与批量扫描告警。
+  支持真阳的事件证据：请求参数出现完整注入语义并命中应用路径；
+  服务端返回异常、数据库延迟或错误与 payload 相符；后续存在落地文件、异常子进程或回连。
+  常见误报：安全扫描器、WAF 测试、参数中仅含关键字但被编码或业务正常使用。
+  研判时应区分“攻击尝试”与“攻击成功”；只有规则命中而无响应、主机或应用证据时，
+  不应凭知识库直接断言已入侵。确认成功后隔离受影响服务并保留请求与应用日志。
+source_uri: local://playbooks/web-attack

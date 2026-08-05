@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from langchain_core.runnables import RunnableLambda
 
 from app.agent.graph import (
     REACT_CONFIDENCE_THRESHOLD,
@@ -10,7 +11,11 @@ from app.agent.graph import (
     _judge_router,
     _react_router,
 )
-from app.agent.nodes import disposition_node, tool_executor_node
+from app.agent.nodes import (
+    disposition_node,
+    make_react_decide_node,
+    tool_executor_node,
+)
 from app.agent.state import AgentState
 from app.agent.tools import (
     TOOL_REGISTRY,
@@ -49,36 +54,39 @@ class TestTools:
             "query_similar_alerts", "search_attck_technique", "lookup_cve",
             "suggest_block_ip", "suggest_isolate_host",
         }
-        assert set(TOOL_REGISTRY.keys()) == expected
+        assert set(TOOL_REGISTRY.keys()) >= expected
+        assert "inspect_alert_context" in TOOL_REGISTRY
 
     def test_endpoint_logs_differ_for_tp_vs_fp(self):
         """工具必须有状态：真阳返回可疑进程，假阳返回正常。"""
         tp = execute_tool("fetch_endpoint_logs", self.TP_CTX, {"host_ip": "10.20.33.51"})
         fp = execute_tool("fetch_endpoint_logs", self.FP_CTX, {"host_ip": "10.20.30.5"})
-        assert len(tp["suspicious_processes"]) > 0, "真阳应返回可疑进程"
-        assert len(fp["suspicious_processes"]) == 0, "假阳不应有可疑进程"
+        assert len(tp["evidence"][0]["data"]["suspicious_processes"]) > 0
+        assert len(fp["evidence"][0]["data"]["suspicious_processes"]) == 0
 
     def test_threat_intel_identifies_malicious_ip(self):
         """威胁情报能识别已知恶意 IP。"""
         r = execute_tool("check_threat_intel", self.TP_CTX, {"indicator": "185.220.101.34"})
-        assert r["malicious"] is True
-        assert len(r["tags"]) > 0
+        assert r["evidence"][0]["data"]["malicious"] is True
+        assert len(r["evidence"][0]["data"]["tags"]) > 0
 
     def test_threat_intel_clean_ip(self):
-        """干净 IP 不报恶意。"""
+        """情报未命中保持未知，不能反推为安全。"""
         r = execute_tool("check_threat_intel", self.TP_CTX, {"indicator": "8.8.8.8"})
-        assert r["malicious"] is False
+        assert r["status"] == "not_found"
+        assert r["evidence"][0]["data"]["malicious"] is None
 
     def test_attck_search_returns_matches(self):
         """ATT&CK 查询能命中关键词。"""
         r = execute_tool("search_attck_technique", self.TP_CTX, {"keyword": "powershell"})
-        assert r["total"] >= 1
-        assert any(t["id"] == "T1059.001" for t in r["matches"])
+        data = r["evidence"][0]["data"]
+        assert data["total"] >= 1
+        assert any(t["id"] == "T1059.001" for t in data["matches"])
 
     def test_cve_lookup(self):
         """CVE 查询能命中。"""
         r = execute_tool("lookup_cve", self.TP_CTX, {"keyword": "openssh"})
-        assert r["total"] >= 1
+        assert r["evidence"][0]["data"]["total"] >= 1
 
     def test_block_ip_generates_ticket_not_executed(self):
         """处置工具生成工单但不执行（安全设计）。"""
@@ -86,17 +94,19 @@ class TestTools:
             "suggest_block_ip", self.TP_CTX,
             {"ip": "185.220.101.34", "reason": "C2"},
         )
-        assert r["executed"] is False
-        assert "ticket_id" in r
-        assert r["action"] == "block_ip"
+        data = r["evidence"][0]["data"]
+        assert data["executed"] is False
+        assert "ticket_id" in data
+        assert data["action"] == "block_ip"
 
     def test_isolate_host_generates_ticket(self):
         r = execute_tool(
             "suggest_isolate_host", self.TP_CTX,
             {"host_ip": "10.20.33.51"},
         )
-        assert r["executed"] is False
-        assert r["action"] == "isolate_host"
+        data = r["evidence"][0]["data"]
+        assert data["executed"] is False
+        assert data["action"] == "isolate_host"
 
     def test_unknown_tool_returns_error(self):
         """未知工具不崩，返回错误。"""
@@ -122,6 +132,9 @@ class TestRouters:
         """高置信直接进 disposition。"""
         state: AgentState = {"confidence": 0.95, "judgment": "真阳"}  # type: ignore
         assert _judge_router(state) == "disposition"
+
+    def test_react_tool_budget_is_three(self):
+        assert REACT_MAX_STEPS == 3
 
     def test_judge_router_low_confidence_enters_react(self):
         """低置信进 ReAct。"""
@@ -174,6 +187,19 @@ class TestRouters:
         }
         assert _react_router(state) == "disposition"
 
+    def test_react_router_stops_duplicate_action(self):
+        state: AgentState = {  # type: ignore
+            "react_steps": [
+                {"tool": "check_threat_intel", "args": {"indicator": "8.8.8.8"}}
+            ],
+            "next_action": {
+                "tool": "check_threat_intel",
+                "args": {"indicator": "8.8.8.8"},
+            },
+            "confidence": 0.4,
+        }
+        assert _react_router(state) == "disposition"
+
 
 # ============================================================
 # 节点单元测试
@@ -181,6 +207,133 @@ class TestRouters:
 
 
 class TestNodes:
+    def test_planning_decision_does_not_overwrite_committed_verdict(
+        self, monkeypatch
+    ):
+        """A temporary candidate verdict is not final while another tool is pending."""
+        from app.agent import nodes
+        from app.models.llm import get_llm
+        from app.models.schemas import ReactDecision
+
+        decision = ReactDecision(
+            analysis="需要补充端点证据。",
+            judgment="待查",
+            confidence=0.5,
+            need_more_info=True,
+            next_action={
+                "tool": "fetch_endpoint_logs",
+                "args": {"host_ip": "10.0.0.5"},
+            },
+            reasoning="当前只是调查中的候选状态。",
+        )
+        monkeypatch.setattr(
+            nodes,
+            "_bind_structured_output",
+            lambda *_args, **_kwargs: RunnableLambda(
+                lambda _inp, **_invoke_kwargs: decision
+            ),
+        )
+        node = make_react_decide_node(get_llm(mock=True))
+        out = node({
+            "alert": {"alert_id": "CASE-1", "src_ip": "10.0.0.5"},
+            "judgment": "真阳",
+            "confidence": 0.9,
+            "reason": "初判存在明确攻击行为。",
+            "react_steps": [],
+            "execution_policy": {},
+            "cot_trace": [],
+        })
+        assert out["next_action"]["tool"] == "fetch_endpoint_logs"
+        assert "judgment" not in out
+        assert "confidence" not in out
+        assert "reason" not in out
+
+    def test_parser_failure_continues_real_evidence_route(self, monkeypatch):
+        """A malformed LLM response must not abort remaining dataset-backed tools."""
+        from app.agent import nodes
+        from app.models.llm import get_llm
+
+        def fail(_inp):
+            raise ValueError("simulated output parsing failure")
+
+        monkeypatch.setattr(
+            nodes,
+            "_bind_structured_output",
+            lambda *_args, **_kwargs: RunnableLambda(fail),
+        )
+        node = make_react_decide_node(get_llm(mock=True))
+        out = node({
+            "alert": {
+                "alert_id": "CASE-2",
+                "raw_payload": {
+                    "_evidence_ref": "case-2",
+                    "_evidence_store": "cam-lds",
+                    "evidence_capabilities": ["detector_context", "endpoint_logs"],
+                    "query_targets": {
+                        "endpoint": [{"ip": "10.0.0.8"}],
+                        "network_ips": [],
+                    },
+                },
+            },
+            "judgment": "真阳",
+            "confidence": 0.9,
+            "reason": "初判存在明确攻击行为。",
+            "react_steps": [],
+            "execution_policy": {},
+            "cot_trace": [],
+        })
+        assert out["next_action"] == {
+            "tool": "inspect_alert_context",
+            "args": {},
+        }
+        assert out["termination_reason"] is None
+        assert out["confidence"] == 0.9
+
+    def test_final_react_decision_cannot_downgrade_resolved_verdict_to_pending(
+        self, monkeypatch
+    ):
+        """Missing extra evidence is not evidence against a resolved verdict."""
+        from app.agent import nodes
+        from app.models.llm import get_llm
+        from app.models.schemas import ReactDecision
+
+        decision = ReactDecision(
+            analysis="外部查询无记录，因此仍有不确定性。",
+            judgment="待查",
+            confidence=0.3,
+            need_more_info=False,
+            next_action=None,
+            reasoning="没有获得更多日志，建议待查。",
+        )
+        monkeypatch.setattr(
+            nodes,
+            "_bind_structured_output",
+            lambda *_args, **_kwargs: RunnableLambda(
+                lambda _inp, **_invoke_kwargs: decision
+            ),
+        )
+        node = make_react_decide_node(get_llm(mock=True))
+        out = node({
+            "alert": {"alert_id": "CASE-GUARD"},
+            "judgment": "真阳",
+            "confidence": 0.9,
+            "reason": "初始告警存在明确攻击证据。",
+            "react_steps": [{
+                "tool": "fetch_endpoint_logs",
+                "args": {"host_ip": "10.0.0.5"},
+                "result": {"status": "no_records", "evidence": []},
+            }],
+            "evidence": [],
+            "execution_policy": {},
+            "cot_trace": [],
+        })
+        assert "judgment" not in out
+        assert "confidence" not in out
+        assert (
+            out["termination_reason"]
+            == "resolved_verdict_cannot_be_downgraded_to_pending"
+        )
+
     def test_tool_executor_appends_step(self):
         """tool_executor 正确追加步骤到 react_steps。"""
         state: AgentState = {  # type: ignore
@@ -193,7 +346,9 @@ class TestNodes:
         assert len(out["react_steps"]) == 1
         assert out["react_steps"][0]["tool"] == "check_threat_intel"
         assert "check_threat_intel" in out["tools_called"]
-        assert out["react_steps"][0]["result"]["malicious"] is True
+        result = out["react_steps"][0]["result"]
+        assert result["status"] == "found"
+        assert result["evidence"][0]["data"]["malicious"] is True
 
     def test_disposition_for_true_positive(self):
         """真阳 → 封禁+隔离工单。"""

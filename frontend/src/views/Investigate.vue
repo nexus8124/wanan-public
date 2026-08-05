@@ -62,6 +62,7 @@ const alertJson = ref('')
 const streaming = ref(false)
 const errorMsg = ref('')
 const abortCtrl = ref<AbortController | null>(null)
+const ragEnabled = ref(false)
 
 // 累积的状态（流式过程中逐步更新）
 const trace = reactive({
@@ -71,6 +72,8 @@ const trace = reactive({
   cotTrace: [] as string[],  // CoT 步骤
   reactSteps: [] as any[],   // ReAct 工具调用
   toolsCalled: [] as string[],
+  knowledgeHits: [] as any[],
+  citedKnowledge: [] as string[],
   disposition: null as any,
   reason: '',
   done: false,
@@ -88,6 +91,8 @@ function resetTrace() {
   trace.cotTrace = []
   trace.reactSteps = []
   trace.toolsCalled = []
+  trace.knowledgeHits = []
+  trace.citedKnowledge = []
   trace.disposition = null
   trace.reason = ''
   trace.done = false
@@ -103,6 +108,8 @@ function handleEvent(ev: StreamEvent) {
   if (u.reason !== undefined) trace.reason = u.reason
   if (u.cot_trace !== undefined) trace.cotTrace = u.cot_trace
   if (u.tools_called !== undefined) trace.toolsCalled = u.tools_called
+  if (u.knowledge_hits !== undefined) trace.knowledgeHits = u.knowledge_hits
+  if (u.cited_knowledge !== undefined) trace.citedKnowledge = u.cited_knowledge
   if (u.react_steps !== undefined) trace.reactSteps = u.react_steps
   if (u.disposition !== undefined) trace.disposition = u.disposition
 }
@@ -129,6 +136,7 @@ async function startStream() {
         onDone: () => { trace.done = true },
       },
       abortCtrl.value.signal,
+      ragEnabled.value,
     )
   } catch (e: any) {
     if (e.name !== 'AbortError') {
@@ -191,6 +199,19 @@ const inReactPhase = computed(() =>
           placeholder='点击上方示例加载，或粘贴告警 JSON...'
         ></textarea>
 
+        <label class="mt-3 flex items-center justify-between rounded-lg border border-border bg-bg px-3 py-2 text-xs">
+          <span>
+            <b class="text-text">安全知识 RAG</b>
+            <span class="block text-[10px] text-text-mute">仅对低置信初判检索并后融合</span>
+          </span>
+          <input
+            v-model="ragEnabled"
+            type="checkbox"
+            :disabled="streaming"
+            class="h-4 w-4 accent-cyan"
+          />
+        </label>
+
         <button
           @click="streaming ? stopStream() : startStream()"
           :disabled="!alertJson && !streaming"
@@ -222,7 +243,7 @@ const inReactPhase = computed(() =>
         <div v-if="!trace.currentNode && !errorMsg" class="flex flex-col items-center justify-center py-20 text-text-mute">
           <div class="text-5xl mb-3 opacity-40">🤖</div>
           <div class="text-sm">点击左侧"开始研判"，观看 Agent 实时思考过程</div>
-          <div class="text-xs mt-1">SSE 流式推送：judge → ReAct 工具调用 → 处置闭环</div>
+          <div class="text-xs mt-1">SSE 流式推送：judge → 选择性 RAG → ReAct → 处置闭环</div>
         </div>
 
         <!-- 错误 -->
@@ -232,6 +253,26 @@ const inReactPhase = computed(() =>
 
         <!-- 流式内容 -->
         <div v-if="trace.currentNode" class="space-y-5">
+          <section v-if="trace.knowledgeHits.length">
+            <div class="section-title mb-3">00 · RAG 安全知识</div>
+            <div class="space-y-2">
+              <div
+                v-for="hit in trace.knowledgeHits"
+                :key="hit.knowledge_id"
+                class="rounded-lg border border-border bg-bg p-3"
+              >
+                <div class="flex items-center justify-between gap-3">
+                  <code class="text-[10px] text-cyan">{{ hit.knowledge_id }}</code>
+                  <span class="text-[10px] text-text-mute">相关度 {{ Math.round(hit.score * 100) }}%</span>
+                </div>
+                <div class="mt-1 text-xs font-semibold text-text">{{ hit.title }}</div>
+              </div>
+            </div>
+            <div class="mt-2 text-[10px] text-text-mute">
+              KB 知识用于解释技术和调查条件，不代表当前事件已经发生。
+            </div>
+          </section>
+
           <!-- judge 节点输出 -->
           <section v-if="trace.cotTrace.length || trace.currentNode === 'judge'">
             <div class="section-title mb-3">01 · CoT 思维链（节点3）</div>

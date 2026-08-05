@@ -134,13 +134,30 @@ class FakeJudgeLLM(BaseChatModel):
         }
 
     def with_structured_output(self, schema, **kwargs):  # type: ignore[override]
-        """支持结构化输出：把规则结果直接解析成 schema 实例。"""
+        """支持结构化输出：根据目标 schema 构造对应的 mock 数据。"""
         from langchain_core.runnables import RunnableLambda
 
         def _invoke(inp, config=None, **kw):
             # inp 可能是 dict（chain 直调）/ str / ChatPromptValue（prompt | llm 链式）
             text = _extract_text(inp)
-            data = self._rule_judge(text)
+
+            # 原实现保留：它只会生成 Judgment 所需的字段，直接用于
+            # ReactDecision 时会缺少 analysis/need_more_info/reasoning。
+            # data = self._rule_judge(text)
+
+            judgment_data = self._rule_judge(text)
+            if schema.__name__ == "ReactDecision":
+                data = {
+                    "analysis": judgment_data["reason"],
+                    "judgment": judgment_data["judgment"],
+                    "confidence": judgment_data["confidence"],
+                    "need_more_info": False,
+                    "next_action": None,
+                    "reasoning": "mock ReAct：当前证据已足够，停止工具调用。",
+                }
+            else:
+                data = judgment_data
+
             return schema.model_validate(data)
 
         return RunnableLambda(_invoke)
@@ -231,13 +248,33 @@ def get_llm(
         # 而且 thinking 模式与 tool_choice/function_calling 有兼容问题
         # （会报 "Thinking mode does not support this tool_choice"）。
         # 所以默认关闭 thinking，需要时单独开启。
-        return ChatOpenAI(
-            model=model_name,
-            api_key=s.deepseek_api_key,
-            base_url=defaults["base_url"],
-            temperature=temp,
-            extra_body={"thinking": {"type": "disabled"}},
-        )
+        # return ChatOpenAI(
+        #     model=model_name,
+        #     api_key=s.deepseek_api_key,
+        #     base_url=defaults["base_url"],
+        #     temperature=temp,
+        #     extra_body={"thinking": {"type": "disabled"}},
+        # )
+        deepseek_kwargs: dict[str, Any] = {
+            "model": model_name,
+            "api_key": s.deepseek_api_key,
+            "base_url": s.deepseek_base_url.rstrip("/"),
+            "temperature": temp,
+            # Node calls pass the remaining global budget dynamically; this is
+            # the client-level fallback for direct/non-graph invocations.
+            "timeout": s.react_global_timeout_s,
+            "default_headers": {
+                "User-Agent": "Mozilla/5.0",
+            },
+        }
+
+        if s.deepseek_send_thinking:
+            deepseek_kwargs["extra_body"] = {
+                "thinking": {"type": "disabled"}
+            }
+
+        return ChatOpenAI(**deepseek_kwargs)
+        
 
     if provider == "qwen":
         if not s.qwen_api_key:
@@ -249,6 +286,7 @@ def get_llm(
             api_key=s.qwen_api_key,
             base_url=defaults["base_url"],
             temperature=temp,
+            timeout=s.react_global_timeout_s,
         )
 
     if provider == "sangfor":

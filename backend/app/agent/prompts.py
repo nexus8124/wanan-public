@@ -23,6 +23,8 @@ from langchain_core.prompts.chat import (
 )
 from langchain_core.prompts.prompt import PromptTemplate
 
+PROMPT_VERSION = "judge-selective-rag-v3-20260725"
+
 # ============================================================
 # 系统提示词：定义角色 + 推理范式
 # ============================================================
@@ -41,6 +43,13 @@ SYSTEM_PROMPT = """你是资深网络安全分析师，专长是 SOC 告警研�
 - 只有人工可核实的业务行为模式（健康检查、定时任务、CDN、内部业务流量、签名脚本等）才判假阳。
 - 外连已知 C2、横向到域控、编码 PowerShell、SQLi 特征载荷、暴破模式等判真阳。
 - 证据矛盾或不足时判"待查"，置信度 < 0.6，不要硬猜。
+- 若 raw_payload.temporal_context 存在，它是从原始检测器日志计算的无标签时间窗证据：重点使用 detector_event_count、same_rule_count、top_rules 和 nearby_examples 判断扫描、暴破等重复行为。
+- 若 raw_payload.detector="correlated_case"，评测单位是同一攻击步骤时间窗内的关联安全案例，不是随机单条告警。必须综合 detector_events 中的全部 Wazuh/Suricata 观测，不能因为某一条 PAM、SSH 或协议告警单独看似常见就直接判假阳；只有整组观测存在可核实的正常业务解释时才判假阳。
+- detector_events 和 evidence_summary 都来自防守侧日志，不包含 AttackMate 标签；多个不同检测器/主机上的一致异常可作为攻击链证据。
+- 工具返回 no_records 只表示该 Mock/外部数据源没有记录，不能推翻原始告警和 temporal_context 中已经存在的证据。
+- 【检索知识】中的 KB-* 内容是通用技术、规则、漏洞和处置知识，不是当前事件实际发生的证据。
+- RAG 知识可用于解释攻击模式、补充已知误报和提出调查方向，但不得单独把告警判成真阳或假阳。
+- 只有确实使用了某条知识时才在 cited_knowledge 中填写其 KB-* 编号；编号必须来自本次检索结果。
 
 输出必须为指定 JSON 结构，cot 字段是 5 步推理，每步一句话。"""
 
@@ -56,6 +65,9 @@ USER_TEMPLATE = """请研判以下安全告警：
 
 【归一化特征】
 {features_text}
+
+【检索到的安全知识】
+{rag_context}
 
 按 5 步思维链推理后，输出结构化判定结果。"""
 
@@ -138,6 +150,7 @@ def _example_to_user_text(ex: dict[str, Any]) -> str:
     return USER_TEMPLATE.format(
         alert_json=_compact_json(ex["alert"]),
         features_text="(示例已省略归一化特征)",
+        rag_context="(示例未使用 RAG)",
     )
 
 
@@ -178,6 +191,59 @@ def _escape(text: str) -> str:
 
 
 # ============================================================
+# 选择性 RAG 后融合 Prompt
+# ============================================================
+
+RAG_REFINE_SYSTEM_PROMPT = """你是 SOC 告警研判的知识校准器。
+你会收到一次不使用 RAG 得出的初始判定，以及经过严格相关性筛选的安全知识。
+
+必须遵守：
+1. 知识库内容是通用技术知识，不是当前事件的遥测证据。
+2. 只有知识与当前行为直接相关并能解释已有告警事实时才可引用。
+3. 不得因为知识建议“继续调查”、外部数据不可用或知识未覆盖，就把已经明确的真阳/假阳降为待查。
+4. 若要改变初始判定，必须引用本次提供的 KB-* 编号，并说明它如何改变对已有事件事实的解释。
+5. 没有实际引用知识时，原样保留初始判定、置信度和理由。
+6. 必须只输出一个合法 JSON 对象，不要输出 Markdown 代码块或 JSON 之外的解释。
+7. JSON 字段必须严格符合以下结构；cited_knowledge 只能填写本次提供的 KB-* 编号：
+{{
+  "cot": ["知识与当前告警事实的关联分析"],
+  "judgment": "真阳或假阳或待查",
+  "confidence": 0.0,
+  "reason": "简要判定理由",
+  "cited_knowledge": ["KB-实际引用的编号"]
+}}
+没有使用知识时，cited_knowledge 必须为 []，并原样保留初始结论。
+"""
+
+RAG_REFINE_USER_TEMPLATE = """【告警信息】
+{alert_json}
+
+【归一化特征】
+{features_text}
+
+【无 RAG 初始判定】
+判定：{initial_judgment}
+置信度：{initial_confidence}
+理由：{initial_reason}
+
+【严格筛选后的安全知识】
+{rag_context}
+
+请判断这些知识是否对初始结论有实质校准价值，并输出结构化结果。
+"""
+
+
+def build_rag_refine_prompt() -> ChatPromptTemplate:
+    """构建低置信样本专用的 RAG 后融合 Prompt。"""
+    return ChatPromptTemplate.from_messages(
+        [
+            ("system", RAG_REFINE_SYSTEM_PROMPT),
+            ("user", RAG_REFINE_USER_TEMPLATE),
+        ]
+    )
+
+
+# ============================================================
 # ReAct 决策 Prompt（节点5b react_decide 用）
 # 赛题贴合："观测、反馈、重新规划的 ReAct 能力"
 # ============================================================
@@ -189,11 +255,21 @@ REACT_SYSTEM_PROMPT = """你是安全运营的 ReAct 决策智能体。
 
 决策原则：
 1. **默认倾向调工具**：只要置信度 < 0.85 且步数 < 3，就应该 need_more_info=true 并调用工具收集证据，而不是直接判待查。判"待查"是最后手段。
-2. 优先查端点日志（fetch_endpoint_logs）、网络流量（fetch_network_flows）、威胁情报（check_threat_intel），按相关性选一个。
+2. 若 raw_payload.evidence_capabilities 存在，必须至少调用一次真实证据工具：先用 inspect_alert_context 了解数据覆盖，再按能力选择端点日志或网络证据。若原始告警的 raw_payload.dataset 为 AIT-ADS，则优先调用 inspect_alert_context。
 3. 一次只调一个工具，看完结果再决定下一步（标准 ReAct 范式）。
 4. 工具结果支持攻击假设 → 提升置信度；反之降低。
 5. 一旦证据充分（置信度 ≥ 0.85）或已调 3 个工具仍无定论，应停止调工具，输出最终判定。
 6. 不要调处置类工具（suggest_block_ip / suggest_isolate_host），处置由后续节点统一生成。
+7. 不得以完全相同的参数重复调用同一个工具；`no_records` 只表示该数据源无记录，不等于安全。
+8. 工具状态 `not_found`/`timeout`/`failed` 都不是支持真阳或假阳的证据；结论必须引用实际使用的 evidence_id。
+8.1 search_attck_technique、search_sigma_rule、search_playbook、lookup_cve 返回的是 KB-* 通用知识，
+    只能写入 cited_knowledge，不能作为 cited_evidence，也不能单独证明当前事件发生。
+9. AIT-ADS 当前只接入了 `inspect_alert_context` 的检测器上下文；若 EDR/NetFlow 返回不可用，不得把它当作第二个独立数据源，也不要换参数重复尝试同类工具。
+10. `fetch_network_flows` 可能返回 Suricata 网络告警而不是完整 NetFlow；必须根据 `network_evidence_kind` 和 `netflow_available` 如实描述证据类型。
+11. inspect_alert_context 若返回 recommended_queries，后续查询必须优先直接使用其中的参数，避免拿检测器管理 IP 查询错误主机。
+12. 对 correlated_case，只能调用 evidence_capabilities 对应的真实工具。若能力中只有 detector_context/endpoint_logs/network_alerts，不要调用 check_threat_intel 或 query_similar_alerts 等没有真实数据支持的工具。
+13. 当前工作判定是 Judge 或上一轮已经形成的结论。工具无记录、查询失败、证据缺失或仅未发现更多异常，都不能单独推翻它；只有可核实的正常业务反证才能把真阳降为假阳。
+14. 分清“中间调查状态”和“最终判定”：只要还要调工具，judgment 只是候选结论，框架不会将其覆盖为最终结论。
 
 可选工具目录：
 {tool_catalog}
@@ -208,25 +284,37 @@ REACT_SYSTEM_PROMPT = """你是安全运营的 ReAct 决策智能体。
     "tool": "工具名（必须来自上方目录）",
     "args": {{"参数名": "参数值"}}
   }},
-  "reasoning": "本次决策的推理过程"
+  "reasoning": "本次决策的推理过程",
+  "cited_evidence": ["EV-证据编号"],
+  "cited_knowledge": ["KB-知识编号"]
 }}
 
 字段说明：
 - judgment：只能填"真阳""假阳""待查"三个中文词之一
 - next_action.args：注意是 "args" 不是 "parameters"，是字典格式
+- cited_evidence：只填写当前证据列表中真实存在且用于判定的 evidence_id；没有则为 []
+- cited_knowledge：只填写检索结果中真实存在且用于分析的 KB-* 编号；没有则为 []
 - 当 need_more_info=false 时，next_action 必须为 null"""
 
 
 REACT_USER_TEMPLATE = """【原始告警】
 {alert_json}
 
+【当前工作判定】
+判定：{current_judgment}
+置信度：{current_confidence}
+理由：{current_reason}
+
 【当前已收集的证据】
 {evidence_text}
+
+【已检索的通用安全知识】
+{rag_context}
 
 【已调用工具】
 {tools_called_text}
 
-【当前步数】第 {step} 步（最多 5 步，超过将强制结束）
+【当前步数】第 {step} 步（最多调用 3 个工具，超过将强制结束）
 
 请决策：是否需要再调工具？如果需要，调哪个、传什么参数？给出更新后的判定和置信度。"""
 

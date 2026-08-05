@@ -1,0 +1,315 @@
+id: PB-MAIL-AUTH-001
+title: 邮件系统 Dovecot/IMAP/SMTP 认证研判手册
+version: "2.0"
+tags: [dovecot, imap, pop3, smtp, mail, authentication, tls]
+applies_to:
+  - Dovecot Authentication Success
+  - imap-login / pop3-login / smtp-auth
+  - 邮件客户端重复认证与 TLS 会话
+required_evidence:
+  - 登录结果、失败与成功序列、用户、来源地址、TLS 状态
+  - 同一用户和来源的历史基线、邮件服务器角色
+  - 登录后的异常进程、规则变更、邮件批量访问或横向行为
+benign_explanations:
+  - 邮件客户端周期性同步会形成大量成功登录
+  - 同一内网地址作为 rip/lip、TLS 成功且无失败记录通常符合正常服务模式
+  - 多用户在相近时间正常登录可能来自统一办公时段或连接池重连
+decision:
+  true_positive:
+    - 大量失败后紧跟成功、跨多个账户尝试或来源与历史基线明显冲突
+    - 成功后出现异常邮件导出、规则创建、凭据访问或横向行为
+  false_positive:
+    - 只有成功认证，用户与来源合理，TLS 正常且没有失败或攻击载荷
+  pending:
+    - 只有认证成功日志，但缺少账户、来源基线或登录后行为
+response:
+  - 核实账户所有者和客户端；确认失陷后撤销会话、重置凭据并检查邮箱规则
+notes: 通用知识不能把单次成功登录直接证明为攻击，也不能仅凭同窗口其他 IDS 告警推翻正常认证事实。
+---
+id: PB-TLS-ANOMALY-001
+title: TLS 无效握手与记录异常研判手册
+version: "2.0"
+tags: [tls, ssl, handshake, invalid-record, suricata, scan]
+applies_to:
+  - SURICATA TLS invalid handshake message
+  - TLS invalid record/traffic 或 invalid record type
+required_evidence:
+  - 会话方向、源数量、目标服务、TLS 版本、SNI、握手阶段和返回结果
+  - 同来源后续端口探测、HTTP 请求、漏洞利用或成功会话
+benign_explanations:
+  - TLS 版本或密码套件不兼容、明文误发到 TLS 端口
+  - 健康检查、资产扫描器、中间盒和客户端实现差异
+decision:
+  true_positive:
+    - 同一来源连续探测多个服务并伴随漏洞利用、恶意载荷或已知扫描基础设施
+  false_positive:
+    - 已备案扫描器或兼容性问题，模式固定且没有后续攻击行为
+  pending:
+    - 只有无效握手或记录异常；失败握手本身不代表 C2、入侵成功或数据外传
+response:
+  - 关联 NetFlow、SNI、JA3/JA4、服务端日志和同源后续行为
+---
+id: PB-DNS-ANOMALY-001
+title: DNS 高熵、新域名与隧道嫌疑研判手册
+version: "2.0"
+tags: [dns, entropy, tunneling, biz, new-domain, beacon]
+applies_to:
+  - High entropy in DNS domain
+  - New characters/IP/query record in DNS logs
+  - .biz TLD、查询频率异常与 DNS 隧道告警
+required_evidence:
+  - 完整查询名、子域长度与熵、请求频率、响应码、返回地址和发起进程
+  - 域名年龄/信誉、同主机历史基线、上传与下载字节比例
+benign_explanations:
+  - CDN、软件更新、遥测、反跟踪和云服务会使用高熵子域
+  - 新域名或冷门 TLD 只能说明新颖性，不能单独证明恶意
+decision:
+  true_positive:
+    - 长子域持续编码变化、稳定周期、大量唯一查询并关联异常进程或恶意域名
+  false_positive:
+    - 已知业务/更新域名，进程归属合理，查询模式与历史基线一致
+  pending:
+    - 只有高熵、首次出现或 TLD 规则命中，缺少进程和时序证据
+response:
+  - 查询 DNS、代理和端点进程，必要时暂时阻断域名并保留缓存
+---
+id: PB-WEB-ACCESS-001
+title: Apache/Nginx 400、403、404 与访问新颖性研判手册
+version: "2.0"
+tags: [apache, nginx, http, 400, 403, 404, accesslog, scanner]
+applies_to:
+  - Web server 400 error code
+  - forbidden file/directory、异常方法、请求熵和新状态码
+required_evidence:
+  - 请求路径、方法、参数、User-Agent、来源、响应码和响应大小
+  - 同源请求速率、路径覆盖度、应用/WAF 日志及服务端后续进程
+benign_explanations:
+  - 失效链接、搜索引擎、旧客户端、监控探针和安全扫描器
+  - 400/403/404 表示请求失败，不能单独证明漏洞利用成功
+decision:
+  true_positive:
+    - 多路径高频枚举或完整利用载荷，且存在服务端异常、文件落地或进程执行
+  false_positive:
+    - 固定探针、已备案扫描或普通失效资源访问，无后续异常
+  pending:
+    - 只有错误响应或请求新颖性，无法确认意图和影响
+response:
+  - 保留原始请求并关联 WAF、应用错误和端点进程；区分攻击尝试与利用成功
+---
+id: PB-SOFTWARE-UPDATE-001
+title: 软件仓库、APT 与安全产品更新流量研判手册
+version: "2.0"
+tags: [apt, package-manager, update, repository, clamav, signature, cdn]
+applies_to:
+  - GNU/Linux APT User-Agent
+  - ClamAV database update
+  - 软件仓库、病毒库、签名和 CDN 更新流量
+required_evidence:
+  - 发起进程、软件签名、仓库域名、包校验值、计划任务和变更窗口
+benign_explanations:
+  - apt/apt-get、unattended-upgrades、ClamAV freshclam 和受控软件部署
+  - 官方仓库、固定周期和签名校验成功通常是正常维护
+decision:
+  true_positive:
+    - 更新进程或仓库被替换、签名失败、下载后出现异常执行或未知持久化
+  false_positive:
+    - 官方仓库与预期进程匹配，签名/哈希正确且符合维护计划
+  pending:
+    - 只有 User-Agent 或下载域名，缺少进程、签名和仓库校验
+response:
+  - 校验包来源和签名；确认供应链风险后隔离缓存并暂停分发
+---
+id: PB-ANOMALY-BASELINE-001
+title: AMiner 新事件与频率偏差告警研判手册
+version: "2.0"
+tags: [aminer, anomaly, novelty, baseline, frequency, parameter]
+applies_to:
+  - New event type / new parameter combination
+  - unusual occurrence frequencies / new characters / entropy deviation
+required_evidence:
+  - 基线训练窗口、首次出现时间、资产角色、事件原文和后续行为
+  - 同类资产是否同步出现、变更单、发布计划和检测器历史稳定性
+benign_explanations:
+  - 软件升级、配置变更、新用户、新服务和业务发布会产生新事件
+  - 频率变化和首次出现只代表偏离基线，不等于恶意
+decision:
+  true_positive:
+    - 新颖性事件包含明确攻击语义，或与异常进程、外联、提权和持久化形成链条
+  false_positive:
+    - 能与备案变更、软件发布、正常用户或周期性基线漂移对应
+  pending:
+    - 只有统计异常，没有事件语义、资产上下文和影响证据
+response:
+  - 先解释原始事件，再决定是否扩大调查；不得依据“新”或“高熵”直接定性
+---
+id: PB-UNIX-SESSION-001
+title: PAM/SSH Unix 会话生命周期研判手册
+version: "2.0"
+tags: [pam, ssh, session, login, logout, auditd, user-auth]
+applies_to:
+  - PAM Login session opened/closed
+  - audit user_auth/user_acct/user_end/cred_acq/cred_disp
+required_evidence:
+  - 用户、来源、认证结果、TTY、父进程、会话时长和登录后命令
+benign_explanations:
+  - 正常交互登录、sudo 会话、cron、自动化运维和服务账户
+  - session opened/closed 是审计生命周期事件，不是攻击结论
+decision:
+  true_positive:
+    - 来源或用户异常且登录后出现提权、下载执行、横向或痕迹清理
+  false_positive:
+    - 用户、来源、时间和后续命令符合已知运维或业务模式
+  pending:
+    - 只有会话开关事件，没有认证链和会话内行为
+response:
+  - 关联 auth.log、auditd、sudo、shell history 和端点进程
+---
+id: PB-UNIX-PRIVILEGE-001
+title: sudo、ROOT 与 UID 变化研判手册
+version: "2.0"
+tags: [sudo, root, uid, privilege-escalation, linux]
+applies_to:
+  - Successful sudo to ROOT
+  - First time user executed sudo
+  - User successfully changed UID
+required_evidence:
+  - 原用户、目标用户、TTY、命令、父进程、主机角色、变更单和后续操作
+benign_explanations:
+  - 管理员维护、软件安装、配置管理和自动化部署
+  - 首次使用 sudo 是基线新颖性，不自动等于提权攻击
+decision:
+  true_positive:
+    - 非授权用户、异常时间或进程执行敏感命令，并关联利用、下载或持久化
+  false_positive:
+    - 已授权主体在维护窗口执行可解释命令，且有审计/变更记录
+  pending:
+    - 只有成功 sudo/UID 变化，缺少命令和主体授权信息
+response:
+  - 核查 sudoers、命令审计和变更单；确认失陷后撤销会话并轮换凭据
+---
+id: PB-SERVICE-LIFECYCLE-001
+title: Linux 服务启停与 systemd 持久化研判手册
+version: "2.0"
+tags: [systemd, service-start, service-stop, daemon, persistence]
+applies_to:
+  - service_start/service_stop 新参数组合
+  - systemd unit 创建、修改与启动
+required_evidence:
+  - 服务名、unit 文件、ExecStart、创建主体、二进制路径、签名和变更时间
+benign_explanations:
+  - 软件安装升级、配置管理、系统启动和服务恢复
+decision:
+  true_positive:
+    - 服务指向临时/用户可写路径、混淆命令或未知下载文件，且无变更依据
+  false_positive:
+    - 已知软件包、受控路径、配置管理主体和备案变更一致
+  pending:
+    - 只有服务启停或参数首次出现，没有 unit 内容和创建来源
+response:
+  - 导出 unit、哈希二进制并核查 journal/audit 日志
+---
+id: PB-SYSTEM-MONITORING-001
+title: CPU 与系统监控偏差研判手册
+version: "2.0"
+tags: [cpu, monitoring, performance, baseline, resource]
+applies_to:
+  - CPU value deviates from average
+  - CPU value out of expected range
+required_evidence:
+  - 进程级资源占用、持续时间、资产角色、部署/备份窗口和历史季节性
+benign_explanations:
+  - 批处理、备份、编译、更新、流量高峰和监控基线过窄
+decision:
+  true_positive:
+    - 异常资源由未知进程导致并伴随挖矿、下载执行、持久化或异常外联
+  false_positive:
+    - 能与正常作业或业务峰值对应，进程签名和变更记录可信
+  pending:
+    - 只有指标偏差，没有进程和持续时间信息
+response:
+  - 采集进程树、命令行、容器/任务信息和同时间窗网络行为
+---
+id: PB-NETWORK-SCAN-001
+title: SSH、端口与 Web 路径扫描研判手册
+version: "2.0"
+tags: [scan, ssh-scan, port-scan, web-scan, reconnaissance]
+applies_to:
+  - Potential SSH Scan / insecure connection attempt
+  - 同源多端口、多主机或多路径快速探测
+required_evidence:
+  - 唯一目标/端口/路径数量、时间密度、来源归属、成功连接与后续行为
+benign_explanations:
+  - 资产发现、漏洞扫描、监控和备案红队演练
+decision:
+  true_positive:
+    - 未授权来源形成明显枚举模式，并伴随登录尝试、漏洞载荷或成功连接
+  false_positive:
+    - 来源属于备案扫描器，范围与时间窗口符合计划
+  pending:
+    - 单次连接失败或少量 404，不足以构成扫描模式
+response:
+  - 核对扫描白名单和资产计划；必要时限速/封禁并检查被探测服务
+---
+id: PB-EXECUTABLE-DOWNLOAD-001
+title: ELF/脚本下载与临时 HTTP 服务研判手册
+version: "2.0"
+tags: [elf, download, curl, wget, basehttpserver, payload, ingress-transfer]
+applies_to:
+  - ELF file download over HTTP
+  - Python BaseHTTP ServerBanner
+  - curl/wget 访问裸 IP 或异常端口
+required_evidence:
+  - URL、文件类型与哈希、发起进程、保存路径、执行记录和服务器归属
+benign_explanations:
+  - 开发测试、内部制品分发、运维脚本和受控软件部署
+decision:
+  true_positive:
+    - 裸 IP/临时服务下载未知 ELF 后立即赋权执行，并伴随持久化或外联
+  false_positive:
+    - 内部受控制品、哈希签名可信、部署主体和变更单一致
+  pending:
+    - 只有下载或临时 HTTP 服务特征，没有文件内容、执行和归属证据
+response:
+  - 获取文件哈希和样本，检查落地执行、父子进程和后续网络行为
+---
+id: PB-GENERIC-IDS-001
+title: 通用 IDS 事件与规则命中研判手册
+version: "2.0"
+tags: [ids, suricata, signature, alert, network]
+applies_to:
+  - Suricata IDS event
+  - 仅含规则编号或通用分类的网络告警
+required_evidence:
+  - 具体 signature、分类、五元组、方向、payload、流状态和服务端响应
+benign_explanations:
+  - 信息类/策略类规则、协议实现差异、扫描器与正常业务载荷
+decision:
+  true_positive:
+    - 具体签名与载荷、会话方向和主机证据共同支持攻击
+  false_positive:
+    - 规则语义为信息/策略提示，或可由已知业务明确解释
+  pending:
+    - 只有“IDS event”而没有签名与载荷时必须待查，不得猜测
+response:
+  - 回查原始 Suricata eve.json、flow_id、payload 和关联端点日志
+---
+id: PB-EXTERNAL-IP-LOOKUP-001
+title: 外网 IP 查询与 ipinfo 类域名研判手册
+version: "2.0"
+tags: [ipinfo, external-ip, dns, discovery, telemetry]
+applies_to:
+  - External IP Lookup Domain in DNS Lookup
+  - ipinfo、ifconfig、icanhazip 等公网地址查询
+required_evidence:
+  - 发起进程、查询频率、资产角色、后续网络连接和脚本命令
+benign_explanations:
+  - VPN、云代理、DDNS、运维脚本和网络诊断会查询公网出口地址
+decision:
+  true_positive:
+    - 异常脚本/载荷在执行后查询出口地址，并继续连接未知基础设施
+  false_positive:
+    - 已知网络组件或运维脚本周期查询，行为与资产角色一致
+  pending:
+    - 只有一次域名查询且没有发起进程和后续行为
+response:
+  - 关联 DNS 客户端进程、代理日志和查询后的目的连接

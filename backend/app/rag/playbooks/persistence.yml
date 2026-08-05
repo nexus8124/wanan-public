@@ -1,0 +1,11 @@
+id: PB-PERSISTENCE-001
+title: 持久化行为研判手册
+version: "1.0"
+tags: [scheduled-task, service, registry, persistence]
+content: |
+  适用场景：计划任务、新建服务、启动项、注册表 Run Key 与定时脚本告警。
+  支持真阳的事件证据：任务或服务由异常进程创建；执行文件位于临时或用户可写目录；
+  命令含下载执行、混淆或未知外联；创建者、时间和资产变更记录不匹配。
+  常见误报：签名软件更新、备份任务、域策略、资产管理平台和已备案运维。
+  需要核对签名、路径、创建主体、变更单与实际执行记录。知识规则不可替代这些事件证据。
+source_uri: local://playbooks/persistence

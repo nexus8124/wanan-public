@@ -20,13 +20,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api.alerts import router as alerts_router
+from app.api.rag import router as rag_router
 from app.api.stats import router as stats_router
 from app.api.stream import router as stream_router
 from app.core.config import get_settings
 from app.core.logging import setup_logging
+from app.eval.history import mark_stale_runs_interrupted
 
 # 启动时配置日志
 setup_logging(level="INFO")
+mark_stale_runs_interrupted()
 
 settings = get_settings()
 
@@ -50,6 +53,7 @@ app.add_middleware(
 app.include_router(alerts_router)
 app.include_router(stream_router)
 app.include_router(stats_router)
+app.include_router(rag_router)
 
 
 @app.get("/health")

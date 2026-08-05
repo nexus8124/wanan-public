@@ -139,6 +139,35 @@ class TestEndToEnd:
         assert r["alert_id"] == "TP-TEST"
         assert r["judgment"] == "真阳"
 
+    def test_judge_alert_emits_internal_events(self, tp_alert):
+        events = []
+        result = judge_alert(
+            tp_alert,
+            llm=get_llm(mock=True),
+            event_callback=events.append,
+        )
+        assert result["judgment"] == "真阳"
+        assert events[0]["type"] == "sample_started"
+        assert any(event["type"] == "judge_completed" for event in events)
+        assert events[-1]["type"] == "sample_completed"
+
+    def test_judge_only_never_enters_react(self):
+        ambiguous = {
+            "alert_id": "AMBIGUOUS",
+            "timestamp": "2026-07-18T02:13:44Z",
+            "source": "siem",
+            "severity": "low",
+            "rule_name": "Generic event",
+            "description": "no matching mock keyword",
+        }
+        result = judge_alert(
+            ambiguous, llm=get_llm(mock=True), enable_react=False
+        )
+        assert result["judgment"] == "待查"
+        assert result["react_used"] is False
+        assert result["react_steps"] == []
+        assert result["tools_called"] == []
+
 
 # ============================================================
 # 数据加载（保留 Week 1 的测试）
