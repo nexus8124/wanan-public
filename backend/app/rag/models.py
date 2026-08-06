@@ -9,7 +9,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 
-KnowledgeSource = Literal["playbook", "sigma", "mitre_attack", "nvd"]
+KnowledgeSource = Literal["playbook", "sigma", "mitre_attack", "cisa_kev", "nvd"]
 
 
 class KnowledgeChunk(BaseModel):
@@ -55,6 +55,7 @@ class RetrievalHit(BaseModel):
     lexical_rank: int | None = None
     dense_rank: int | None = None
     exact_match: bool = False
+    injected: bool = False
 
 
 class RetrievalResult(BaseModel):

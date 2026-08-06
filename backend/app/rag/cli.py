@@ -17,6 +17,8 @@ def main() -> None:
     build.add_argument("--playbooks")
     build.add_argument("--sigma")
     build.add_argument("--attack-stix")
+    build.add_argument("--cisa-kev")
+    build.add_argument("--nvd-feed")
 
     search = subparsers.add_parser("search", help="test hybrid retrieval")
     search.add_argument("query")
@@ -35,6 +37,8 @@ def main() -> None:
             playbook_path=args.playbooks,
             sigma_path=args.sigma,
             attack_stix_path=args.attack_stix,
+            cisa_kev_path=args.cisa_kev,
+            nvd_feed_path=args.nvd_feed,
         )
     elif args.command == "search":
         result = service.search(

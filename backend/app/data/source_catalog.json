@@ -1,0 +1,159 @@
+{
+  "ait-ads": {
+    "name": "AIT Alert Data Set",
+    "kind": "evaluation",
+    "license": "CC-BY-4.0",
+    "source": "https://zenodo.org/records/8263181",
+    "doi": "10.5281/zenodo.8263181",
+    "label_basis": "time_window_weak",
+    "warning": "The official labels mark attack time windows, not exact event causality.",
+    "artifacts": [
+      {
+        "name": "ait_ads.zip",
+        "url": "https://zenodo.org/records/8263181/files/ait_ads.zip?download=1",
+        "path": "data/raw/ait_ads/ait_ads.zip",
+        "size": 96202946,
+        "checksum": "md5:43db6b1f0996e0024befd617706c50e9",
+        "extract_to": "data/raw/ait_ads/extracted"
+      },
+      {
+        "name": "labels.csv",
+        "url": "https://zenodo.org/records/8263181/files/labels.csv?download=1",
+        "path": "data/raw/ait_ads/labels.csv",
+        "size": 3703,
+        "checksum": "md5:60ff33796c77fd2136c4d1a4bc841bd9"
+      }
+    ]
+  },
+  "cam-lds-filtered": {
+    "name": "Cyber Attack Manifestations - Log Data Set (filtered)",
+    "kind": "evidence_pilot",
+    "license": "CC-BY-4.0",
+    "source": "https://zenodo.org/records/18861762",
+    "doi": "10.5281/zenodo.18861762",
+    "warning": "The filtered archive is 214 MB; the complete record is about 7.4 GB.",
+    "artifacts": [
+      {
+        "name": "manifestations_filtered.zip",
+        "url": "https://zenodo.org/records/18861762/files/manifestations_filtered.zip?download=1",
+        "path": "data/raw/cam_lds/manifestations_filtered.zip",
+        "size": 213771977,
+        "checksum": "md5:cfc14140b2e396a60989b8379eafca1f",
+        "extract_to": "data/raw/cam_lds/manifestations_filtered"
+      }
+    ]
+  },
+  "mitre-attack": {
+    "name": "MITRE ATT&CK Enterprise STIX",
+    "kind": "rag",
+    "license": "MITRE ATT&CK research/development/commercial license",
+    "source": "https://github.com/mitre-attack/attack-stix-data",
+    "revision": "a6c366439edee3a87b79cf90dc0b93f5d7975956",
+    "warning": "Keep the MITRE copyright designation and license with redistributed copies.",
+    "artifacts": [
+      {
+        "name": "enterprise-attack.json",
+        "url": "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/a6c366439edee3a87b79cf90dc0b93f5d7975956/enterprise-attack/enterprise-attack.json",
+        "path": "data/raw/knowledge/mitre/enterprise-attack.json",
+        "size": 53277393,
+        "checksum": "sha256:bdf1ce86a4e604214c5076d37ae4dcb322678afc528df8492e6fdc1b554f5da3"
+      }
+    ]
+  },
+  "sigma": {
+    "name": "SigmaHQ detection rules",
+    "kind": "rag",
+    "license": "Detection Rule License 1.1",
+    "source": "https://github.com/SigmaHQ/sigma",
+    "revision": "226e0f811b44c0e023bbe6799762e29864ebdb92",
+    "warning": "Sigma rules are redistributed under DRL 1.1; review that license before publishing derived rules.",
+    "artifacts": [
+      {
+        "name": "sigma-source.zip",
+        "url": "https://codeload.github.com/SigmaHQ/sigma/zip/226e0f811b44c0e023bbe6799762e29864ebdb92",
+        "path": "data/raw/knowledge/sigma/sigma-226e0f8.zip",
+        "size": 10866878,
+        "checksum": "sha256:20ad9338a9395b1c4f2ac2e635cd05c345ec050d2f8157a85aec4bdf53c9a725",
+        "extract_to": "data/raw/knowledge/sigma/extracted"
+      }
+    ]
+  },
+  "cisa-kev": {
+    "name": "CISA Known Exploited Vulnerabilities Catalog",
+    "kind": "rag",
+    "license": "CISA public vulnerability catalog; review source notices before redistribution",
+    "source": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+    "revision": "2026.08.04",
+    "warning": "KEV lists vulnerabilities known to be exploited in the wild; it is high-signal vulnerability context, not evidence that a local asset is affected.",
+    "artifacts": [
+      {
+        "name": "known_exploited_vulnerabilities_2026-08-04.json",
+        "url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+        "path": "data/raw/knowledge/cisa/known_exploited_vulnerabilities_2026-08-04.json",
+        "size": 1574298,
+        "checksum": "sha256:635dff916c4092c0bd851a5cebf914725f0d80496d4dbe9215c6f0e01d95ef9e"
+      }
+    ]
+  },
+  "nvd-cve-2.0-recent": {
+    "name": "NVD CVE 2.0 Recent Annual Feeds",
+    "kind": "rag",
+    "license": "NIST NVD data; review source terms and attribution guidance before redistribution",
+    "source": "https://nvd.nist.gov/vuln/data-feeds",
+    "revision": "2024-2026 annual feeds, downloaded 2026-08-05",
+    "warning": "NVD is a large vulnerability corpus. The RAG router searches it only when an explicit CVE ID is present to avoid CVE noise in ordinary alert triage.",
+    "artifacts": [
+      {
+        "name": "nvdcve-2.0-2024.json.zip",
+        "url": "https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2024.json.zip",
+        "path": "data/raw/knowledge/nvd/nvdcve-2.0-2024.json.zip",
+        "size": 24886148,
+        "checksum": "sha256:ef6f2edcfc9ab97c4eb068001c2c6aae588d0085596322dfe1d3449371edf5d2",
+        "extract_to": "data/raw/knowledge/nvd/extracted/2024",
+        "content_path": "data/raw/knowledge/nvd/extracted/2024/nvdcve-2.0-2024.json",
+        "content_checksum": "sha256:5ba81ff5bdaecfd7e8d92314b43e165648f600a02928cd44d3039206b20d00df"
+      },
+      {
+        "name": "nvdcve-2.0-2024.meta",
+        "url": "https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2024.meta",
+        "path": "data/raw/knowledge/nvd/nvdcve-2.0-2024.meta",
+        "size": 168,
+        "checksum": "sha256:1f95cee971a28158744ddb3bfc44c3fdeab3b6759c016c1842b8a609fa49feda"
+      },
+      {
+        "name": "nvdcve-2.0-2025.json.zip",
+        "url": "https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2025.json.zip",
+        "path": "data/raw/knowledge/nvd/nvdcve-2.0-2025.json.zip",
+        "size": 23681881,
+        "checksum": "sha256:9c783513dc7c926020c1285d7c90fb68203cba005dc50e0c383fb7fd79e3503b",
+        "extract_to": "data/raw/knowledge/nvd/extracted/2025",
+        "content_path": "data/raw/knowledge/nvd/extracted/2025/nvdcve-2.0-2025.json",
+        "content_checksum": "sha256:b7e88106e83efced3b18f9ae724b1fe0674f9aca12115ce60212bf58b0f9d3e7"
+      },
+      {
+        "name": "nvdcve-2.0-2025.meta",
+        "url": "https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2025.meta",
+        "path": "data/raw/knowledge/nvd/nvdcve-2.0-2025.meta",
+        "size": 168,
+        "checksum": "sha256:01ecd9d41252fde511b75faeae7bb2e2e35b8ebef77aeab5d548dfbbd7d58f99"
+      },
+      {
+        "name": "nvdcve-2.0-2026.json.zip",
+        "url": "https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2026.json.zip",
+        "path": "data/raw/knowledge/nvd/nvdcve-2.0-2026.json.zip",
+        "size": 21017022,
+        "checksum": "sha256:f28cf8215f7b5f272745ee6baf48945f682057b499640dfa22678a352b5d4227",
+        "extract_to": "data/raw/knowledge/nvd/extracted/2026",
+        "content_path": "data/raw/knowledge/nvd/extracted/2026/nvdcve-2.0-2026.json",
+        "content_checksum": "sha256:1689d789543677011efa2ed1fd4281f961d5a0b8e14469e1a10bcbf6d385a0f2"
+      },
+      {
+        "name": "nvdcve-2.0-2026.meta",
+        "url": "https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-2026.meta",
+        "path": "data/raw/knowledge/nvd/nvdcve-2.0-2026.meta",
+        "size": 168,
+        "checksum": "sha256:4694b465a3f7cb4ca9bc5a309bd94b48fc2ee4d33970c3031f44cd3241d55152"
+      }
+    ]
+  }
+}

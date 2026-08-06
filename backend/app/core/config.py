@@ -55,19 +55,24 @@ class Settings(BaseSettings):
     # 默认关闭，便于用同一份代码做 No-RAG / RAG 对照实验。
     rag_enabled: bool = Field(default=False, alias="RAG_ENABLED")
     rag_corpus_version: str = Field(
-        default="rag-v2-20260727", alias="RAG_CORPUS_VERSION"
+        default="rag-v3-20260805", alias="RAG_CORPUS_VERSION"
     )
     rag_db_path_value: str = Field(default="", alias="RAG_DB_PATH")
     rag_playbook_path_value: str = Field(default="", alias="RAG_PLAYBOOK_PATH")
+    # External corpora are opt-in so a fresh clone and unit tests stay offline.
+    # ``app.data.catalog build-rag`` passes these paths explicitly when building
+    # the local index.
     rag_sigma_path: str = Field(default="", alias="RAG_SIGMA_PATH")
     rag_attack_stix_path: str = Field(default="", alias="RAG_ATTACK_STIX_PATH")
+    rag_cisa_kev_path: str = Field(default="", alias="RAG_CISA_KEV_PATH")
+    rag_nvd_feed_path: str = Field(default="", alias="RAG_NVD_FEED_PATH")
     rag_embedding_provider: str = Field(
         default="hashing", alias="RAG_EMBEDDING_PROVIDER"
     )
     rag_embedding_model: str = Field(
         default="BAAI/bge-m3", alias="RAG_EMBEDDING_MODEL"
     )
-    rag_top_k: int = Field(default=2, ge=1, le=12, alias="RAG_TOP_K")
+    rag_top_k: int = Field(default=10, ge=1, le=12, alias="RAG_TOP_K")
     rag_candidate_k: int = Field(
         default=60, ge=4, le=200, alias="RAG_CANDIDATE_K"
     )

@@ -298,11 +298,11 @@ const progressPercent = computed(() => {
 </script>
 
 <template>
-  <div class="space-y-5">
+  <div class="space-y-5 min-w-0 w-full max-w-full overflow-x-hidden">
     <!-- 控制栏 -->
-    <div class="card p-5">
+    <div class="card w-full max-w-full p-4 sm:p-5 overflow-hidden">
       <div class="flex flex-wrap items-center justify-between gap-4">
-        <div>
+        <div class="min-w-0">
           <h3 class="font-bold text-sm flex items-center gap-2 mb-1">
             <span>📊</span> 批量评测
           </h3>
@@ -310,11 +310,11 @@ const progressPercent = computed(() => {
             在 {{ activeDataset?.count || progress.total }} 条标注样本上运行完整 Agent，输出准确率/精确率/召回率/F1
           </p>
         </div>
-        <div class="flex gap-2">
+        <div class="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:w-auto">
           <button
             @click="startEval(true)"
             :disabled="loading || datasetBusy || !activeDataset"
-            class="px-4 py-2 rounded-lg text-sm font-bold transition-all"
+            class="w-full lg:w-auto px-4 py-2 rounded-lg text-sm font-bold transition-all"
             :class="loading
               ? 'bg-bg-2 text-text-mute'
               : 'bg-bg-2 border border-cyan/40 text-cyan hover:bg-cyan/10'"
@@ -324,7 +324,7 @@ const progressPercent = computed(() => {
           <button
             @click="startEval(false)"
             :disabled="loading || datasetBusy || !activeDataset"
-            class="px-4 py-2 rounded-lg text-sm font-bold transition-all"
+            class="w-full lg:w-auto px-4 py-2 rounded-lg text-sm font-bold transition-all"
             :class="loading
               ? 'bg-bg-2 text-text-mute'
               : 'bg-gradient-to-r from-cyan to-purple text-bg hover:opacity-90'"
@@ -334,21 +334,21 @@ const progressPercent = computed(() => {
           <button
             v-if="loading"
             @click="stopEval"
-            class="px-4 py-2 rounded-lg text-sm font-bold bg-red/10 border border-red/40 text-red hover:bg-red/20"
+            class="w-full lg:w-auto px-4 py-2 rounded-lg text-sm font-bold bg-red/10 border border-red/40 text-red hover:bg-red/20"
           >
             ⏹ 停止评测
           </button>
         </div>
       </div>
 
-      <div class="mt-5 pt-4 border-t border-border flex flex-wrap items-end gap-3">
-        <label class="min-w-[280px] flex-1 max-w-xl">
+      <div class="mt-5 pt-4 border-t border-border grid grid-cols-1 items-end gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(280px,1fr)_auto_180px_210px_180px]">
+        <label class="min-w-0 sm:col-span-2 xl:col-span-1">
           <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">评测数据集</span>
           <select
             :value="selectedDatasetId"
             @change="changeDataset"
             :disabled="loading || datasetBusy"
-            class="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
           >
             <option v-for="item in datasets" :key="item.id" :value="item.id">
               {{ item.name }}（{{ item.count }} 条）
@@ -359,7 +359,7 @@ const progressPercent = computed(() => {
         <button
           @click="openUploadDialog"
           :disabled="loading || datasetBusy"
-          class="px-4 py-2.5 rounded-lg border border-border text-xs text-text-dim hover:border-cyan hover:text-cyan disabled:opacity-50"
+          class="w-full px-4 py-2.5 rounded-lg border border-border text-xs text-text-dim hover:border-cyan hover:text-cyan disabled:opacity-50"
         >
           {{ datasetBusy ? '处理中...' : '上传评测 JSON' }}
         </button>
@@ -371,64 +371,71 @@ const progressPercent = computed(() => {
           @change="handleDatasetUpload"
         />
 
-        <label class="min-w-[150px]">
+        <label class="min-w-0">
           <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">本次样本预算</span>
           <select
             v-model.number="evalLimit"
             :disabled="loading || datasetBusy"
-            class="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
           >
             <option :value="10">10 条（快速验证）</option>
             <option :value="20">20 条（推荐）</option>
             <option :value="50">50 条</option>
             <option :value="100">100 条</option>
+            <option :value="250">250 条</option>
+            <option :value="500">500 条</option>
+            <option :value="1000">1,000 条</option>
+            <option :value="2000">2,000 条</option>
             <option :value="0">全部样本</option>
           </select>
         </label>
 
-        <label class="min-w-[210px]">
+        <label class="min-w-0">
           <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">评测策略</span>
           <select
             v-model="evalStrategy"
             :disabled="loading || datasetBusy"
-            class="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
           >
             <option value="judge_only">Judge-only（无工具基线）</option>
             <option value="react">完整 ReAct（多轮调用）</option>
           </select>
         </label>
 
-        <label class="min-w-[180px]">
+        <label class="min-w-0">
           <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">知识增强</span>
           <select
             v-model="ragEnabled"
             :disabled="loading || datasetBusy"
-            class="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
           >
             <option :value="false">No-RAG 基线</option>
             <option :value="true">选择性安全知识 RAG</option>
           </select>
         </label>
 
-        <div v-if="activeDataset" class="w-full flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-text-mute">
+        <div v-if="activeDataset" class="min-w-0 sm:col-span-2 xl:col-span-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-text-mute">
           <span>真阳 {{ activeDataset.labels?.['真阳'] || 0 }}</span>
           <span>假阳 {{ activeDataset.labels?.['假阳'] || 0 }}</span>
           <span>标签：{{ activeDataset.label_basis }}</span>
+          <span v-if="activeDataset.license">许可：{{ activeDataset.license }}</span>
+          <span v-if="activeDataset.doi" class="font-mono">DOI {{ activeDataset.doi }}</span>
+          <span v-if="activeDataset.seed != null">种子 {{ activeDataset.seed }}</span>
           <span v-if="activeDataset.label_basis === 'time_window_weak'" class="text-yellow">
             攻击时间窗弱标签
           </span>
-          <span v-if="activeDataset.label_warning" class="truncate max-w-2xl" :title="activeDataset.label_warning">
+          <span v-if="activeDataset.label_warning" class="min-w-0 max-w-full break-words sm:truncate sm:max-w-2xl" :title="activeDataset.label_warning">
             {{ activeDataset.label_warning }}
           </span>
         </div>
-        <div class="w-full text-[10px] text-text-mute">
+        <div class="min-w-0 break-words sm:col-span-2 xl:col-span-5 text-[10px] text-text-mute">
           RAG 先保留无知识初判，对待查、低置信及低特异性高置信真阳进行严格检索与后融合；高置信假阳和强攻击证据样本会跳过。标签不会传给 Agent。
         </div>
       </div>
     </div>
 
     <!-- 持久化评测历史 -->
-    <div class="card overflow-hidden">
+    <div class="card w-full max-w-full overflow-hidden">
       <div class="p-5 border-b border-border flex items-center justify-between gap-3">
         <div>
           <h3 class="font-bold text-sm flex items-center gap-2"><span>🗂️</span> 评测历史</h3>

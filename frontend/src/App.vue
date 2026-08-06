@@ -10,22 +10,22 @@ const pageTitle = computed(() => (route.meta.title as string) || '安全智能�
   <div class="min-h-screen flex flex-col">
     <!-- 顶部导航 -->
     <nav class="sticky top-0 z-50 backdrop-blur-xl bg-bg/80 border-b border-border">
-      <div class="max-w-[1400px] mx-auto px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
+      <div class="max-w-[1400px] mx-auto px-4 py-3 sm:px-6 md:py-4 grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[1fr_auto_1fr] items-center gap-x-4 gap-y-3">
+        <div class="flex items-center gap-3 min-w-0">
           <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan to-purple flex items-center justify-center font-black text-bg text-sm">
             AI
           </div>
           <div>
             <div class="font-bold text-sm">XH-202614</div>
-            <div class="text-[10px] text-text-mute font-mono">SECURITY AGENT · 挑战杯</div>
+            <div class="hidden sm:block text-[10px] text-text-mute font-mono">SECURITY AGENT · 挑战杯</div>
           </div>
         </div>
-        <div class="flex items-center gap-7">
+        <div class="col-span-2 md:col-span-1 md:col-start-2 md:row-start-1 flex items-center justify-between md:justify-center gap-3 md:gap-7">
           <RouterLink to="/" class="nav-link">数据大屏</RouterLink>
           <RouterLink to="/investigate" class="nav-link">告警研判</RouterLink>
           <RouterLink to="/evaluate" class="nav-link">批量评测</RouterLink>
         </div>
-        <div class="chip border-cyan text-cyan">
+        <div class="hidden sm:inline-flex chip border-cyan text-cyan justify-self-end whitespace-nowrap">
           <span class="w-1.5 h-1.5 rounded-full bg-cyan animate-pulse-dot"></span>
           DeepSeek V4
         </div>
@@ -33,7 +33,7 @@ const pageTitle = computed(() => (route.meta.title as string) || '安全智能�
     </nav>
 
     <!-- 主体 -->
-    <main class="flex-1 max-w-[1400px] mx-auto w-full px-6 py-8">
+    <main class="flex-1 max-w-[1400px] mx-auto w-full min-w-0 overflow-x-hidden px-4 py-6 sm:px-6 sm:py-8">
       <div class="mb-6">
         <h1 class="text-2xl font-bold">{{ pageTitle }}</h1>
       </div>

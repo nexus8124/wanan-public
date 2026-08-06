@@ -41,6 +41,16 @@ def test_rag_bootstrap_and_exact_attack_lookup(tmp_path):
     assert result.hits[0].exact_match is True
 
 
+def test_rag_routes_cisa_by_default_and_nvd_only_for_explicit_cve():
+    generic_sources = RagService.route_sources("PowerShell EncodedCommand")
+    assert "cisa_kev" in generic_sources
+    assert "nvd" not in generic_sources
+
+    cve_sources = RagService.route_sources("Exploit CVE-2026-12345")
+    assert "cisa_kev" in cve_sources
+    assert "nvd" in cve_sources
+
+
 def test_rag_query_does_not_leak_evaluation_label(tmp_path):
     service = _service(tmp_path)
     query = service.build_alert_query(

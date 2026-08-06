@@ -144,6 +144,11 @@ export interface EvalDatasetInfo {
   label_basis: string
   label_warning?: string | null
   source?: string | null
+  license?: string | null
+  doi?: string | null
+  seed?: number | null
+  scenarios?: string[]
+  detectors?: string[]
   active: boolean
 }
 

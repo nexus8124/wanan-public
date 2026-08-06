@@ -42,23 +42,23 @@ logs/
 htmlcov/
 coverage.xml
 
-# Data artifacts（向量库、运行缓存 —— 不入库）
+# Data artifacts锛堝悜閲忓簱銆佽繍琛岀紦瀛?鈥斺€?涓嶅叆搴擄級
 data/chroma_db/
 data/processed/
+data/knowledge/
 data/raw/
 data/uploaded/
 data/knowledge/*.sqlite3*
 data/active_eval_dataset.json
-# 评测结果（每次跑会产生，不纳入版本管理）
+# 璇勬祴缁撴灉锛堟瘡娆¤窇浼氫骇鐢燂紝涓嶇撼鍏ョ増鏈鐞嗭級
 **/eval_results.json
-# SQLite 评测历史（运行时持久化，含 WAL/SHM 辅助文件）
+# SQLite 璇勬祴鍘嗗彶锛堣繍琛屾椂鎸佷箙鍖栵紝鍚� WAL/SHM 杈呭姪鏂囦欢锛�
 **/eval_history.db*
 
-# Frontend（Week 5 才创建）
+# Frontend锛圵eek 5 鎵嶅垱寤猴級
 frontend/node_modules/
 frontend/.next/
 frontend/out/
-# dist 是构建产物，不入库（评委本地 npm run build 或我们交付时打包）
-frontend/dist/
-# TypeScript 增量构建缓存
+# dist 鏄瀯寤轰骇鐗╋紝涓嶅叆搴擄紙璇勫鏈湴 npm run build 鎴栨垜浠氦浠樻椂鎵撳寘锛?frontend/dist/
+# TypeScript 澧為噺鏋勫缓缂撳瓨
 frontend/*.tsbuildinfo

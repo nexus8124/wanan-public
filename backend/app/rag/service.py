@@ -8,13 +8,22 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from app.core.config import get_settings
+from app.core.config import PROJECT_ROOT, get_settings
 from app.rag.embeddings import get_embedding_provider
-from app.rag.models import RetrievalResult
-from app.rag.nvd import extract_cve_ids, fetch_nvd_cve
+from app.rag.models import RetrievalHit, RetrievalResult
+from app.rag.nvd import (
+    extract_cve_ids,
+    fetch_nvd_cve,
+    load_cisa_kev,
+    load_nvd_feeds,
+)
 from app.rag.sources import (
     builtin_attack_seed,
+    load_attack_groups,
+    load_attack_malware,
+    load_attack_mitigations,
     load_attack_stix,
+    load_attack_tools,
     load_playbooks,
     load_sigma_rules,
 )
@@ -23,6 +32,11 @@ from app.rag.store import SQLiteKnowledgeStore
 
 _CVE_RE = re.compile(r"\bCVE-\d{4}-\d+\b", re.I)
 _ATTCK_RE = re.compile(r"\bT\d{4}(?:\.\d{3})?\b", re.I)
+
+
+def _project_path(value: str | Path) -> Path:
+    path = Path(value).expanduser()
+    return path if path.is_absolute() else (PROJECT_ROOT / path).resolve()
 
 # Alert-time retrieval is intentionally conservative.  These profiles are not
 # labels and never decide the verdict; they only prevent unrelated security
@@ -270,6 +284,7 @@ _BEHAVIOR_PROFILES: dict[str, dict[str, Any]] = {
         ),
         "knowledge_ids": {
             "KB-PLAYBOOK-PB-NETWORK-001",
+            "KB-PLAYBOOK-PB-GENERIC-IDS-001",
             "KB-ATTCK-T1071.001",
             "KB-ATTCK-T1041",
         },
@@ -284,6 +299,7 @@ _BEHAVIOR_PROFILES: dict[str, dict[str, Any]] = {
         ),
         "knowledge_ids": {
             "KB-PLAYBOOK-PB-PERSISTENCE-001",
+            "KB-PLAYBOOK-PB-SERVICE-LIFECYCLE-001",
             "KB-ATTCK-T1053.003",
         },
     },
@@ -364,28 +380,59 @@ class RagService:
         playbook_path: str | Path | None = None,
         sigma_path: str | Path | None = None,
         attack_stix_path: str | Path | None = None,
+        cisa_kev_path: str | Path | None = None,
+        nvd_feed_path: str | Path | None = None,
+        corpus_revision: str | None = None,
     ) -> dict[str, Any]:
         settings = get_settings()
         chunks = builtin_attack_seed()
-        playbooks = load_playbooks(
-            playbook_path or settings.rag_playbook_path
-        )
+        playbooks = load_playbooks(_project_path(playbook_path or settings.rag_playbook_path))
         chunks.extend(playbooks)
-        sigma_root = str(sigma_path or settings.rag_sigma_path).strip()
-        attack_root = str(attack_stix_path or settings.rag_attack_stix_path).strip()
-        if sigma_root:
-            chunks.extend(load_sigma_rules(sigma_root))
-        if attack_root:
+        sigma_value = str(sigma_path or settings.rag_sigma_path).strip()
+        attack_value = str(attack_stix_path or settings.rag_attack_stix_path).strip()
+        cisa_value = str(cisa_kev_path or settings.rag_cisa_kev_path).strip()
+        nvd_value = str(nvd_feed_path or settings.rag_nvd_feed_path).strip()
+        if sigma_value:
+            chunks.extend(load_sigma_rules(_project_path(sigma_value)))
+        if attack_value:
+            attack_root = _project_path(attack_value)
             chunks.extend(load_attack_stix(attack_root))
+            chunks.extend(load_attack_groups(attack_root))
+            chunks.extend(load_attack_malware(attack_root))
+            chunks.extend(load_attack_tools(attack_root))
+            chunks.extend(load_attack_mitigations(attack_root))
+        if cisa_value:
+            chunks.extend(load_cisa_kev(_project_path(cisa_value)))
+        if nvd_value:
+            chunks.extend(load_nvd_feeds(_project_path(nvd_value)))
         indexed = self.store.upsert(chunks)
+        managed_sources = {"playbook", "sigma", "mitre_attack", "cisa_kev"}
+        if nvd_value:
+            managed_sources.add("nvd")
+        pruned = self.store.prune_sources_except(
+            managed_sources,
+            {chunk.knowledge_id for chunk in chunks},
+        )
         self.store.set_metadata("corpus_version", settings.rag_corpus_version)
+        self.store.set_metadata(
+            "corpus_revision", corpus_revision or settings.rag_corpus_version
+        )
+        self.store.set_metadata(
+            "external_corpus",
+            "1" if sigma_value or attack_value or cisa_value or nvd_value else "0",
+        )
         self._bootstrapped = True
         return {
             "indexed": indexed,
+            "pruned": pruned,
             "counts": self.store.count_by_source(),
             "embedding_model": self.embedding.name,
             "db_path": str(self.db_path),
             "corpus_version": settings.rag_corpus_version,
+            "corpus_revision": corpus_revision or settings.rag_corpus_version,
+            "external_corpus": bool(
+                sigma_value or attack_value or cisa_value or nvd_value
+            ),
         }
 
     def ensure_ready(self) -> None:
@@ -393,10 +440,19 @@ class RagService:
             return
         settings = get_settings()
         indexed_version = self.store.get_metadata("corpus_version")
-        if self.auto_bootstrap and (
-            not self.store.count_by_source()
-            or indexed_version != settings.rag_corpus_version
-        ):
+        has_index = bool(self.store.count_by_source())
+        external_index = self.store.get_metadata("external_corpus") == "1"
+        external_configured = bool(
+            settings.rag_sigma_path.strip()
+            or settings.rag_attack_stix_path.strip()
+            or settings.rag_cisa_kev_path.strip()
+            or settings.rag_nvd_feed_path.strip()
+        )
+        version_changed = indexed_version != settings.rag_corpus_version
+        needs_bootstrap = not has_index or (
+            version_changed and (external_configured or not external_index)
+        )
+        if self.auto_bootstrap and needs_bootstrap:
             self.bootstrap()
         self._bootstrapped = True
 
@@ -413,6 +469,8 @@ class RagService:
             "db_path": str(self.db_path),
             "corpus_version": settings.rag_corpus_version,
             "indexed_corpus_version": self.store.get_metadata("corpus_version"),
+            "corpus_revision": self.store.get_metadata("corpus_revision"),
+            "external_corpus": self.store.get_metadata("external_corpus") == "1",
             "weak_signal_calibration": {
                 "enabled": settings.rag_calibrate_weak_signals,
                 "profiles": sorted(WEAK_SIGNAL_CALIBRATION_PROFILES),
@@ -447,7 +505,7 @@ class RagService:
 
     @staticmethod
     def route_sources(query: str) -> list[str]:
-        sources = ["playbook", "sigma", "mitre_attack"]
+        sources = ["playbook", "sigma", "mitre_attack", "cisa_kev"]
         if _CVE_RE.search(query):
             sources.append("nvd")
         return sources
@@ -537,7 +595,7 @@ class RagService:
                 self.store.upsert(fresh)
         return self.search(
             query,
-            sources=["nvd"],
+            sources=["cisa_kev", "nvd"],
             min_score=0.0 if cve_ids else None,
         )
 
@@ -579,8 +637,38 @@ class RagService:
         profile_terms: list[str] = []
         for profile_name in profiles:
             profile = _BEHAVIOR_PROFILES[profile_name]
-            allowed_ids.update(profile["knowledge_ids"])
-            profile_terms.extend(profile["keywords"])
+            profile_kb_ids = set(profile.get("knowledge_ids", []))
+            allowed_ids.update(profile_kb_ids)
+            profile_terms.extend(profile.get("keywords", []))
+        # Profile-specific playbooks may have near-zero dense-vector scores
+        # because the corpus is Chinese while queries are often English.
+        # Inject any missing playbooks from knowledge_ids so they survive
+        # the top_k cutoff without cross-contaminating other domains.
+        existing_ids = {hit.knowledge_id for hit in candidates}
+        for profile_name in profiles:
+            profile = _BEHAVIOR_PROFILES[profile_name]
+            for kb_id in profile.get("knowledge_ids", []):
+                if not kb_id.startswith("KB-PLAYBOOK-"):
+                    continue
+                if kb_id in existing_ids:
+                    # Already in candidates - will be promoted below if it passes filtering
+                    continue
+                chunk = self.store.get(kb_id)
+                if chunk is None:
+                    continue
+                candidates.append(
+                    RetrievalHit(
+                        knowledge_id=chunk.knowledge_id,
+                        source=chunk.source,
+                        title=chunk.title,
+                        content=chunk.content,
+                        score=1.0,
+                        source_uri=chunk.source_uri,
+                        exact_match=False,
+                        injected=True,
+                    )
+                )
+                existing_ids.add(kb_id)
 
         strict_hits = []
         for hit in candidates:
@@ -598,16 +686,22 @@ class RagService:
             )
             if not (explicit or profile_match or sigma_match):
                 continue
-            if not explicit and hit.score < settings.rag_min_score:
+            # Profile-specific playbooks may have near-zero dense-vector scores
+            # because the corpus is Chinese while queries are often English.
+            # Promote them so they survive the top_k cutoff.
+            if profile_match and hit.source == "playbook":
+                hit.score = 1.0
+            if not explicit and not hit.injected and hit.score < settings.rag_min_score:
                 continue
             strict_hits.append(hit)
         # Playbooks contain the project's actual false-positive and response
         # criteria, so they are more useful than a list consisting only of
         # ATT&CK technique descriptions. Exact IDs remain the strongest signal.
+        # Give playbooks a priority boost so they survive the top_k cutoff.
         strict_hits.sort(
             key=lambda hit: (
                 not hit.exact_match,
-                -(hit.score + (0.08 if hit.source == "playbook" else 0.0)),
+                -(hit.score + (0.15 if hit.source == "playbook" else 0.0)),
                 hit.knowledge_id,
             )
         )
