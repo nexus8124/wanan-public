@@ -33,7 +33,7 @@ from app.agent.nodes import (
     tool_executor_node,
 )
 from app.agent.state import AgentState
-from app.models.llm import get_llm
+from app.models.llm import get_llm, provider_is_configured
 
 # 触发 ReAct 的置信度阈值（低于此值进入循环）
 REACT_CONFIDENCE_THRESHOLD = 0.85
@@ -253,7 +253,7 @@ def _main() -> None:
     from app.data.loader import load_alerts
 
     settings = get_settings()
-    use_mock = not settings.deepseek_api_key
+    use_mock = not provider_is_configured(settings)
     mode_label = (
         "mock LLM（未配 key）"
         if use_mock

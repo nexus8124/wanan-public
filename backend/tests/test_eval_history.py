@@ -70,6 +70,29 @@ def test_history_persists_partial_interrupted_run(tmp_path, monkeypatch):
     assert history.get_run(run_id) is None
 
 
+def test_interrupted_history_can_be_reopened_with_initial_config(tmp_path, monkeypatch):
+    monkeypatch.setattr(history, "DB_PATH", tmp_path / "eval_history.db")
+    run_id = history.create_run(
+        mode="siliconflow",
+        strategy="judge_only",
+        dataset="eval_alerts.json",
+        total=4,
+        experiment_config={
+            "provider": "siliconflow",
+            "model": "Qwen/Qwen3.5-9B",
+            "rag_enabled": False,
+        },
+    )
+    history.finish_run(run_id, status="interrupted", error="disconnect")
+
+    assert history.reopen_run(run_id) == "resumed"
+    saved = history.get_run(run_id)
+    assert saved is not None
+    assert saved["status"] == "running"
+    assert saved["experiment_config"]["model"] == "Qwen/Qwen3.5-9B"
+    assert history.reopen_run(run_id) == "running"
+
+
 def test_running_history_cannot_be_deleted(tmp_path, monkeypatch):
     monkeypatch.setattr(history, "DB_PATH", tmp_path / "eval_history.db")
     run_id = history.create_run(mode="mock", dataset="eval_alerts.json", total=50)
@@ -85,3 +108,56 @@ def test_stale_running_history_becomes_interrupted(tmp_path, monkeypatch):
     saved = history.get_run(run_id)
     assert saved is not None
     assert saved["status"] == "interrupted"
+
+
+def test_resume_endpoint_finishes_remaining_samples(tmp_path, monkeypatch):
+    monkeypatch.setattr(history, "DB_PATH", tmp_path / "eval_history.db")
+
+    from fastapi.testclient import TestClient
+
+    from app.data.generator import EVAL_DATASET
+    from app.eval.run import run_eval
+    from app.main import app
+
+    progress: list[dict] = []
+    partial = run_eval(
+        dataset_path=EVAL_DATASET,
+        mock=True,
+        save_results=False,
+        max_samples=4,
+        progress_callback=progress.append,
+        should_stop=lambda: len(progress) >= 2,
+    )
+    run_id = history.create_run(
+        mode="mock",
+        strategy="judge_only",
+        dataset=str(EVAL_DATASET),
+        total=4,
+        experiment_config={
+            "provider": "mock",
+            "model": "mock",
+            "rag_enabled": False,
+        },
+    )
+    for item in progress:
+        history.save_progress(run_id, item)
+    history.finish_run(
+        run_id,
+        status="interrupted",
+        metrics=partial["metrics"],
+        experiment_config=partial["experiment_config"],
+        error="disconnect",
+    )
+
+    with TestClient(app) as client:
+        with client.stream(
+            "POST", f"/api/eval/history/{run_id}/resume"
+        ) as response:
+            assert response.status_code == 200
+            list(response.iter_lines())
+
+    saved = history.get_run(run_id)
+    assert saved is not None
+    assert saved["status"] == "completed"
+    assert saved["completed"] == 4
+    assert len(saved["details"]) == 4

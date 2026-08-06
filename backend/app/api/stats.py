@@ -32,10 +32,17 @@ from app.eval.dataset import (
     safe_upload_filename,
     select_eval_dataset,
 )
+from app.models.llm import get_model_catalog
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["stats"])
+
+
+@router.get("/models")
+def get_models() -> dict:
+    """Return selectable model metadata and key availability, never secrets."""
+    return {"providers": get_model_catalog()}
 
 
 class DatasetSelection(BaseModel):
@@ -106,6 +113,8 @@ def run_eval_endpoint(
     limit: int | None = None,
     strategy: str = "judge_only",
     rag: bool = False,
+    provider: str | None = None,
+    model: str | None = None,
 ) -> dict:
     """触发评测（给评测页用）。
 
@@ -125,6 +134,8 @@ def run_eval_endpoint(
             max_samples=limit,
             strategy=strategy,  # type: ignore[arg-type]
             enable_rag=rag,
+            provider=provider,
+            model=model,
         )
         return result
     except Exception as e:
@@ -137,6 +148,11 @@ async def _stream_eval(
     limit: int | None = None,
     strategy: str = "judge_only",
     rag: bool = False,
+    provider: str | None = None,
+    model: str | None = None,
+    dataset_path_override: Path | None = None,
+    run_id_override: str | None = None,
+    initial_details: list[dict] | None = None,
 ) -> AsyncGenerator[dict, None]:
     """在线程池运行同步评测，并把逐样本进度转换成 SSE。"""
     from app.eval.history import create_run, finish_run, save_event, save_progress
@@ -145,7 +161,7 @@ async def _stream_eval(
     loop = asyncio.get_running_loop()
     queue: asyncio.Queue[tuple[str, dict] | None] = asyncio.Queue()
     stop_event = threading.Event()
-    dataset_path = resolve_eval_dataset_path()
+    dataset_path = dataset_path_override or resolve_eval_dataset_path()
     loaded_dataset = load_eval_dataset(dataset_path)
     if limit is not None and limit < 1:
         raise HTTPException(status_code=422, detail="limit must be at least 1")
@@ -153,9 +169,23 @@ async def _stream_eval(
         raise HTTPException(status_code=422, detail="invalid eval strategy")
     total = min(limit, len(loaded_dataset.samples)) if limit else len(loaded_dataset.samples)
     dataset_id = dataset_id_for_path(dataset_path)
-    mode = "mock" if mock else get_settings().llm_provider
-    run_id = create_run(
-        mode=mode, strategy=strategy, dataset=str(dataset_path), total=total
+    settings = get_settings()
+    effective_provider = provider or settings.llm_provider
+    mode = "mock" if mock else effective_provider
+    initial_config = {
+        "strategy": strategy,
+        "rag_enabled": rag,
+        "tools_enabled": strategy == "react",
+        "provider": "mock" if mock else effective_provider,
+        "model": "mock" if mock else model,
+        "requested_max_samples": limit,
+    }
+    run_id = run_id_override or create_run(
+        mode=mode,
+        strategy=strategy,
+        dataset=str(dataset_path),
+        total=total,
+        experiment_config=initial_config,
     )
 
     def put_event(event: str, data: dict) -> None:
@@ -172,6 +202,10 @@ async def _stream_eval(
                     "mode": mode,
                     "strategy": strategy,
                     "rag": rag,
+                    "provider": effective_provider if not mock else "mock",
+                    "model": model,
+                    "resumed": run_id_override is not None,
+                    "completed": len(initial_details or []),
                     "total": total,
                     "dataset_id": dataset_id,
                     "dataset": str(dataset_path),
@@ -200,6 +234,9 @@ async def _stream_eval(
                 max_samples=limit,
                 strategy=strategy,  # type: ignore[arg-type]
                 enable_rag=rag,
+                provider=provider,
+                model=model,
+                initial_details=initial_details,
             )
             was_stopped = stop_event.is_set()
             finish_run(
@@ -244,9 +281,58 @@ async def run_eval_stream_endpoint(
     limit: int | None = None,
     strategy: str = "judge_only",
     rag: bool = False,
+    provider: str | None = None,
+    model: str | None = None,
 ) -> EventSourceResponse:
     """流式评测：逐条推送进度，完成后返回最终指标和全部明细。"""
-    return EventSourceResponse(_stream_eval(mock, limit, strategy, rag))
+    return EventSourceResponse(
+        _stream_eval(mock, limit, strategy, rag, provider, model)
+    )
+
+
+@router.post("/eval/history/{run_id}/resume")
+async def resume_eval_history(run_id: str) -> EventSourceResponse:
+    """Resume an interrupted run from its persisted deterministic prefix."""
+    from app.eval.history import get_run, reopen_run
+
+    saved = get_run(run_id)
+    if saved is None:
+        raise HTTPException(status_code=404, detail="eval history not found")
+    if saved["status"] == "running":
+        raise HTTPException(status_code=409, detail="evaluation is already running")
+    if saved["status"] == "completed" or saved["completed"] >= saved["total"]:
+        raise HTTPException(status_code=409, detail="evaluation is already complete")
+
+    config = saved.get("experiment_config") or {}
+    if not config and not saved.get("details"):
+        raise HTTPException(
+            status_code=409,
+            detail="run has no persisted experiment configuration; start a new run",
+        )
+    dataset_path = Path(saved["dataset"])
+    if not dataset_path.exists():
+        raise HTTPException(status_code=409, detail="original evaluation dataset is missing")
+
+    state = reopen_run(run_id)
+    if state != "resumed":
+        raise HTTPException(status_code=409, detail=f"cannot resume run: {state}")
+
+    mock = saved["mode"] == "mock" or config.get("provider") == "mock"
+    provider = None if mock else (config.get("provider") or saved["mode"])
+    model = None if mock else config.get("model")
+    return EventSourceResponse(
+        _stream_eval(
+            mock=mock,
+            limit=int(saved["total"]),
+            strategy=saved["strategy"],
+            rag=bool(config.get("rag_enabled", False)),
+            provider=provider,
+            model=model,
+            dataset_path_override=dataset_path,
+            run_id_override=run_id,
+            initial_details=saved.get("details") or [],
+        )
+    )
 
 
 @router.get("/eval/datasets")

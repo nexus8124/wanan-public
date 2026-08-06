@@ -2,6 +2,8 @@
 import { ref, computed, onMounted } from 'vue'
 import {
   streamRunEval,
+  resumeEvalHistory,
+  listModels,
   listEvalHistory,
   getEvalHistory,
   deleteEvalHistory,
@@ -9,6 +11,7 @@ import {
   selectEvalDataset,
   uploadEvalDataset,
   type EvalDatasetInfo,
+  type ModelProfile,
 } from '../api/client'
 import StatCard from '../components/StatCard.vue'
 import JudgmentBadge from '../components/JudgmentBadge.vue'
@@ -34,6 +37,9 @@ const uploadInput = ref<HTMLInputElement | null>(null)
 const evalLimit = ref(20)
 const evalStrategy = ref<'judge_only' | 'react'>('judge_only')
 const ragEnabled = ref(false)
+const modelProfiles = ref<ModelProfile[]>([])
+const selectedProvider = ref('deepseek')
+const selectedModel = ref('deepseek-v4-flash')
 const liveAgentEvents = ref<any[]>([])
 
 const eventLabels: Record<string, string> = {
@@ -53,6 +59,9 @@ const metrics = computed(() => result.value?.metrics || null)
 const details = computed(() => result.value?.details || [])
 const activeDataset = computed(() =>
   datasets.value.find((item) => item.id === selectedDatasetId.value) || null,
+)
+const selectedProfile = computed(() =>
+  modelProfiles.value.find((item) => item.provider === selectedProvider.value) || null,
 )
 
 async function loadHistory() {
@@ -85,9 +94,35 @@ async function loadDatasets() {
   }
 }
 
+async function loadModels() {
+  try {
+    const data = await listModels()
+    modelProfiles.value = data.providers
+    const configured = data.providers.find((item) => item.configured)
+    const initial = data.providers.find((item) => item.provider === selectedProvider.value) || configured
+    if (initial) {
+      selectedProvider.value = initial.provider
+      selectedModel.value = initial.models.find((item) => item.id === initial.default_model)?.id
+        || initial.models[0]?.id
+        || ''
+    }
+  } catch (e: any) {
+    errorMsg.value = e.message
+  }
+}
+
+function changeProvider() {
+  const profile = selectedProfile.value
+  selectedModel.value = profile?.models.find((item) => item.id === profile.default_model)?.id
+    || profile?.default_model
+    || profile?.models[0]?.id
+    || ''
+}
+
 onMounted(() => {
   loadHistory()
   loadDatasets()
+  loadModels()
 })
 
 async function changeDataset(event: Event) {
@@ -153,7 +188,8 @@ async function startEval(useMock: boolean) {
   const sampleCount = requestedLimit || datasetCount
   const strategyText = evalStrategy.value === 'judge_only' ? '单次 Judge 基线' : '完整 ReAct'
   const ragText = ragEnabled.value ? '启用 RAG' : '不启用 RAG'
-  if (!useMock && !confirm(`将以“${strategyText} + ${ragText}”对 ${sampleCount} 条均衡样本调用真实模型并消耗 Token，确认继续？`)) {
+  const providerName = selectedProfile.value?.display_name || selectedProvider.value
+  if (!useMock && !confirm(`将以“${providerName} + ${strategyText} + ${ragText}”对 ${sampleCount} 条均衡样本调用真实模型并消耗 Token，确认继续？`)) {
     return
   }
   loading.value = true
@@ -171,6 +207,8 @@ async function startEval(useMock: boolean) {
       requestedLimit,
       evalStrategy.value,
       ragEnabled.value,
+      selectedProvider.value,
+      selectedModel.value,
       {
         onStart: (data) => {
           activeRunId.value = data.run_id
@@ -187,7 +225,7 @@ async function startEval(useMock: boolean) {
           }
           const currentDetails = result.value?.details || []
           result.value = {
-            mode: useMock ? 'mock' : 'deepseek',
+            mode: useMock ? 'mock' : selectedProvider.value,
             strategy: evalStrategy.value,
             experiment_config: data.experiment_config,
             metrics: data.metrics,
@@ -252,6 +290,79 @@ async function viewHistory(run: any) {
     liveAgentEvents.value = saved.events || []
   } catch (e: any) {
     errorMsg.value = e.message
+  }
+}
+
+async function resumeHistory(run: any) {
+  if (loading.value || run.completed >= run.total) return
+  loading.value = true
+  errorMsg.value = ''
+  abortCtrl.value = new AbortController()
+  activeRunId.value = run.id
+  try {
+    const saved = await getEvalHistory(run.id)
+    result.value = {
+      mode: saved.mode,
+      strategy: saved.strategy,
+      experiment_config: saved.experiment_config,
+      dataset: saved.dataset,
+      metrics: saved.metrics,
+      initial_metrics: saved.initial_metrics,
+      paired_react: saved.paired_react,
+      paired_rag: saved.paired_rag,
+      details: saved.details || [],
+    }
+    progress.value = { completed: saved.completed, total: saved.total }
+    viewingRunId.value = saved.id
+    selectedDetail.value = null
+    liveAgentEvents.value = saved.events || []
+
+    await resumeEvalHistory(run.id, {
+      onStart: (data) => {
+        activeRunId.value = data.run_id
+        loadHistory()
+      },
+      onAgentEvent: (data) => {
+        liveAgentEvents.value = [...liveAgentEvents.value.slice(-99), data]
+      },
+      onProgress: (data) => {
+        progress.value = { completed: data.completed, total: data.total }
+        result.value = {
+          ...result.value,
+          experiment_config: data.experiment_config,
+          metrics: data.metrics,
+          initial_metrics: data.initial_metrics,
+          paired_react: data.paired_react,
+          paired_rag: data.paired_rag,
+          details: [...(result.value?.details || []), data.detail],
+        }
+        const history = historyRuns.value.find((item) => item.id === run.id)
+        if (history) {
+          history.completed = data.completed
+          history.metrics = data.metrics
+          history.status = 'running'
+        }
+      },
+      onComplete: (finalResult) => {
+        result.value = finalResult
+        progress.value = {
+          completed: finalResult.metrics?.n || progress.value.completed,
+          total: progress.value.total,
+        }
+        activeRunId.value = ''
+        loadHistory()
+      },
+      onError: (message) => {
+        errorMsg.value = message
+        activeRunId.value = ''
+        loadHistory()
+      },
+    }, abortCtrl.value.signal)
+  } catch (e: any) {
+    if (e.name !== 'AbortError') errorMsg.value = e.message
+  } finally {
+    loading.value = false
+    abortCtrl.value = null
   }
 }
 
@@ -341,7 +452,7 @@ const progressPercent = computed(() => {
         </div>
       </div>
 
-      <div class="mt-5 pt-4 border-t border-border grid grid-cols-1 items-end gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(280px,1fr)_auto_180px_210px_180px]">
+      <div class="mt-5 pt-4 border-t border-border grid grid-cols-1 items-end gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(240px,1fr)_auto_160px_180px_190px_190px]">
         <label class="min-w-0 sm:col-span-2 xl:col-span-1">
           <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">评测数据集</span>
           <select
@@ -370,6 +481,20 @@ const progressPercent = computed(() => {
           class="hidden"
           @change="handleDatasetUpload"
         />
+
+        <label class="min-w-0">
+          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">模型厂商</span>
+          <select
+            v-model="selectedProvider"
+            @change="changeProvider"
+            :disabled="loading || datasetBusy || !modelProfiles.length"
+            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+          >
+            <option v-for="profile in modelProfiles" :key="profile.provider" :value="profile.provider">
+              {{ profile.display_name || profile.provider }}{{ profile.configured ? ' · 已配置' : ' · 未配置' }}
+            </option>
+          </select>
+        </label>
 
         <label class="min-w-0">
           <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">本次样本预算</span>
@@ -414,7 +539,7 @@ const progressPercent = computed(() => {
           </select>
         </label>
 
-        <div v-if="activeDataset" class="min-w-0 sm:col-span-2 xl:col-span-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-text-mute">
+        <div v-if="activeDataset" class="min-w-0 sm:col-span-2 xl:col-span-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-text-mute">
           <span>真阳 {{ activeDataset.labels?.['真阳'] || 0 }}</span>
           <span>假阳 {{ activeDataset.labels?.['假阳'] || 0 }}</span>
           <span>标签：{{ activeDataset.label_basis }}</span>
@@ -428,7 +553,7 @@ const progressPercent = computed(() => {
             {{ activeDataset.label_warning }}
           </span>
         </div>
-        <div class="min-w-0 break-words sm:col-span-2 xl:col-span-5 text-[10px] text-text-mute">
+        <div class="min-w-0 break-words sm:col-span-2 xl:col-span-6 text-[10px] text-text-mute">
           RAG 先保留无知识初判，对待查、低置信及低特异性高置信真阳进行严格检索与后融合；高置信假阳和强攻击证据样本会跳过。标签不会传给 Agent。
         </div>
       </div>
@@ -493,6 +618,12 @@ const progressPercent = computed(() => {
                 @click="viewHistory(run)"
                 class="px-3 py-1.5 rounded-lg border border-cyan/40 text-xs text-cyan hover:bg-cyan/10"
               >查看 {{ run.completed }} 条结果</button>
+              <button
+                v-if="['interrupted', 'failed'].includes(run.status) && run.completed < run.total"
+                @click="resumeHistory(run)"
+                :disabled="loading"
+                class="px-3 py-1.5 rounded-lg border border-yellow/40 text-xs text-yellow hover:bg-yellow/10 disabled:opacity-40"
+              >继续</button>
               <button
                 @click="removeHistory(run)"
                 :disabled="run.status === 'running'"

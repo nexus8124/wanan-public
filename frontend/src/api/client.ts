@@ -47,6 +47,20 @@ export async function runEval(mock = true): Promise<any> {
   return res.json()
 }
 
+export interface ModelProfile {
+  provider: string
+  display_name: string
+  models: { id: string; label: string }[]
+  configured: boolean
+  default_model: string
+}
+
+export async function listModels(): Promise<{ providers: ModelProfile[] }> {
+  const res = await fetch(`${API_BASE}/models`)
+  if (!res.ok) throw new Error(`load models failed: ${res.status} ${await res.text()}`)
+  return res.json()
+}
+
 export interface EvalStreamCallbacks {
   onStart?: (data: any) => void
   onAgentEvent?: (data: any) => void
@@ -61,8 +75,11 @@ export async function streamRunEval(
   limit: number | null,
   strategy: 'judge_only' | 'react',
   rag: boolean,
+  provider: string | null,
+  model: string | null,
   callbacks: EvalStreamCallbacks,
   signal?: AbortSignal,
+  resumeRunId?: string,
 ): Promise<void> {
   const params = new URLSearchParams({
     mock: String(mock),
@@ -70,7 +87,12 @@ export async function streamRunEval(
     rag: String(rag),
   })
   if (limit && limit > 0) params.set('limit', String(limit))
-  const res = await fetch(`${API_BASE}/eval/run/stream?${params.toString()}`, {
+  if (provider) params.set('provider', provider)
+  if (model) params.set('model', model)
+  const endpoint = resumeRunId
+    ? `${API_BASE}/eval/history/${encodeURIComponent(resumeRunId)}/resume`
+    : `${API_BASE}/eval/run/stream?${params.toString()}`
+  const res = await fetch(endpoint, {
     method: 'POST',
     headers: { Accept: 'text/event-stream' },
     signal,
@@ -114,6 +136,24 @@ export async function streamRunEval(
       }
     }
   }
+}
+
+export async function resumeEvalHistory(
+  runId: string,
+  callbacks: EvalStreamCallbacks,
+  signal?: AbortSignal,
+): Promise<void> {
+  return streamRunEval(
+    false,
+    null,
+    'judge_only',
+    false,
+    null,
+    null,
+    callbacks,
+    signal,
+    runId,
+  )
 }
 
 export async function listEvalHistory(limit = 50): Promise<{ runs: any[]; count: number }> {

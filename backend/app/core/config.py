@@ -38,6 +38,22 @@ class Settings(BaseSettings):
     alias="DEEPSEEK_SEND_THINKING",
     )
     qwen_api_key: str = Field(default="", alias="QWEN_API_KEY")
+    qwen_base_url: str = Field(
+        default="https://dashscope.aliyuncs.com/compatible-mode/v1",
+        alias="QWEN_BASE_URL",
+    )
+    siliconflow_api_key: str = Field(default="", alias="SILICONFLOW_API_KEY")
+    siliconflow_base_url: str = Field(
+        default="https://api.siliconflow.cn/v1",
+        alias="SILICONFLOW_BASE_URL",
+    )
+    openai_relay_api_key: str = Field(
+        default="", alias="OPENAI_RELAY_API_KEY"
+    )
+    openai_relay_base_url: str = Field(
+        default="https://www.cctq.ai/v1",
+        alias="OPENAI_RELAY_BASE_URL",
+    )
     sangfor_api_key: str = Field(default="", alias="SANGFOR_API_KEY")
     sangfor_base_url: str = Field(default="", alias="SANGFOR_BASE_URL")
 

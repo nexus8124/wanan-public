@@ -115,7 +115,12 @@ def mark_stale_runs_interrupted() -> None:
 
 
 def create_run(
-    *, mode: str, dataset: str, total: int, strategy: str = "react"
+    *,
+    mode: str,
+    dataset: str,
+    total: int,
+    strategy: str = "react",
+    experiment_config: dict[str, Any] | None = None,
 ) -> str:
     init_db()
     run_id = uuid.uuid4().hex
@@ -123,12 +128,47 @@ def create_run(
         conn.execute(
             """
             INSERT INTO eval_runs
-                (id, mode, strategy, dataset, status, total, completed, started_at)
-            VALUES (?, ?, ?, ?, 'running', ?, 0, ?)
+                (id, mode, strategy, dataset, status, total, completed, started_at,
+                 experiment_config_json)
+            VALUES (?, ?, ?, ?, 'running', ?, 0, ?, ?)
             """,
-            (run_id, mode, strategy, dataset, total, _now()),
+            (
+                run_id,
+                mode,
+                strategy,
+                dataset,
+                total,
+                _now(),
+                json.dumps(experiment_config, ensure_ascii=False)
+                if experiment_config is not None else None,
+            ),
         )
     return run_id
+
+
+def reopen_run(run_id: str) -> str:
+    """Atomically mark an incomplete historical run as running again."""
+    init_db()
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT status, completed, total FROM eval_runs WHERE id = ?",
+            (run_id,),
+        ).fetchone()
+        if row is None:
+            return "not_found"
+        if row["status"] == "running":
+            return "running"
+        if row["status"] == "completed" or row["completed"] >= row["total"]:
+            return "completed"
+        conn.execute(
+            """
+            UPDATE eval_runs
+            SET status = 'running', finished_at = NULL, error = NULL
+            WHERE id = ?
+            """,
+            (run_id,),
+        )
+    return "resumed"
 
 
 def save_progress(run_id: str, progress: dict[str, Any]) -> None:

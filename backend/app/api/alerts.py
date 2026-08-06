@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from app.agent.graph import judge_alert
 from app.core.config import get_settings
 from app.core.logging import get_logger
-from app.models.llm import get_llm
+from app.models.llm import get_llm, provider_is_configured
 from app.models.schemas import Alert
 
 logger = get_logger(__name__)
@@ -38,7 +38,7 @@ def judge(alert: Alert, rag: bool | None = None) -> JSONResponse:
     settings = get_settings()
 
     # 无 DeepSeek key 时降级到 mock（保证 demo 可用，不阻断）
-    use_mock = not settings.deepseek_api_key
+    use_mock = not provider_is_configured(settings)
     if use_mock:
         logger.warning("DEEPSEEK_API_KEY 未配置，降级到 mock LLM（仅 demo 用）")
 

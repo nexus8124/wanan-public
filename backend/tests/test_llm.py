@@ -94,3 +94,87 @@ def test_deepseek_client_uses_global_timeout_as_fallback():
     )
     llm = get_llm(provider="deepseek", settings=settings)
     assert llm.request_timeout == 17.5
+
+
+def test_model_catalog_is_safe_and_contains_comparison_models():
+    from app.core.config import Settings
+    from app.models.llm import get_model_catalog
+
+    settings = Settings(
+        _env_file=None,
+        SILICONFLOW_API_KEY="silicon-test",
+        OPENAI_RELAY_API_KEY="relay-test",
+    )
+    catalog = get_model_catalog(settings)
+    by_provider = {item["provider"]: item for item in catalog}
+    assert {item["id"] for item in by_provider["deepseek"]["models"]} == {
+        "deepseek-v4-pro",
+        "deepseek-v4-flash",
+    }
+    assert by_provider["siliconflow"]["configured"] is True
+    assert by_provider["openai_relay"]["configured"] is True
+    assert by_provider["openai_relay"]["default_model"] == "gpt-5.4"
+    assert {item["id"] for item in by_provider["openai_relay"]["models"]} == {"gpt-5.4"}
+    assert by_provider["qwen"]["display_name"] == "阿里云百炼"
+    assert by_provider["qwen"]["default_model"] == "qwen3.7-flash"
+    assert all("api_key" not in item for item in catalog)
+
+
+def test_siliconflow_client_uses_openai_compatible_settings():
+    from app.core.config import Settings
+
+    settings = Settings(
+        _env_file=None,
+        SILICONFLOW_API_KEY="test-key",
+        SILICONFLOW_BASE_URL="https://silicon.example/v1/",
+        REACT_GLOBAL_TIMEOUT_S=19.0,
+    )
+    llm = get_llm(provider="siliconflow", settings=settings)
+    assert llm.model_name == "Qwen/Qwen3.5-9B"
+    assert str(llm.openai_api_base).rstrip("/") == "https://silicon.example/v1"
+    assert llm.request_timeout == 19.0
+
+
+def test_qwen_client_uses_dashscope_settings():
+    from app.core.config import Settings
+
+    settings = Settings(
+        _env_file=None,
+        QWEN_API_KEY="test-key",
+        QWEN_BASE_URL="https://dashscope.example/v1/",
+    )
+    llm = get_llm(provider="qwen", settings=settings)
+    assert llm.model_name == "qwen3.7-flash"
+    assert str(llm.openai_api_base).rstrip("/") == "https://dashscope.example/v1"
+
+
+def test_openai_relay_client_accepts_per_provider_model_override():
+    from app.core.config import Settings
+
+    settings = Settings(
+        _env_file=None,
+        OPENAI_RELAY_API_KEY="test-key",
+        OPENAI_RELAY_BASE_URL="https://relay.example/v1",
+    )
+    llm = get_llm(
+        provider="openai_relay",
+        model="gpt-5.4",
+        settings=settings,
+    )
+    assert llm.model_name == "gpt-5.4"
+    assert str(llm.openai_api_base).rstrip("/") == "https://relay.example/v1"
+
+
+@pytest.mark.parametrize(
+    ("provider", "message"),
+    [
+        ("siliconflow", "SILICONFLOW_API_KEY not set"),
+        ("openai_relay", "OPENAI_RELAY_API_KEY not set"),
+    ],
+)
+def test_new_provider_without_key_raises(provider, message):
+    from app.core.config import Settings
+
+    settings = Settings(_env_file=None, llm_provider=provider)
+    with pytest.raises(RuntimeError, match=message):
+        get_llm(provider=provider, settings=settings)

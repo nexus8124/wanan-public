@@ -65,6 +65,11 @@ def _usage_delta(after: dict[str, int], before: dict[str, int]) -> dict[str, int
     return {key: max(0, after[key] - before[key]) for key in after}
 
 
+def _usage_sum(*items: dict[str, int]) -> dict[str, int]:
+    keys = ("input_tokens", "output_tokens", "total_tokens")
+    return {key: sum(int(item.get(key, 0)) for item in items) for key in keys}
+
+
 def _paired_stage_summary(
     details: list[dict], *, before_key: str, after_key: str
 ) -> dict[str, int | float]:
@@ -160,6 +165,9 @@ def run_eval(
     max_samples: int | None = None,
     strategy: EvalStrategy = "judge_only",
     enable_rag: bool = False,
+    provider: str | None = None,
+    model: str | None = None,
+    initial_details: list[dict] | None = None,
 ) -> dict:
     """跑评测，返回 metrics dict + 明细。
 
@@ -187,8 +195,20 @@ def run_eval(
         logger.warning("AIT-ADS uses weak attack-window labels, not exact event-level truth")
 
     settings = get_settings()
-    llm = get_llm(mock=mock)
-    mode = "mock" if mock else settings.llm_provider
+    llm = get_llm(
+        mock=mock,
+        provider=provider,
+        model=model,
+        settings=settings,
+    )
+    effective_provider = provider or settings.llm_provider
+    effective_model = (
+        getattr(llm, "model_name", None)
+        or model
+        or settings.llm_model
+        or "provider-default"
+    )
+    mode = "mock" if mock else effective_provider
     logger.info("LLM mode: %s, eval strategy: %s", mode, strategy)
 
     usage_handler = UsageMetadataCallbackHandler()
@@ -201,10 +221,8 @@ def run_eval(
             "selective_weak_signal_calibration_v3" if enable_rag else None
         ),
         "tools_enabled": strategy == "react",
-        "provider": "mock" if mock else settings.llm_provider,
-        "model": "mock" if mock else (
-            getattr(llm, "model_name", None) or settings.llm_model or "provider-default"
-        ),
+        "provider": "mock" if mock else effective_provider,
+        "model": "mock" if mock else effective_model,
         "temperature": settings.llm_temperature,
         "prompt_version": PROMPT_VERSION,
         "requested_max_samples": max_samples,
@@ -227,12 +245,35 @@ def run_eval(
         },
     }
 
-    predictions: list[tuple[str, str]] = []
-    initial_predictions: list[tuple[str, str]] = []
-    latencies: list[float] = []
-    details: list[dict] = []
+    details = list(initial_details or [])
+    if len(details) > len(labeled):
+        raise ValueError("resume details exceed the selected evaluation set")
+    expected_ids = [sample.alert.alert_id for sample in labeled[:len(details)]]
+    actual_ids = [str(detail.get("alert_id", "")) for detail in details]
+    if actual_ids != expected_ids:
+        raise ValueError("resume details do not match the deterministic dataset prefix")
 
-    for i, sample in enumerate(labeled, 1):
+    predictions: list[tuple[str, str]] = [
+        (str(detail.get("label", "")), str(detail.get("pred", "")))
+        for detail in details
+    ]
+    initial_predictions: list[tuple[str, str]] = [
+        (
+            str(detail.get("label", "")),
+            str(detail.get("initial_pred", detail.get("pred", ""))),
+        )
+        for detail in details
+    ]
+    latencies: list[float] = [
+        float(detail.get("latency_s", 0.0)) for detail in details
+    ]
+    base_llm_calls = sum(int(detail.get("llm_calls", 0)) for detail in details)
+    base_token_usage = _usage_sum(*[
+        detail.get("token_usage", {}) for detail in details
+        if isinstance(detail.get("token_usage"), dict)
+    ])
+
+    for i, sample in enumerate(labeled[len(details):], len(details) + 1):
         if should_stop and should_stop():
             logger.warning("评测收到停止请求，已完成 %d/%d 条", len(details), len(labeled))
             break
@@ -312,6 +353,7 @@ def run_eval(
         )
 
         if progress_callback:
+            cumulative_usage = _usage_sum(base_token_usage, tokens_after)
             progress_callback(
                 {
                     "completed": len(details),
@@ -321,8 +363,8 @@ def run_eval(
                     "metrics": compute_metrics(
                         predictions,
                         latencies,
-                        llm_calls=call_counter.calls,
-                        token_usage=tokens_after,
+                        llm_calls=base_llm_calls + call_counter.calls,
+                        token_usage=cumulative_usage,
                     ).as_dict(),
                     "initial_metrics": compute_metrics(initial_predictions).as_dict(),
                     "paired_react": _paired_react_summary(details),
@@ -333,8 +375,8 @@ def run_eval(
     metrics = compute_metrics(
         predictions,
         latencies,
-        llm_calls=call_counter.calls,
-        token_usage=_token_totals(usage_handler),
+        llm_calls=base_llm_calls + call_counter.calls,
+        token_usage=_usage_sum(base_token_usage, _token_totals(usage_handler)),
     )
     report = format_report(metrics)
     print("\n" + report)
@@ -441,6 +483,14 @@ def _main() -> None:
         "--rag", action="store_true",
         help="启用本地安全知识 RAG（默认关闭，用于公平基线）",
     )
+    parser.add_argument(
+        "--provider", type=str, default=None,
+        help="Override LLM provider for this run (deepseek, siliconflow, openai_relay, qwen)",
+    )
+    parser.add_argument(
+        "--model", type=str, default=None,
+        help="Override model ID for this run",
+    )
     args = parser.parse_args()
     run_eval(
         dataset_path=args.dataset,
@@ -449,6 +499,8 @@ def _main() -> None:
         max_samples=args.limit,
         strategy=args.strategy,
         enable_rag=args.rag,
+        provider=args.provider,
+        model=args.model,
     )
 
 

@@ -17,7 +17,7 @@ from sse_starlette.sse import EventSourceResponse
 
 from app.agent.graph import build_graph
 from app.core.config import get_settings
-from app.models.llm import get_llm
+from app.models.llm import get_llm, provider_is_configured
 from app.models.schemas import Alert
 
 logger = logging.getLogger(__name__)
@@ -101,7 +101,7 @@ async def judge_stream(alert: Alert, rag: bool | None = None):
         event: error       data: {message}  （出错时）
     """
     settings = get_settings()
-    use_mock = not settings.deepseek_api_key
+    use_mock = not provider_is_configured(settings)
     if use_mock:
         logger.warning("DEEPSEEK_API_KEY 未配置，流式研判降级到 mock")
 
