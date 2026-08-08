@@ -5,17 +5,18 @@
 
 一个 LangGraph 状态机图，分层递进覆盖赛题基础/进阶/挑战三层任务：
 
-| 任务 | 节点 | 进度 |
-|---|---|---|
-| 🥉 基础（70 分）告警研判 Agent | preprocess → judge → output | ✅ |
-| 🥈 进阶（20 分）RAG 知识增强 | judge → selective RAG → guarded refine | ✅ v2 |
-| 🥇 挑战（10 分）ReAct 自主闭环 | react_loop → disposition | ✅ |
+| 任务                           | 节点                                     | 进度  |
+| ------------------------------ | ---------------------------------------- | ----- |
+| 🥉 基础（70 分）告警研判 Agent | preprocess → judge → output            | ✅    |
+| 🥈 进阶（20 分）RAG 知识增强   | judge → selective RAG → guarded refine | ✅ v2 |
+| 🥇 挑战（10 分）ReAct 自主闭环 | react_loop → disposition                | ✅    |
 
 ---
 
 ## 当前状态：可信评测基线 + 受控 ReAct + 选择性 RAG v2
 
 ### ✅ 已完成
+
 - **Week 1 基础设施**：脚手架 + LLM 工厂 + Hello World + 数据 schema
 - **Week 2-3 MVP 核心链路**：preprocess + judge + CoT + 评测 + API
 - **Week 5 挑战任务 ReAct 闭环**：
@@ -72,6 +73,7 @@ F1 分数:            1.0000
    - `json_mode` → 稳定可靠（response_format=json_object + Pydantic 解析）
 
 ### 🚧 下一步
+
 - 在冻结的 AIT-ADS 与 CAM-LDS 同样本上运行四组 RAG A/B 实验
 - 选取官方 Sigma 规则子集并完成规则质量、许可证和重复项审计
 - Week 6 工程化：Docker 部署、日志、红队样本
@@ -83,12 +85,14 @@ F1 分数:            1.0000
 ## 快速开始
 
 ### 1. 环境要求
+
 - Python 3.11（`>=3.11,<3.13`）
 - [uv](https://docs.astral.sh/uv/) 0.11+
 - Node.js 18+（前端开发/构建用）
 - DeepSeek API Key（[申请地址](https://platform.deepseek.com/)）
 
 ### 2. 安装
+
 ```bash
 cd backend
 uv sync                     # 装后端依赖
@@ -107,6 +111,7 @@ python launcher.py
 ```
 
 启动后打开 **http://127.0.0.1:15173** 即可看到前端。端口：
+
 - 前端 `15173`（Vite dev server）
 - 后端 `18000`（FastAPI + Swagger 文档在 `/docs`）
 
@@ -131,6 +136,7 @@ cd ../backend && uv run uvicorn app.main:app --port 8000
 ```
 
 ### 6. 其他命令
+
 ```bash
 # 数据加载（10 条种子样本）
 cd backend && uv run python -m app.data.loader
@@ -200,17 +206,18 @@ XH-202614-security-agent/
 
 本项目的每个任务都对应赛题原文要求，详见 `../项目执行方案.md`。
 
-| 赛题原文要求 | 对应实现 |
-|---|---|
-| "基于深信服 AI 安全平台的智能体" | `models/llm.py` LLM 抽象工厂 + `sangfor` 适配接口 |
-| "开发解决……的智能体（Agent）" | `agent/graph.py` LangGraph 状态机 |
-| "调用各类安全工具（如防火墙封禁、EDR 隔离）" | Week 5 工具集 `agent/tools.py`（含 `suggest_block_ip` / `suggest_isolate_host`）|
-| "展示完整的思维链推理过程" | Week 2 CoT Prompt + Week 5 前端 CoTViewer |
-| "利用 RAG 技术，解决幻觉问题" | Week 4 `rag/` 模块 |
+| 赛题原文要求                                 | 对应实现                                                                              |
+| -------------------------------------------- | ------------------------------------------------------------------------------------- |
+| "基于深信服 AI 安全平台的智能体"             | `models/llm.py` LLM 抽象工厂 + `sangfor` 适配接口                                 |
+| "开发解决……的智能体（Agent）"              | `agent/graph.py` LangGraph 状态机                                                   |
+| "调用各类安全工具（如防火墙封禁、EDR 隔离）" | Week 5 工具集`agent/tools.py`（含 `suggest_block_ip` / `suggest_isolate_host`） |
+| "展示完整的思维链推理过程"                   | Week 2 CoT Prompt + Week 5 前端 CoTViewer                                             |
+| "利用 RAG 技术，解决幻觉问题"                | Week 4`rag/` 模块                                                                   |
 
 ---
 
 ## 文档
+
 - 项目执行方案：`../项目执行方案.md`
 - 方案展示（HTML）：`../方案展示.html`
 - 赛题原文：`../XH-202614_AI+安全大模型平台的智能体研究.pdf`

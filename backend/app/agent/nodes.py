@@ -310,53 +310,60 @@ def make_rag_retrieve_node(rag_service=None):
         settings = get_settings()
         initial_judgment = state.get("judgment", "待查")
         initial_confidence = float(state.get("confidence", 0.0))
-        try:
-            calibration = rag_service.calibration_policy(alert, features)
-        except Exception as exc:
-            logger.warning("rag calibration policy failed open: %s", exc)
+
+        # --- 消融开关：rag_selective_gate=False 时全量触发 RAG ---
+        selective_gate = getattr(settings, "rag_selective_gate", True)
+        if not selective_gate:
+            should_retrieve = True
+            trigger_reason = "full_rag_baseline"
+        else:
+            try:
+                calibration = rag_service.calibration_policy(alert, features)
+            except Exception as exc:
+                logger.warning("rag calibration policy failed open: %s", exc)
+                calibration = {
+                    "forced": False,
+                    "enabled": settings.rag_calibrate_weak_signals,
+                    "profiles": [],
+                    "reason": "policy_error",
+                }
+            profile_eligible = bool(
+                calibration.get("eligible", calibration.get("forced", False))
+            )
+            calibration_forced = bool(
+                profile_eligible
+                and initial_judgment == "真阳"
+                and initial_confidence >= settings.rag_trigger_confidence
+            )
             calibration = {
-                "forced": False,
-                "enabled": settings.rag_calibrate_weak_signals,
-                "profiles": [],
-                "reason": "policy_error",
+                **calibration,
+                "eligible": profile_eligible,
+                "forced": calibration_forced,
+                "force_suppressed_reason": (
+                    None
+                    if calibration_forced
+                    else "normal_selective_gate_applies"
+                    if initial_judgment == "待查"
+                    or initial_confidence < settings.rag_trigger_confidence
+                    else "initial_verdict_not_true_positive"
+                    if profile_eligible
+                    else "profile_not_eligible"
+                ),
             }
-        profile_eligible = bool(
-            calibration.get("eligible", calibration.get("forced", False))
-        )
-        calibration_forced = bool(
-            profile_eligible
-            and initial_judgment == "真阳"
-            and initial_confidence >= settings.rag_trigger_confidence
-        )
-        calibration = {
-            **calibration,
-            "eligible": profile_eligible,
-            "forced": calibration_forced,
-            "force_suppressed_reason": (
-                None
-                if calibration_forced
-                else "normal_selective_gate_applies"
-                if initial_judgment == "待查"
+            should_retrieve = (
+                initial_judgment == "待查"
                 or initial_confidence < settings.rag_trigger_confidence
-                else "initial_verdict_not_true_positive"
-                if profile_eligible
-                else "profile_not_eligible"
-            ),
-        }
-        should_retrieve = (
-            initial_judgment == "待查"
-            or initial_confidence < settings.rag_trigger_confidence
-            or calibration_forced
-        )
-        trigger_reason = (
-            "pending_initial_judgment"
-            if initial_judgment == "待查"
-            else "low_confidence_initial_judgment"
-            if initial_confidence < settings.rag_trigger_confidence
-            else "weak_signal_calibration"
-            if calibration_forced
-            else "high_confidence_initial_judgment"
-        )
+                or calibration_forced
+            )
+            trigger_reason = (
+                "pending_initial_judgment"
+                if initial_judgment == "待查"
+                else "low_confidence_initial_judgment"
+                if initial_confidence < settings.rag_trigger_confidence
+                else "weak_signal_calibration"
+                if calibration_forced
+                else "high_confidence_initial_judgment"
+            )
         if not should_retrieve:
             return {
                 "rag_attempted": False,
@@ -445,6 +452,14 @@ def _rag_refinement_acceptance(
     Knowledge can clarify an uncertain sample, but it cannot replace missing
     event evidence or degrade a resolved verdict to "待查".
     """
+    # --- 消融开关：rag_anti_degradation=False 时允许任何翻转 ---
+    from app.core.config import get_settings
+    anti_deg = getattr(get_settings(), "rag_anti_degradation", True)
+    if not anti_deg:
+        if valid_citations:
+            return True, "no_anti_degradation_baseline"
+        return False, "no_valid_knowledge_citation"
+
     if not valid_citations:
         return False, "no_valid_knowledge_citation"
     if initial_judgment in {"真阳", "假阳"} and candidate_judgment == "待查":

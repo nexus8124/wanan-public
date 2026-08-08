@@ -8,8 +8,8 @@ import CoTTimeline from '../components/CoTTimeline.vue'
 import ToolCard from '../components/ToolCard.vue'
 import DispositionCard from '../components/DispositionCard.vue'
 
-// 预置示例告警（一键加载，覆盖不同判定场景）
-const presets = [
+// 预置示例告警：常用 4 个常驻 + 其余收起
+const presetsCommon = [
   {
     name: '钓鱼 C2 外连',
     desc: 'Word 启动 PowerShell 外连 4444',
@@ -37,7 +37,7 @@ const presets = [
     desc: 'WAF 命中 SQLi 规则',
     color: 'border-orange',
     data: {
-      alert_id: 'DEMO-TP2', timestamp: '2026-07-18T05:18:39Z', source: 'waf', severity: 'high',
+      alert_id: 'DEMO-TP4', timestamp: '2026-07-18T05:18:39Z', source: 'waf', severity: 'high',
       src_ip: '203.0.113.77', dst_ip: '10.10.20.5', src_port: 51888, dst_port: 443, protocol: 'HTTPS',
       rule_name: 'SQL injection in login form',
       description: 'WAF 命中 SQL injection 规则，login 参数含 UNION SELECT + sleep(5)，单 IP 5 分钟触发 42 次',
@@ -55,6 +55,75 @@ const presets = [
     },
   },
 ]
+const presetsMore = [
+  {
+    name: '内网横向移动',
+    desc: 'PsExec 访问域控 ADMIN$',
+    color: 'border-red',
+    data: {
+      alert_id: 'DEMO-TP2', timestamp: '2026-07-18T03:42:11Z', source: 'ndr', severity: 'high',
+      src_ip: '10.20.33.51', dst_ip: '10.20.40.7', src_port: 51322, dst_port: 445, protocol: 'SMB',
+      rule_name: 'Lateral movement via SMB admin share',
+      description: '财务主机 10.20.33.51 尝试访问域控 10.20.40.7 的 ADMIN$ 共享，伴随 PsExec 特征流量，疑似权限提升后的横向扩散',
+    },
+  },
+  {
+    name: '编码 PowerShell（LOLBin）',
+    desc: 'regsvr32 远程加载恶意脚本',
+    color: 'border-red',
+    data: {
+      alert_id: 'DEMO-TP3', timestamp: '2026-07-18T04:05:22Z', source: 'edr', severity: 'high',
+      src_ip: '10.20.31.18', dst_ip: null, src_port: null, dst_port: null, protocol: null,
+      rule_name: 'PowerShell encoded command execution',
+      description: '检出编码 PowerShell 命令：regsvr32 通过 regsvr32.exe /s /u /i:http://... 调用远程脚本（spearphish 后的 LOLBin 执行）',
+    },
+  },
+  {
+    name: 'LDAP 暴力破解',
+    desc: '3 分钟 1284 次登录尝试',
+    color: 'border-orange',
+    data: {
+      alert_id: 'DEMO-TP5', timestamp: '2026-07-18T06:51:03Z', source: 'siem', severity: 'medium',
+      src_ip: '10.20.35.99', dst_ip: '10.20.40.7', src_port: null, dst_port: 389, protocol: 'LDAP',
+      rule_name: 'LDAP brute force against domain controller',
+      description: '域控 LDAP 暴力破解：主机 10.20.35.99 在 3 分钟内尝试 1284 次登录，覆盖多个域账号，命中率 0.3%',
+    },
+  },
+  {
+    name: 'GitHub 外连（假阳）',
+    desc: '开发主机访问 CDN 节点',
+    color: 'border-green',
+    data: {
+      alert_id: 'DEMO-FP2', timestamp: '2026-07-18T02:30:45Z', source: 'ndr', severity: 'low',
+      src_ip: '10.20.33.200', dst_ip: '140.82.112.4', src_port: 49811, dst_port: 443, protocol: 'HTTPS',
+      rule_name: 'Unusual outbound HTTPS to foreign IP',
+      description: '外连境外 IP 140.82.112.4:443。核查为开发主机访问 github.com 的 CDN 节点（AS36459 GitHub），属日常代码拉取行为',
+    },
+  },
+  {
+    name: 'CDN 回源（假阳）',
+    desc: '缓存刷新正常任务',
+    color: 'border-green',
+    data: {
+      alert_id: 'DEMO-FP3', timestamp: '2026-07-18T03:15:00Z', source: 'ids', severity: 'info',
+      src_ip: '10.20.40.15', dst_ip: '10.20.40.7', src_port: 50231, dst_port: 443, protocol: 'HTTPS',
+      rule_name: 'CDN origin pull traffic',
+      description: 'CDN 回源流量告警：源站 10.20.40.15 收到来自 CDN 节点的批量回源请求，属正常缓存刷新任务，匹配 cron job cdn-refresh',
+    },
+  },
+  {
+    name: '备份脚本 PowerShell（假阳）',
+    desc: '签名的定时备份任务',
+    color: 'border-green',
+    data: {
+      alert_id: 'DEMO-FP5', timestamp: '2026-07-18T05:30:00Z', source: 'edr', severity: 'low',
+      src_ip: '10.20.35.10', dst_ip: null, src_port: null, dst_port: null, protocol: null,
+      rule_name: 'Suspicious PowerShell invocation',
+      description: '检出 powershell.exe 执行。核查为备份脚本 dbbackup.ps1 的常规调用，命令行明文、签名验证通过、每日定时执行',
+    },
+  },
+]
+const showMore = ref(false)
 
 // 表单状态
 const alertJson = ref('')
@@ -79,7 +148,7 @@ const trace = reactive({
   done: false,
 })
 
-function loadPreset(p: typeof presets[0]) {
+function loadPreset(p: { name: string; desc: string; color: string; data: Record<string, any> }) {
   alertJson.value = JSON.stringify(p.data, null, 2)
   resetTrace()
 }
@@ -177,9 +246,9 @@ const inReactPhase = computed(() =>
 
         <!-- 示例按钮 -->
         <div class="text-[10px] text-text-mute mb-2">一键加载示例</div>
-        <div class="grid grid-cols-1 gap-2 mb-4">
+        <div class="grid grid-cols-1 gap-2">
           <button
-            v-for="p in presets"
+            v-for="p in presetsCommon"
             :key="p.name"
             @click="loadPreset(p)"
             class="text-left p-2 rounded-lg border bg-bg-2 hover:bg-card-hover transition-all"
@@ -187,6 +256,33 @@ const inReactPhase = computed(() =>
           >
             <div class="text-xs font-semibold text-text">{{ p.name }}</div>
             <div class="text-[10px] text-text-dim mt-0.5">{{ p.desc }}</div>
+          </button>
+        </div>
+
+        <!-- 展开更多示例 -->
+        <button
+          v-if="!showMore"
+          @click="showMore = true"
+          class="mt-2 text-[10px] text-cyan hover:text-cyan-dim transition-colors"
+        >
+          更多示例 ▾
+        </button>
+        <div v-if="showMore" class="grid grid-cols-1 gap-2 mt-2">
+          <button
+            v-for="p in presetsMore"
+            :key="p.name"
+            @click="loadPreset(p)"
+            class="text-left p-2 rounded-lg border bg-bg-2 hover:bg-card-hover transition-all"
+            :class="p.color"
+          >
+            <div class="text-xs font-semibold text-text">{{ p.name }}</div>
+            <div class="text-[10px] text-text-dim mt-0.5">{{ p.desc }}</div>
+          </button>
+          <button
+            @click="showMore = false"
+            class="text-[10px] text-text-mute hover:text-text-dim transition-colors text-center py-1"
+          >
+            收起 ▴
           </button>
         </div>
 

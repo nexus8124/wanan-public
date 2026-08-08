@@ -633,6 +633,34 @@ class RagService:
             top_k=max(settings.rag_candidate_k, 12),
             candidate_k=max(settings.rag_candidate_k, 20),
         )
+
+        # --- 消融开关：rag_behavior_routing=False 时不限制知识域 ---
+        behavior_routing = getattr(settings, "rag_behavior_routing", True)
+        if not behavior_routing:
+            strict_hits = candidates
+            if not explicit:
+                min_score = settings.rag_min_score
+                strict_hits = [hit for hit in strict_hits if hit.score >= min_score]
+            strict_hits = strict_hits[: settings.rag_top_k]
+            context = self.format_context(
+                strict_hits, max_chars=settings.rag_max_context_chars
+            )
+            return RetrievalResult(
+                query=query,
+                sources=selected_sources,
+                hits=strict_hits,
+                context=context,
+                skipped_reason=None if strict_hits else "no_high_relevance_knowledge",
+                corpus_version=settings.rag_corpus_version,
+                embedding_model=self.embedding.name,
+                routing={
+                    "profiles": profiles,
+                    "strict": False,
+                    "candidate_count": len(candidates),
+                    "ablation": "behavior_routing_disabled",
+                },
+            )
+
         allowed_ids: set[str] = set()
         profile_terms: list[str] = []
         for profile_name in profiles:

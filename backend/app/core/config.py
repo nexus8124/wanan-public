@@ -110,6 +110,14 @@ class Settings(BaseSettings):
         default=15.0, gt=0, le=60, alias="RAG_NVD_TIMEOUT_S"
     )
 
+    # ----- RAG 消融实验开关（用于对比基线，不改核心逻辑）-----
+    # 选择性门控：false = 所有样本都触发 RAG（文献常见全量检索基线）
+    rag_selective_gate: bool = Field(default=True, alias="RAG_SELECTIVE_GATE")
+    # 行为域路由：false = 不限制知识域，任何检索到的知识都进入上下文
+    rag_behavior_routing: bool = Field(default=True, alias="RAG_BEHAVIOR_ROUTING")
+    # 防退化护栏：false = 允许知识翻转已决结论（测试护栏是否过于保守）
+    rag_anti_degradation: bool = Field(default=True, alias="RAG_ANTI_DEGRADATION")
+
     # ----- ReAct 执行护栏（第二阶段） -----
     react_max_steps: int = Field(default=3, ge=1, le=10, alias="REACT_MAX_STEPS")
     react_tool_timeout_s: float = Field(
