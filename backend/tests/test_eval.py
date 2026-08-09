@@ -5,6 +5,7 @@ from __future__ import annotations
 from app.eval.metrics import compute_metrics, format_report
 from app.eval.run import _paired_rag_summary, _paired_react_summary, run_eval
 from app.data.generator import EVAL_DATASET
+from app.models.llm import get_llm
 
 
 class TestMetrics:
@@ -149,7 +150,7 @@ def test_run_eval_reports_incremental_progress_and_stops():
 
     result = run_eval(
         dataset_path=EVAL_DATASET,
-        mock=True,
+        llm=get_llm(mock=True),
         save_results=False,
         progress_callback=events.append,
         should_stop=lambda: len(events) >= 2,
@@ -169,7 +170,7 @@ def test_run_eval_limit_is_balanced_and_does_not_change_dataset():
     events: list[dict] = []
     result = run_eval(
         dataset_path=EVAL_DATASET,
-        mock=True,
+        llm=get_llm(mock=True),
         save_results=False,
         max_samples=10,
         progress_callback=events.append,
@@ -180,10 +181,39 @@ def test_run_eval_limit_is_balanced_and_does_not_change_dataset():
     assert sum(item["label"] == "假阳" for item in result["details"]) == 5
 
 
+def test_run_eval_resumes_from_persisted_prefix_without_repeating_samples():
+    first_events: list[dict] = []
+    first = run_eval(
+        dataset_path=EVAL_DATASET,
+        llm=get_llm(mock=True),
+        save_results=False,
+        max_samples=4,
+        progress_callback=first_events.append,
+        should_stop=lambda: len(first_events) >= 2,
+    )
+    resumed_events: list[dict] = []
+    resumed = run_eval(
+        dataset_path=EVAL_DATASET,
+        llm=get_llm(mock=True),
+        save_results=False,
+        max_samples=4,
+        initial_details=first["details"],
+        progress_callback=resumed_events.append,
+    )
+
+    assert len(first["details"]) == 2
+    assert len(resumed_events) == 2
+    assert resumed_events[0]["completed"] == 3
+    assert len(resumed["details"]) == 4
+    assert [item["alert_id"] for item in resumed["details"][:2]] == [
+        item["alert_id"] for item in first["details"]
+    ]
+
+
 def test_run_eval_judge_only_records_reproducible_config():
     result = run_eval(
         dataset_path=EVAL_DATASET,
-        mock=True,
+        llm=get_llm(mock=True),
         save_results=False,
         max_samples=2,
         strategy="judge_only",

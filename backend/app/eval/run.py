@@ -4,14 +4,11 @@
 方案 B6：在标注数据集上跑 Agent，算准确率/召回率。
 
 用法：
-    # mock 模式（不耗 token，验证工程链路）
-    uv run python -m app.eval.run --mock
-
     # 真实 DeepSeek（需已配 .env，会产生 token 费用）
     uv run python -m app.eval.run
 
     # 指定数据集
-    uv run python -m app.eval.run --mock --dataset app/data/datasets/sample_alerts.json
+    uv run python -m app.eval.run --dataset app/data/datasets/sample_alerts.json
 """
 
 from __future__ import annotations
@@ -24,6 +21,7 @@ from pathlib import Path
 from typing import Callable, Literal
 
 from langchain_core.callbacks import BaseCallbackHandler, UsageMetadataCallbackHandler
+from langchain_core.language_models.chat_models import BaseChatModel
 
 from app.agent.graph import judge_alert
 from app.agent.prompts import PROMPT_VERSION
@@ -63,6 +61,11 @@ def _token_totals(handler: UsageMetadataCallbackHandler) -> dict[str, int]:
 
 def _usage_delta(after: dict[str, int], before: dict[str, int]) -> dict[str, int]:
     return {key: max(0, after[key] - before[key]) for key in after}
+
+
+def _usage_sum(*items: dict[str, int]) -> dict[str, int]:
+    keys = ("input_tokens", "output_tokens", "total_tokens")
+    return {key: sum(int(item.get(key, 0)) for item in items) for key in keys}
 
 
 def _paired_stage_summary(
@@ -152,7 +155,6 @@ def _paired_rag_summary(details: list[dict]) -> dict[str, int | float]:
 
 def run_eval(
     dataset_path: str | Path | None = None,
-    mock: bool = False,
     save_results: bool = True,
     progress_callback: Callable[[dict], None] | None = None,
     agent_event_callback: Callable[[dict], None] | None = None,
@@ -160,12 +162,15 @@ def run_eval(
     max_samples: int | None = None,
     strategy: EvalStrategy = "judge_only",
     enable_rag: bool = False,
+    provider: str | None = None,
+    model: str | None = None,
+    initial_details: list[dict] | None = None,
+    llm: BaseChatModel | None = None,
 ) -> dict:
     """跑评测，返回 metrics dict + 明细。
 
     参数：
         dataset_path: 数据集 JSON 路径；None 则用 eval_alerts.json（不存在则回退 sample）
-        mock: True 用 mock LLM；False 用配置的真实 Provider
         save_results: 是否把明细存到 data/eval_results.json
         progress_callback: 每完成一条样本后回调，供 SSE 实时推送
         agent_event_callback: Agent 每个节点/工具事件的回调，供实时轨迹与持久化
@@ -187,8 +192,15 @@ def run_eval(
         logger.warning("AIT-ADS uses weak attack-window labels, not exact event-level truth")
 
     settings = get_settings()
-    llm = get_llm(mock=mock)
-    mode = "mock" if mock else settings.llm_provider
+    llm = llm or get_llm(provider=provider, model=model, settings=settings)
+    effective_provider = provider or settings.llm_provider
+    effective_model = (
+        getattr(llm, "model_name", None)
+        or model
+        or settings.llm_model
+        or "provider-default"
+    )
+    mode = effective_provider
     logger.info("LLM mode: %s, eval strategy: %s", mode, strategy)
 
     usage_handler = UsageMetadataCallbackHandler()
@@ -201,10 +213,8 @@ def run_eval(
             "selective_weak_signal_calibration_v3" if enable_rag else None
         ),
         "tools_enabled": strategy == "react",
-        "provider": "mock" if mock else settings.llm_provider,
-        "model": "mock" if mock else (
-            getattr(llm, "model_name", None) or settings.llm_model or "provider-default"
-        ),
+        "provider": effective_provider,
+        "model": effective_model,
         "temperature": settings.llm_temperature,
         "prompt_version": PROMPT_VERSION,
         "requested_max_samples": max_samples,
@@ -227,12 +237,35 @@ def run_eval(
         },
     }
 
-    predictions: list[tuple[str, str]] = []
-    initial_predictions: list[tuple[str, str]] = []
-    latencies: list[float] = []
-    details: list[dict] = []
+    details = list(initial_details or [])
+    if len(details) > len(labeled):
+        raise ValueError("resume details exceed the selected evaluation set")
+    expected_ids = [sample.alert.alert_id for sample in labeled[:len(details)]]
+    actual_ids = [str(detail.get("alert_id", "")) for detail in details]
+    if actual_ids != expected_ids:
+        raise ValueError("resume details do not match the deterministic dataset prefix")
 
-    for i, sample in enumerate(labeled, 1):
+    predictions: list[tuple[str, str]] = [
+        (str(detail.get("label", "")), str(detail.get("pred", "")))
+        for detail in details
+    ]
+    initial_predictions: list[tuple[str, str]] = [
+        (
+            str(detail.get("label", "")),
+            str(detail.get("initial_pred", detail.get("pred", ""))),
+        )
+        for detail in details
+    ]
+    latencies: list[float] = [
+        float(detail.get("latency_s", 0.0)) for detail in details
+    ]
+    base_llm_calls = sum(int(detail.get("llm_calls", 0)) for detail in details)
+    base_token_usage = _usage_sum(*[
+        detail.get("token_usage", {}) for detail in details
+        if isinstance(detail.get("token_usage"), dict)
+    ])
+
+    for i, sample in enumerate(labeled[len(details):], len(details) + 1):
         if should_stop and should_stop():
             logger.warning("评测收到停止请求，已完成 %d/%d 条", len(details), len(labeled))
             break
@@ -312,6 +345,7 @@ def run_eval(
         )
 
         if progress_callback:
+            cumulative_usage = _usage_sum(base_token_usage, tokens_after)
             progress_callback(
                 {
                     "completed": len(details),
@@ -321,8 +355,8 @@ def run_eval(
                     "metrics": compute_metrics(
                         predictions,
                         latencies,
-                        llm_calls=call_counter.calls,
-                        token_usage=tokens_after,
+                        llm_calls=base_llm_calls + call_counter.calls,
+                        token_usage=cumulative_usage,
                     ).as_dict(),
                     "initial_metrics": compute_metrics(initial_predictions).as_dict(),
                     "paired_react": _paired_react_summary(details),
@@ -333,8 +367,8 @@ def run_eval(
     metrics = compute_metrics(
         predictions,
         latencies,
-        llm_calls=call_counter.calls,
-        token_usage=_token_totals(usage_handler),
+        llm_calls=base_llm_calls + call_counter.calls,
+        token_usage=_usage_sum(base_token_usage, _token_totals(usage_handler)),
     )
     report = format_report(metrics)
     print("\n" + report)
@@ -418,10 +452,6 @@ def _balanced_subset(samples: list, max_samples: int | None) -> list:
 def _main() -> None:
     parser = argparse.ArgumentParser(description="告警研判评测")
     parser.add_argument(
-        "--mock", action="store_true",
-        help="用 mock LLM（不耗 token，验证链路）",
-    )
-    parser.add_argument(
         "--dataset", type=str, default=None,
         help="数据集 JSON 路径（默认 eval_alerts.json）",
     )
@@ -441,14 +471,23 @@ def _main() -> None:
         "--rag", action="store_true",
         help="启用本地安全知识 RAG（默认关闭，用于公平基线）",
     )
+    parser.add_argument(
+        "--provider", type=str, default=None,
+        help="Override LLM provider for this run (deepseek, siliconflow, openai_relay, qwen)",
+    )
+    parser.add_argument(
+        "--model", type=str, default=None,
+        help="Override model ID for this run",
+    )
     args = parser.parse_args()
     run_eval(
         dataset_path=args.dataset,
-        mock=args.mock,
         save_results=not args.no_save,
         max_samples=args.limit,
         strategy=args.strategy,
         enable_rag=args.rag,
+        provider=args.provider,
+        model=args.model,
     )
 
 

@@ -160,6 +160,33 @@ class SQLiteKnowledgeStore:
             ).fetchall()
         return {str(row["source"]): int(row["n"]) for row in rows}
 
+    def prune_sources_except(
+        self, sources: set[str], knowledge_ids: set[str]
+    ) -> int:
+        """Remove stale managed-corpus rows while preserving runtime caches."""
+        if not sources:
+            return 0
+        placeholders = ",".join("?" for _ in sources)
+        with self._connect() as conn:
+            rows = conn.execute(
+                f"SELECT knowledge_id FROM knowledge_documents WHERE source IN ({placeholders})",
+                sorted(sources),
+            ).fetchall()
+            stale = [
+                str(row["knowledge_id"])
+                for row in rows
+                if str(row["knowledge_id"]) not in knowledge_ids
+            ]
+            conn.executemany(
+                "DELETE FROM knowledge_fts WHERE knowledge_id = ?",
+                ((knowledge_id,) for knowledge_id in stale),
+            )
+            conn.executemany(
+                "DELETE FROM knowledge_documents WHERE knowledge_id = ?",
+                ((knowledge_id,) for knowledge_id in stale),
+            )
+        return len(stale)
+
     def set_metadata(self, key: str, value: str) -> None:
         with self._connect() as conn:
             conn.execute(

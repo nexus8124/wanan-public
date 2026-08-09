@@ -6,15 +6,15 @@ export default {
     extend: {
       colors: {
         // 深色底（与方案 HTML 一致）
-        bg: '#070b16',
-        'bg-2': '#0d1322',
-        card: '#131a2c',
-        'card-hover': '#1a2238',
-        border: '#1f2a44',
-        'border-light': '#2a3754',
-        text: '#e8ecf5',
-        'text-dim': '#8a96b4',
-        'text-mute': '#5a6685',
+        bg: '#090e16',
+        'bg-2': '#0c121c',
+        card: '#111925',
+        'card-hover': '#151f2d',
+        border: '#253143',
+        'border-light': '#33445d',
+        text: '#e4edf9',
+        'text-dim': '#8b9cb4',
+        'text-mute': '#5d6f88',
         // 强调色
         cyan: '#00d9ff',
         purple: '#a78bfa',

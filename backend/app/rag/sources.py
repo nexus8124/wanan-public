@@ -4,12 +4,48 @@ from __future__ import annotations
 
 import json
 import re
+from functools import lru_cache
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import yaml
 
 from app.rag.models import KnowledgeChunk
+
+
+@lru_cache(maxsize=8)
+def _load_stix_objects(path_text: str, signature: tuple[int, int]) -> tuple[dict[str, Any], ...]:
+    """Parse a STIX file/directory once per file signature during a bootstrap."""
+    source_path = Path(path_text)
+    candidates = (
+        sorted(source_path.rglob("*.json"))
+        if source_path.is_dir()
+        else [source_path]
+    )
+    objects: list[dict[str, Any]] = []
+    for candidate in candidates:
+        try:
+            payload = json.loads(candidate.read_text("utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(payload, dict) and isinstance(payload.get("objects"), list):
+            values = payload["objects"]
+        elif isinstance(payload, list):
+            values = payload
+        else:
+            values = [payload]
+        objects.extend(item for item in values if isinstance(item, dict))
+    return tuple(objects)
+
+
+def _stix_objects(path: str | Path) -> tuple[dict[str, Any], ...]:
+    source_path = Path(path)
+    try:
+        stat = source_path.stat()
+        signature = (stat.st_mtime_ns, stat.st_size)
+    except OSError:
+        return ()
+    return _load_stix_objects(str(source_path.resolve()), signature)
 
 
 def _as_text(value: Any) -> str:
@@ -22,6 +58,14 @@ def _as_text(value: Any) -> str:
     if isinstance(value, list):
         return "\n".join(f"- {_as_text(item)}" for item in value)
     return str(value)
+
+
+def _local_uri(root: Path, path: Path, scheme: str) -> str:
+    try:
+        relative = path.relative_to(root).as_posix()
+    except ValueError:
+        relative = path.name
+    return f"{scheme}://{relative}"
 
 
 def load_playbooks(root: str | Path) -> list[KnowledgeChunk]:
@@ -52,7 +96,7 @@ def load_playbooks(root: str | Path) -> list[KnowledgeChunk]:
                     source="playbook",
                     title=title,
                     content="\n\n".join(section for section in sections if section.strip()),
-                    source_uri=path.resolve().as_uri(),
+                    source_uri=_local_uri(root_path, path, "playbook"),
                     version=str(document.get("version") or "1"),
                     metadata={
                         "applies_to": document.get("applies_to") or [],
@@ -94,7 +138,7 @@ def load_sigma_rules(root: str | Path) -> list[KnowledgeChunk]:
                     source="sigma",
                     title=str(rule["title"]),
                     content=content,
-                    source_uri=path.resolve().as_uri(),
+                    source_uri=_local_uri(root_path, path, "sigma"),
                     version=str(rule.get("modified") or rule.get("date") or ""),
                     metadata={
                         "rule_id": rule_id,
@@ -122,70 +166,290 @@ def load_attack_stix(path: str | Path) -> list[KnowledgeChunk]:
     source_path = Path(path)
     if not source_path.exists():
         return []
-    candidate_files = (
-        sorted(source_path.rglob("*.json")) if source_path.is_dir() else [source_path]
-    )
     chunks: list[KnowledgeChunk] = []
-    for candidate in candidate_files:
-        try:
-            payload = json.loads(candidate.read_text("utf-8"))
-        except (OSError, json.JSONDecodeError):
+    for obj in _stix_objects(source_path):
+        if (
+            obj.get("type") != "attack-pattern"
+            or obj.get("revoked")
+            or obj.get("x_mitre_deprecated")
+        ):
             continue
-        objects: Iterable[Any]
-        if isinstance(payload, dict) and isinstance(payload.get("objects"), list):
-            objects = payload["objects"]
-        elif isinstance(payload, list):
-            objects = payload
-        else:
-            objects = [payload]
-        for obj in objects:
-            if (
-                not isinstance(obj, dict)
-                or obj.get("type") != "attack-pattern"
-                or obj.get("revoked")
-                or obj.get("x_mitre_deprecated")
-            ):
-                continue
-            technique_id = _external_id(obj)
-            if not re.fullmatch(r"T\d{4}(?:\.\d{3})?", technique_id):
-                continue
-            tactics = [
-                phase.get("phase_name")
-                for phase in obj.get("kill_chain_phases") or []
-                if phase.get("phase_name")
+        technique_id = _external_id(obj)
+        if not re.fullmatch(r"T\d{4}(?:\.\d{3})?", technique_id):
+            continue
+        tactics = [
+            phase.get("phase_name")
+            for phase in obj.get("kill_chain_phases") or []
+            if phase.get("phase_name")
+        ]
+        reference_url = next(
+            (
+                ref.get("url")
+                for ref in obj.get("external_references") or []
+                if ref.get("external_id") == technique_id and ref.get("url")
+            ),
+            f"https://attack.mitre.org/techniques/{technique_id.replace('.', '/')}/",
+        )
+        content = "\n".join(
+            [
+                f"ATT&CK 技术: {technique_id} {obj.get('name', '')}",
+                f"战术: {', '.join(tactics)}",
+                f"平台: {', '.join(obj.get('x_mitre_platforms') or [])}",
+                str(obj.get("description") or ""),
             ]
-            reference_url = next(
-                (
-                    ref.get("url")
-                    for ref in obj.get("external_references") or []
-                    if ref.get("external_id") == technique_id and ref.get("url")
+        )
+        chunks.append(
+            KnowledgeChunk(
+                knowledge_id=f"KB-ATTCK-{technique_id}",
+                source="mitre_attack",
+                title=f"{technique_id} {obj.get('name', '')}".strip(),
+                content=content,
+                source_uri=str(reference_url),
+                version=str(obj.get("modified") or obj.get("created") or ""),
+                metadata={
+                    "technique_id": technique_id,
+                    "tactics": tactics,
+                    "platforms": obj.get("x_mitre_platforms") or [],
+                    "stix_id": obj.get("id"),
+                },
+            ).with_checksum()
+        )
+    return chunks
+
+
+def load_attack_groups(path: str | Path) -> list[KnowledgeChunk]:
+    """Load MITRE ATT&CK intrusion-set (threat-actor group) objects from a STIX bundle."""
+    source_path = Path(path)
+    if not source_path.exists():
+        return []
+    objects = _stix_objects(source_path)
+    chunks: list[KnowledgeChunk] = []
+    for obj in objects:
+        if (
+            not isinstance(obj, dict)
+            or obj.get("type") != "intrusion-set"
+            or obj.get("revoked")
+            or obj.get("x_mitre_deprecated")
+        ):
+            continue
+        group_id = _external_id(obj) or str(obj.get("id", ""))
+        name = str(obj.get("name", group_id))
+        aliases = obj.get("aliases") or []
+        description = str(obj.get("description") or "")
+        tactics = [
+            phase.get("phase_name")
+            for phase in obj.get("kill_chain_phases") or []
+            if phase.get("phase_name")
+        ]
+        references = [
+            str(ref.get("url"))
+            for ref in obj.get("external_references") or []
+            if ref.get("url")
+        ]
+        content = "\n".join(
+            part
+            for part in (
+                f"威胁行为者: {name}",
+                f"ID: {group_id}",
+                f"别名: {', '.join(str(a) for a in aliases)}" if aliases else "",
+                f"战术: {', '.join(tactics)}" if tactics else "",
+                description,
+                "参考:\n" + "\n".join(references) if references else "",
+            )
+            if part
+        )
+        chunks.append(
+            KnowledgeChunk(
+                knowledge_id=f"KB-ATTCK-GROUP-{group_id.upper()}",
+                source="mitre_attack",
+                title=name,
+                content=content,
+                source_uri=str(
+                    next(
+                        (ref.get("url") for ref in obj.get("external_references") or [] if ref.get("url")),
+                        f"https://attack.mitre.org/groups/{group_id.replace('.', '/')}/",
+                    )
                 ),
-                f"https://attack.mitre.org/techniques/{technique_id.replace('.', '/')}/",
+                version=str(obj.get("modified") or obj.get("created") or ""),
+                metadata={
+                    "group_id": group_id,
+                    "aliases": [str(a) for a in aliases],
+                    "tactics": tactics,
+                    "stix_id": obj.get("id"),
+                },
+            ).with_checksum()
+        )
+    return chunks
+
+
+def load_attack_malware(path: str | Path) -> list[KnowledgeChunk]:
+    """Load MITRE ATT&CK malware objects from a STIX bundle."""
+    source_path = Path(path)
+    if not source_path.exists():
+        return []
+    objects = _stix_objects(source_path)
+    chunks: list[KnowledgeChunk] = []
+    for obj in objects:
+        if (
+            not isinstance(obj, dict)
+            or obj.get("type") != "malware"
+            or obj.get("revoked")
+            or obj.get("x_mitre_deprecated")
+        ):
+            continue
+        malware_id = _external_id(obj) or str(obj.get("id", ""))
+        name = str(obj.get("name", malware_id))
+        malware_types = obj.get("malware_types") or []
+        description = str(obj.get("description") or "")
+        references = [
+            str(ref.get("url"))
+            for ref in obj.get("external_references") or []
+            if ref.get("url")
+        ]
+        content = "\n".join(
+            part
+            for part in (
+                f"恶意软件: {name}",
+                f"ID: {malware_id}",
+                f"类型: {', '.join(str(t) for t in malware_types)}" if malware_types else "",
+                description,
+                "参考:\n" + "\n".join(references) if references else "",
             )
-            content = "\n".join(
-                [
-                    f"ATT&CK 技术: {technique_id} {obj.get('name', '')}",
-                    f"战术: {', '.join(tactics)}",
-                    f"平台: {', '.join(obj.get('x_mitre_platforms') or [])}",
-                    str(obj.get("description") or ""),
-                ]
+            if part
+        )
+        chunks.append(
+            KnowledgeChunk(
+                knowledge_id=f"KB-ATTCK-MALWARE-{malware_id.upper()}",
+                source="mitre_attack",
+                title=name,
+                content=content,
+                source_uri=str(
+                    next(
+                        (ref.get("url") for ref in obj.get("external_references") or [] if ref.get("url")),
+                        "",
+                    )
+                ),
+                version=str(obj.get("modified") or obj.get("created") or ""),
+                metadata={
+                    "malware_id": malware_id,
+                    "malware_types": [str(t) for t in malware_types],
+                    "stix_id": obj.get("id"),
+                },
+            ).with_checksum()
+        )
+    return chunks
+
+
+def load_attack_tools(path: str | Path) -> list[KnowledgeChunk]:
+    """Load MITRE ATT&CK tool objects from a STIX bundle."""
+    source_path = Path(path)
+    if not source_path.exists():
+        return []
+    objects = _stix_objects(source_path)
+    chunks: list[KnowledgeChunk] = []
+    for obj in objects:
+        if (
+            not isinstance(obj, dict)
+            or obj.get("type") != "tool"
+            or obj.get("revoked")
+            or obj.get("x_mitre_deprecated")
+        ):
+            continue
+        tool_id = _external_id(obj) or str(obj.get("id", ""))
+        name = str(obj.get("name", tool_id))
+        tool_types = obj.get("tool_types") or []
+        description = str(obj.get("description") or "")
+        references = [
+            str(ref.get("url"))
+            for ref in obj.get("external_references") or []
+            if ref.get("url")
+        ]
+        content = "\n".join(
+            part
+            for part in (
+                f"工具: {name}",
+                f"ID: {tool_id}",
+                f"类型: {', '.join(str(t) for t in tool_types)}" if tool_types else "",
+                description,
+                "参考:\n" + "\n".join(references) if references else "",
             )
-            chunks.append(
-                KnowledgeChunk(
-                    knowledge_id=f"KB-ATTCK-{technique_id}",
-                    source="mitre_attack",
-                    title=f"{technique_id} {obj.get('name', '')}".strip(),
-                    content=content,
-                    source_uri=str(reference_url),
-                    version=str(obj.get("modified") or obj.get("created") or ""),
-                    metadata={
-                        "technique_id": technique_id,
-                        "tactics": tactics,
-                        "platforms": obj.get("x_mitre_platforms") or [],
-                        "stix_id": obj.get("id"),
-                    },
-                ).with_checksum()
+            if part
+        )
+        chunks.append(
+            KnowledgeChunk(
+                knowledge_id=f"KB-ATTCK-TOOL-{tool_id.upper()}",
+                source="mitre_attack",
+                title=name,
+                content=content,
+                source_uri=str(
+                    next(
+                        (ref.get("url") for ref in obj.get("external_references") or [] if ref.get("url")),
+                        "",
+                    )
+                ),
+                version=str(obj.get("modified") or obj.get("created") or ""),
+                metadata={
+                    "tool_id": tool_id,
+                    "tool_types": [str(t) for t in tool_types],
+                    "stix_id": obj.get("id"),
+                },
+            ).with_checksum()
+        )
+    return chunks
+
+
+def load_attack_mitigations(path: str | Path) -> list[KnowledgeChunk]:
+    """Load MITRE ATT&CK course-of-action (mitigation) objects from a STIX bundle."""
+    source_path = Path(path)
+    if not source_path.exists():
+        return []
+    objects = _stix_objects(source_path)
+    chunks: list[KnowledgeChunk] = []
+    for obj in objects:
+        if (
+            not isinstance(obj, dict)
+            or obj.get("type") != "course-of-action"
+            or obj.get("revoked")
+            or obj.get("x_mitre_deprecated")
+        ):
+            continue
+        mit_id = _external_id(obj) or str(obj.get("id", ""))
+        name = str(obj.get("name", mit_id))
+        description = str(obj.get("description") or "")
+        references = [
+            str(ref.get("url"))
+            for ref in obj.get("external_references") or []
+            if ref.get("url")
+        ]
+        content = "\n".join(
+            part
+            for part in (
+                f"缓解措施: {name}",
+                f"ID: {mit_id}",
+                description,
+                "参考:\n" + "\n".join(references) if references else "",
             )
+            if part
+        )
+        chunks.append(
+            KnowledgeChunk(
+                knowledge_id=f"KB-ATTCK-MITIGATION-{mit_id.upper()}",
+                source="mitre_attack",
+                title=name,
+                content=content,
+                source_uri=str(
+                    next(
+                        (ref.get("url") for ref in obj.get("external_references") or [] if ref.get("url")),
+                        "",
+                    )
+                ),
+                version=str(obj.get("modified") or obj.get("created") or ""),
+                metadata={
+                    "mitigation_id": mit_id,
+                    "stix_id": obj.get("id"),
+                },
+            ).with_checksum()
+        )
     return chunks
 
 

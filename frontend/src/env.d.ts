@@ -62,10 +62,32 @@ export interface StreamEvent {
 }
 
 export interface Stats {
-  dataset: string
-  total: number
-  by_label: Record<string, number>
+  generated_at: string
+  last_updated: string | null
+  revision: string
+  total_alerts: number
+  confirmed_threats: number
+  dismissed_risks: number
+  pending_review: number
+  misjudgments: number
+  labeled_alerts: number
+  correct_judgments: number
+  accuracy: number | null
+  by_judgment: Record<string, number>
   by_source: Record<string, number>
   by_severity: Record<string, number>
-  attack_types: Array<{ id: string; count: number }>
+  trend: Array<{ date: string; count: number }>
+  recent_events: Array<{
+    alert_id: string
+    judgment: '真阳' | '假阳' | '待查'
+    confidence: number
+    truth_label: '真阳' | '假阳' | '待查' | null
+    correct: boolean | null
+    source: string
+    severity: string
+    rule_name: string
+    reason: string
+    channel: string
+    observed_at: string
+  }>
 }

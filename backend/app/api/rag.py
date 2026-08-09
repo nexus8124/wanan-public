@@ -21,7 +21,7 @@ def rag_status() -> dict:
 @router.get("/search")
 def rag_search(
     q: str = Query(min_length=2, max_length=6000),
-    source: Literal["playbook", "sigma", "mitre_attack", "nvd"] | None = None,
+    source: Literal["playbook", "sigma", "mitre_attack", "cisa_kev", "nvd"] | None = None,
     top_k: int = Query(default=4, ge=1, le=12),
 ) -> dict:
     """Inspect retrieval results without invoking an LLM or consuming tokens."""

@@ -11,7 +11,6 @@ import hashlib
 import json
 import logging
 import threading
-from collections import Counter
 from pathlib import Path
 from typing import AsyncGenerator
 
@@ -32,10 +31,18 @@ from app.eval.dataset import (
     safe_upload_filename,
     select_eval_dataset,
 )
+from app.models.llm import get_model_catalog
+from app.operations import get_operations_snapshot
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["stats"])
+
+
+@router.get("/models")
+def get_models() -> dict:
+    """Return selectable model metadata and key availability, never secrets."""
+    return {"providers": get_model_catalog()}
 
 
 class DatasetSelection(BaseModel):
@@ -44,45 +51,37 @@ class DatasetSelection(BaseModel):
 
 @router.get("/stats")
 def get_stats() -> dict:
-    """数据大屏统计接口。
+    """Return the latest deduplicated operational judgment statistics."""
+    return get_operations_snapshot()
 
-    返回数据集的聚合统计：
-        - total / by_label (真阳/假阳/待查)
-        - by_source (edr/ids/waf/siem/ndr)
-        - by_severity (high/medium/low/info)
-        - attack_types (从 raw_payload.attck 聚合)
-    """
-    # 优先用 eval 数据集（50 条），不存在则用 sample（10 条）
-    path = resolve_eval_dataset_path()
-    try:
-        dataset = load_eval_dataset(path)
-        alerts = [sample.alert for sample in dataset.samples]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"load dataset failed: {e}")
 
-    by_label = Counter(sample.label for sample in dataset.samples)
-    by_source = Counter(a.source for a in alerts)
-    by_severity = Counter(a.severity for a in alerts)
+async def _stream_stats(request: Request) -> AsyncGenerator[dict, None]:
+    """Push a fresh dashboard snapshot whenever persisted judgments change."""
+    last_revision: str | None = None
+    while not await request.is_disconnected():
+        try:
+            snapshot = get_operations_snapshot()
+            if snapshot["revision"] != last_revision:
+                last_revision = snapshot["revision"]
+                yield {
+                    "event": "stats",
+                    "data": json.dumps(snapshot, ensure_ascii=False, default=str),
+                }
+        except Exception as exc:
+            logger.exception("operational stats stream failed: %s", exc)
+            yield {
+                "event": "error",
+                "data": json.dumps(
+                    {"message": "运营统计暂时不可用"}, ensure_ascii=False
+                ),
+            }
+        await asyncio.sleep(1.5)
 
-    # ATT&CK 战术聚合（从 raw_payload.attck 抽取）
-    attack_types: list[dict] = []
-    attck_counter: Counter = Counter()
-    for a in alerts:
-        attck = (a.raw_payload or {}).get("attck", [])
-        if isinstance(attck, list):
-            for tid in attck:
-                attck_counter[tid] += 1
-    # 把出现频次最高的战术排前面
-    attack_types = [{"id": tid, "count": cnt} for tid, cnt in attck_counter.most_common(15)]
 
-    return {
-        "dataset": str(path.name),
-        "total": len(alerts),
-        "by_label": dict(by_label),
-        "by_source": dict(by_source),
-        "by_severity": dict(by_severity),
-        "attack_types": attack_types,
-    }
+@router.get("/stats/stream")
+async def stream_stats(request: Request) -> EventSourceResponse:
+    """SSE stream used by the overview for near-real-time updates."""
+    return EventSourceResponse(_stream_stats(request), ping=15)
 
 
 @router.get("/samples")
@@ -102,16 +101,19 @@ def list_samples() -> dict:
 
 @router.post("/eval/run")
 def run_eval_endpoint(
-    mock: bool = True,
+    request: Request,
     limit: int | None = None,
     strategy: str = "judge_only",
     rag: bool = False,
+    provider: str | None = None,
+    model: str | None = None,
 ) -> dict:
-    """触发评测（给评测页用）。
-
-    默认 mock=True（不耗 token，验证链路）。
-    真实评测需要前端显式传 mock=false（会产生 token 费用）。
-    """
+    """触发真实模型评测（会产生模型调用费用）。"""
+    if "mock" in request.query_params:
+        raise HTTPException(
+            status_code=410,
+            detail="Mock evaluation has been removed; refresh the frontend",
+        )
     # 延迟导入，避免 main.py 启动时拉起整个评测模块
     from app.eval.run import run_eval
 
@@ -120,11 +122,12 @@ def run_eval_endpoint(
     try:
         result = run_eval(
             dataset_path=None,
-            mock=mock,
             save_results=False,
             max_samples=limit,
             strategy=strategy,  # type: ignore[arg-type]
             enable_rag=rag,
+            provider=provider,
+            model=model,
         )
         return result
     except Exception as e:
@@ -133,10 +136,14 @@ def run_eval_endpoint(
 
 
 async def _stream_eval(
-    mock: bool,
     limit: int | None = None,
     strategy: str = "judge_only",
     rag: bool = False,
+    provider: str | None = None,
+    model: str | None = None,
+    dataset_path_override: Path | None = None,
+    run_id_override: str | None = None,
+    initial_details: list[dict] | None = None,
 ) -> AsyncGenerator[dict, None]:
     """在线程池运行同步评测，并把逐样本进度转换成 SSE。"""
     from app.eval.history import create_run, finish_run, save_event, save_progress
@@ -145,7 +152,7 @@ async def _stream_eval(
     loop = asyncio.get_running_loop()
     queue: asyncio.Queue[tuple[str, dict] | None] = asyncio.Queue()
     stop_event = threading.Event()
-    dataset_path = resolve_eval_dataset_path()
+    dataset_path = dataset_path_override or resolve_eval_dataset_path()
     loaded_dataset = load_eval_dataset(dataset_path)
     if limit is not None and limit < 1:
         raise HTTPException(status_code=422, detail="limit must be at least 1")
@@ -153,9 +160,23 @@ async def _stream_eval(
         raise HTTPException(status_code=422, detail="invalid eval strategy")
     total = min(limit, len(loaded_dataset.samples)) if limit else len(loaded_dataset.samples)
     dataset_id = dataset_id_for_path(dataset_path)
-    mode = "mock" if mock else get_settings().llm_provider
-    run_id = create_run(
-        mode=mode, strategy=strategy, dataset=str(dataset_path), total=total
+    settings = get_settings()
+    effective_provider = provider or settings.llm_provider
+    mode = effective_provider
+    initial_config = {
+        "strategy": strategy,
+        "rag_enabled": rag,
+        "tools_enabled": strategy == "react",
+        "provider": effective_provider,
+        "model": model,
+        "requested_max_samples": limit,
+    }
+    run_id = run_id_override or create_run(
+        mode=mode,
+        strategy=strategy,
+        dataset=str(dataset_path),
+        total=total,
+        experiment_config=initial_config,
     )
 
     def put_event(event: str, data: dict) -> None:
@@ -168,10 +189,13 @@ async def _stream_eval(
                 "start",
                 {
                     "run_id": run_id,
-                    "mock": mock,
                     "mode": mode,
                     "strategy": strategy,
                     "rag": rag,
+                    "provider": effective_provider,
+                    "model": model,
+                    "resumed": run_id_override is not None,
+                    "completed": len(initial_details or []),
                     "total": total,
                     "dataset_id": dataset_id,
                     "dataset": str(dataset_path),
@@ -192,7 +216,6 @@ async def _stream_eval(
 
             result = run_eval(
                 dataset_path=dataset_path,
-                mock=mock,
                 save_results=False,
                 progress_callback=handle_progress,
                 agent_event_callback=handle_agent_event,
@@ -200,6 +223,9 @@ async def _stream_eval(
                 max_samples=limit,
                 strategy=strategy,  # type: ignore[arg-type]
                 enable_rag=rag,
+                provider=provider,
+                model=model,
+                initial_details=initial_details,
             )
             was_stopped = stop_event.is_set()
             finish_run(
@@ -240,13 +266,70 @@ async def _stream_eval(
 
 @router.post("/eval/run/stream")
 async def run_eval_stream_endpoint(
-    mock: bool = True,
+    request: Request,
     limit: int | None = None,
     strategy: str = "judge_only",
     rag: bool = False,
+    provider: str | None = None,
+    model: str | None = None,
 ) -> EventSourceResponse:
     """流式评测：逐条推送进度，完成后返回最终指标和全部明细。"""
-    return EventSourceResponse(_stream_eval(mock, limit, strategy, rag))
+    if "mock" in request.query_params:
+        raise HTTPException(
+            status_code=410,
+            detail="Mock evaluation has been removed; refresh the frontend",
+        )
+    return EventSourceResponse(
+        _stream_eval(limit, strategy, rag, provider, model)
+    )
+
+
+@router.post("/eval/history/{run_id}/resume")
+async def resume_eval_history(run_id: str) -> EventSourceResponse:
+    """Resume an interrupted run from its persisted deterministic prefix."""
+    from app.eval.history import get_run, reopen_run
+
+    saved = get_run(run_id)
+    if saved is None:
+        raise HTTPException(status_code=404, detail="eval history not found")
+    if saved["status"] == "running":
+        raise HTTPException(status_code=409, detail="evaluation is already running")
+    if saved["status"] == "completed" or saved["completed"] >= saved["total"]:
+        raise HTTPException(status_code=409, detail="evaluation is already complete")
+
+    config = saved.get("experiment_config") or {}
+    if not config and not saved.get("details"):
+        raise HTTPException(
+            status_code=409,
+            detail="run has no persisted experiment configuration; start a new run",
+        )
+    dataset_path = Path(saved["dataset"])
+    if not dataset_path.exists():
+        raise HTTPException(status_code=409, detail="original evaluation dataset is missing")
+    if saved["mode"] == "mock" or config.get("provider") == "mock":
+        raise HTTPException(
+            status_code=409,
+            detail="legacy mock evaluations can no longer be resumed",
+        )
+
+    state = reopen_run(run_id)
+    if state != "resumed":
+        raise HTTPException(status_code=409, detail=f"cannot resume run: {state}")
+
+    provider = config.get("provider") or saved["mode"]
+    model = config.get("model")
+    return EventSourceResponse(
+        _stream_eval(
+            limit=int(saved["total"]),
+            strategy=saved["strategy"],
+            rag=bool(config.get("rag_enabled", False)),
+            provider=provider,
+            model=model,
+            dataset_path_override=dataset_path,
+            run_id_override=run_id,
+            initial_details=saved.get("details") or [],
+        )
+    )
 
 
 @router.get("/eval/datasets")

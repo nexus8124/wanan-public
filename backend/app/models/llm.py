@@ -27,13 +27,21 @@ logger = get_logger(__name__)
 # 注：DeepSeek、Qwen 均 OpenAI 兼容，base_url 不同
 _PROVIDER_DEFAULTS: dict[str, dict[str, Any]] = {
     "deepseek": {
-        # deepseek-v4-flash 是 V4 主力；deepseek-chat 已于 2026/07/24 弃用
-        "model": "deepseek-v4-flash",
+        # V4 Pro is the default; V4 Flash remains available for fast comparisons.
+        "model": "deepseek-v4-pro",
         "base_url": "https://api.deepseek.com",
     },
     "qwen": {
-        "model": "qwen-plus",
+        "model": "qwen3.7-flash",
         "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    },
+    "siliconflow": {
+        "model": "Qwen/Qwen3.5-9B",
+        "base_url": "https://api.siliconflow.cn/v1",
+    },
+    "openai_relay": {
+        "model": "gpt-5.4",
+        "base_url": "https://www.cctq.ai/v1",
     },
     "sangfor": {
         # 深信服安全 GPT：base_url 待平台权限下发后填入 .env
@@ -41,6 +49,92 @@ _PROVIDER_DEFAULTS: dict[str, dict[str, Any]] = {
         "base_url": "",  # 占位，从 settings.sangfor_base_url 读
     },
 }
+
+_PROVIDER_DISPLAY_NAMES: dict[str, str] = {
+    "deepseek": "DeepSeek",
+    "siliconflow": "SiliconFlow",
+    "openai_relay": "OpenAI 中转",
+    "qwen": "阿里云百炼",
+}
+
+# Models exposed by the comparison UI. Users can still override any model
+# through LLM_MODEL or the per-run API/CLI argument.
+_MODEL_CATALOG: dict[str, list[dict[str, str]]] = {
+    "deepseek": [
+        {"id": "deepseek-v4-pro", "label": "DeepSeek V4 Pro"},
+        {"id": "deepseek-v4-flash", "label": "DeepSeek V4 Flash"},
+    ],
+    "siliconflow": [
+        {"id": "Qwen/Qwen3.5-9B", "label": "Qwen3.5 9B (SiliconFlow)"},
+        {"id": "Qwen/Qwen3-8B", "label": "Qwen3 8B (SiliconFlow)"},
+    ],
+    "openai_relay": [
+        {"id": "gpt-5.4", "label": "GPT-5.4 (relay)"},
+    ],
+    "qwen": [
+        {"id": "qwen3.7-flash", "label": "Qwen3.7 Flash"},
+    ],
+}
+
+
+def provider_is_configured(settings: Settings, provider: str | None = None) -> bool:
+    """Return whether the selected provider has a usable API key."""
+    name = (provider or settings.llm_provider).lower()
+    key_fields = {
+        "deepseek": settings.deepseek_api_key,
+        "qwen": settings.qwen_api_key,
+        "siliconflow": settings.siliconflow_api_key,
+        "openai_relay": settings.openai_relay_api_key,
+        "sangfor": settings.sangfor_api_key,
+    }
+    return bool(key_fields.get(name, "").strip())
+
+
+def get_model_catalog(settings: Settings | None = None) -> list[dict[str, Any]]:
+    """Return safe provider/model metadata without exposing API keys."""
+    s = settings or get_settings()
+    return [
+        {
+            "provider": provider,
+            "display_name": _PROVIDER_DISPLAY_NAMES[provider],
+            "models": models,
+            "configured": provider_is_configured(s, provider),
+            "default_model": _PROVIDER_DEFAULTS[provider]["model"],
+        }
+        for provider, models in _MODEL_CATALOG.items()
+    ]
+
+
+def validate_model_selection(
+    provider: str | None = None,
+    model: str | None = None,
+    *,
+    settings: Settings | None = None,
+) -> tuple[str, str]:
+    """Resolve and validate a provider/model pair exposed by the public API."""
+    s = settings or get_settings()
+    provider_name = (provider or s.llm_provider).lower()
+    if provider_name not in _PROVIDER_DEFAULTS:
+        raise ValueError(
+            f"Unknown LLM provider: {provider_name!r}. "
+            f"Expected one of {list(_MODEL_CATALOG)}"
+        )
+
+    configured_model = (
+        s.llm_model
+        if provider is None or provider_name == s.llm_provider.lower()
+        else ""
+    )
+    model_name = model or configured_model or _PROVIDER_DEFAULTS[provider_name]["model"]
+    allowed_models = {
+        item["id"] for item in _MODEL_CATALOG.get(provider_name, [])
+    } or {_PROVIDER_DEFAULTS[provider_name]["model"]}
+    if model_name not in allowed_models:
+        raise ValueError(
+            f"Model {model_name!r} does not belong to provider {provider_name!r}. "
+            f"Expected one of {sorted(allowed_models)}"
+        )
+    return provider_name, model_name
 
 
 def _make_mock_llm() -> "FakeJudgeLLM":
@@ -221,20 +315,14 @@ def get_llm(
         llm = get_llm(provider="qwen")           # 切换 Qwen
         llm = get_llm(mock=True)                 # 测试不耗 token
     """
+    s = settings or get_settings()
+    provider, model_name = validate_model_selection(provider, model, settings=s)
+
     if mock:
         logger.info("LLM factory: returning mock LLM (no token cost)")
         return _make_mock_llm()
 
-    s = settings or get_settings()
-    provider = (provider or s.llm_provider).lower()
-    if provider not in _PROVIDER_DEFAULTS:
-        raise ValueError(
-            f"Unknown LLM provider: {provider!r}. "
-            f"Expected one of {list(_PROVIDER_DEFAULTS)}"
-        )
-
     defaults = _PROVIDER_DEFAULTS[provider]
-    model_name = model or s.llm_model or defaults["model"]
     temp = temperature if temperature is not None else s.llm_temperature
 
     if provider == "deepseek":
@@ -284,7 +372,33 @@ def get_llm(
         return ChatOpenAI(
             model=model_name,
             api_key=s.qwen_api_key,
-            base_url=defaults["base_url"],
+            base_url=s.qwen_base_url or defaults["base_url"],
+            temperature=temp,
+            timeout=s.react_global_timeout_s,
+        )
+
+    if provider == "siliconflow":
+        if not s.siliconflow_api_key:
+            raise RuntimeError(
+                "SILICONFLOW_API_KEY not set. Fill it in .env or use mock=True."
+            )
+        return ChatOpenAI(
+            model=model_name,
+            api_key=s.siliconflow_api_key,
+            base_url=s.siliconflow_base_url.rstrip("/"),
+            temperature=temp,
+            timeout=s.react_global_timeout_s,
+        )
+
+    if provider == "openai_relay":
+        if not s.openai_relay_api_key:
+            raise RuntimeError(
+                "OPENAI_RELAY_API_KEY not set. Fill it in .env or use mock=True."
+            )
+        return ChatOpenAI(
+            model=model_name,
+            api_key=s.openai_relay_api_key,
+            base_url=s.openai_relay_base_url.rstrip("/"),
             temperature=temp,
             timeout=s.react_global_timeout_s,
         )

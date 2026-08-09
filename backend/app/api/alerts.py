@@ -12,8 +12,9 @@ from fastapi.responses import JSONResponse
 from app.agent.graph import judge_alert
 from app.core.config import get_settings
 from app.core.logging import get_logger
-from app.models.llm import get_llm
+from app.models.llm import get_llm, provider_is_configured, validate_model_selection
 from app.models.schemas import Alert
+from app.operations import record_alert_judgment
 
 logger = get_logger(__name__)
 
@@ -21,7 +22,12 @@ router = APIRouter(prefix="/api/alerts", tags=["alerts"])
 
 
 @router.post("/judge")
-def judge(alert: Alert, rag: bool | None = None) -> JSONResponse:
+def judge(
+    alert: Alert,
+    rag: bool | None = None,
+    provider: str | None = None,
+    model: str | None = None,
+) -> JSONResponse:
     """研判单条告警，返回结构化判定结果 + CoT。
 
     入参：Alert（Pydantic schema，自动校验）
@@ -37,14 +43,27 @@ def judge(alert: Alert, rag: bool | None = None) -> JSONResponse:
     """
     settings = get_settings()
 
+    try:
+        selected_provider, selected_model = validate_model_selection(
+            provider, model, settings=settings
+        )
+    except ValueError as selection_error:
+        raise HTTPException(status_code=400, detail=str(selection_error)) from selection_error
+
     # 无 DeepSeek key 时降级到 mock（保证 demo 可用，不阻断）
-    use_mock = not settings.deepseek_api_key
+    use_mock = not provider_is_configured(settings, selected_provider)
     if use_mock:
         logger.warning("DEEPSEEK_API_KEY 未配置，降级到 mock LLM（仅 demo 用）")
 
     try:
-        llm = get_llm(mock=use_mock)
+        llm = get_llm(
+            provider=selected_provider,
+            model=selected_model,
+            mock=use_mock,
+            settings=settings,
+        )
         # 不把 label 传给 Agent（推理时不应看到答案）
+        truth_label = alert.label
         alert_dict = alert.model_dump(mode="json")
         alert_dict.pop("label", None)
         result = judge_alert(
@@ -52,6 +71,16 @@ def judge(alert: Alert, rag: bool | None = None) -> JSONResponse:
             llm=llm,
             enable_rag=settings.rag_enabled if rag is None else rag,
         )
+        try:
+            record_alert_judgment(
+                alert_dict,
+                result,
+                truth_label=truth_label,
+                channel="interactive",
+            )
+        except Exception as history_error:
+            # Dashboard persistence must never make an otherwise valid judgment fail.
+            logger.exception("save operational judgment failed: %s", history_error)
         return JSONResponse(content=result)
     except Exception as e:
         logger.exception("judge API failed: %s", e)

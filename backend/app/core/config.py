@@ -38,6 +38,22 @@ class Settings(BaseSettings):
     alias="DEEPSEEK_SEND_THINKING",
     )
     qwen_api_key: str = Field(default="", alias="QWEN_API_KEY")
+    qwen_base_url: str = Field(
+        default="https://dashscope.aliyuncs.com/compatible-mode/v1",
+        alias="QWEN_BASE_URL",
+    )
+    siliconflow_api_key: str = Field(default="", alias="SILICONFLOW_API_KEY")
+    siliconflow_base_url: str = Field(
+        default="https://api.siliconflow.cn/v1",
+        alias="SILICONFLOW_BASE_URL",
+    )
+    openai_relay_api_key: str = Field(
+        default="", alias="OPENAI_RELAY_API_KEY"
+    )
+    openai_relay_base_url: str = Field(
+        default="https://www.cctq.ai/v1",
+        alias="OPENAI_RELAY_BASE_URL",
+    )
     sangfor_api_key: str = Field(default="", alias="SANGFOR_API_KEY")
     sangfor_base_url: str = Field(default="", alias="SANGFOR_BASE_URL")
 
@@ -55,19 +71,24 @@ class Settings(BaseSettings):
     # 默认关闭，便于用同一份代码做 No-RAG / RAG 对照实验。
     rag_enabled: bool = Field(default=False, alias="RAG_ENABLED")
     rag_corpus_version: str = Field(
-        default="rag-v2-20260727", alias="RAG_CORPUS_VERSION"
+        default="rag-v3-20260805", alias="RAG_CORPUS_VERSION"
     )
     rag_db_path_value: str = Field(default="", alias="RAG_DB_PATH")
     rag_playbook_path_value: str = Field(default="", alias="RAG_PLAYBOOK_PATH")
+    # External corpora are opt-in so a fresh clone and unit tests stay offline.
+    # ``app.data.catalog build-rag`` passes these paths explicitly when building
+    # the local index.
     rag_sigma_path: str = Field(default="", alias="RAG_SIGMA_PATH")
     rag_attack_stix_path: str = Field(default="", alias="RAG_ATTACK_STIX_PATH")
+    rag_cisa_kev_path: str = Field(default="", alias="RAG_CISA_KEV_PATH")
+    rag_nvd_feed_path: str = Field(default="", alias="RAG_NVD_FEED_PATH")
     rag_embedding_provider: str = Field(
         default="hashing", alias="RAG_EMBEDDING_PROVIDER"
     )
     rag_embedding_model: str = Field(
         default="BAAI/bge-m3", alias="RAG_EMBEDDING_MODEL"
     )
-    rag_top_k: int = Field(default=2, ge=1, le=12, alias="RAG_TOP_K")
+    rag_top_k: int = Field(default=10, ge=1, le=12, alias="RAG_TOP_K")
     rag_candidate_k: int = Field(
         default=60, ge=4, le=200, alias="RAG_CANDIDATE_K"
     )
@@ -88,6 +109,14 @@ class Settings(BaseSettings):
     rag_nvd_timeout_s: float = Field(
         default=15.0, gt=0, le=60, alias="RAG_NVD_TIMEOUT_S"
     )
+
+    # ----- RAG 消融实验开关（用于对比基线，不改核心逻辑）-----
+    # 选择性门控：false = 所有样本都触发 RAG（文献常见全量检索基线）
+    rag_selective_gate: bool = Field(default=True, alias="RAG_SELECTIVE_GATE")
+    # 行为域路由：false = 不限制知识域，任何检索到的知识都进入上下文
+    rag_behavior_routing: bool = Field(default=True, alias="RAG_BEHAVIOR_ROUTING")
+    # 防退化护栏：false = 允许知识翻转已决结论（测试护栏是否过于保守）
+    rag_anti_degradation: bool = Field(default=True, alias="RAG_ANTI_DEGRADATION")
 
     # ----- ReAct 执行护栏（第二阶段） -----
     react_max_steps: int = Field(default=3, ge=1, le=10, alias="REACT_MAX_STEPS")

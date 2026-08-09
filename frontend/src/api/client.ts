@@ -10,8 +10,16 @@ const API_BASE = DEV ? 'http://127.0.0.1:18000/api' : '/api'
 
 // ---------- 同步接口 ----------
 
-export async function judgeAlert(alert: Record<string, any>): Promise<AgentResult> {
-  const res = await fetch(`${API_BASE}/alerts/judge`, {
+export async function judgeAlert(
+  alert: Record<string, any>,
+  provider?: string,
+  model?: string,
+): Promise<AgentResult> {
+  const params = new URLSearchParams()
+  if (provider) params.set('provider', provider)
+  if (model) params.set('model', model)
+  const query = params.size ? `?${params.toString()}` : ''
+  const res = await fetch(`${API_BASE}/alerts/judge${query}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(alert),
@@ -34,16 +42,38 @@ export async function listSamples(): Promise<{ samples: Record<string, any>[]; c
 
 export async function getStats(): Promise<Stats> {
   const res = await fetch(`${API_BASE}/stats`)
+  if (!res.ok) throw new Error(`load stats failed: ${res.status} ${await res.text()}`)
   return res.json()
 }
 
-export async function runEval(mock = true): Promise<any> {
-  const res = await fetch(`${API_BASE}/eval/run?mock=${mock}`, {
-    method: 'POST',
+/** Subscribe to operational dashboard updates. Returns a cleanup function. */
+export function subscribeStats(
+  onStats: (stats: Stats) => void,
+  onError?: () => void,
+): () => void {
+  const source = new EventSource(`${API_BASE}/stats/stream`)
+  source.addEventListener('stats', (event) => {
+    try {
+      onStats(JSON.parse((event as MessageEvent).data) as Stats)
+    } catch (error) {
+      console.warn('parse operational stats failed:', error)
+    }
   })
-  if (!res.ok) {
-    throw new Error(`eval failed: ${res.status} ${await res.text()}`)
-  }
+  source.onerror = () => onError?.()
+  return () => source.close()
+}
+
+export interface ModelProfile {
+  provider: string
+  display_name: string
+  models: { id: string; label: string }[]
+  configured: boolean
+  default_model: string
+}
+
+export async function listModels(): Promise<{ providers: ModelProfile[] }> {
+  const res = await fetch(`${API_BASE}/models`)
+  if (!res.ok) throw new Error(`load models failed: ${res.status} ${await res.text()}`)
   return res.json()
 }
 
@@ -57,20 +87,26 @@ export interface EvalStreamCallbacks {
 
 /** 流式批量评测：后端每完成一条样本就推送一次 progress 事件。 */
 export async function streamRunEval(
-  mock: boolean,
   limit: number | null,
   strategy: 'judge_only' | 'react',
   rag: boolean,
+  provider: string | null,
+  model: string | null,
   callbacks: EvalStreamCallbacks,
   signal?: AbortSignal,
+  resumeRunId?: string,
 ): Promise<void> {
   const params = new URLSearchParams({
-    mock: String(mock),
     strategy,
     rag: String(rag),
   })
   if (limit && limit > 0) params.set('limit', String(limit))
-  const res = await fetch(`${API_BASE}/eval/run/stream?${params.toString()}`, {
+  if (provider) params.set('provider', provider)
+  if (model) params.set('model', model)
+  const endpoint = resumeRunId
+    ? `${API_BASE}/eval/history/${encodeURIComponent(resumeRunId)}/resume`
+    : `${API_BASE}/eval/run/stream?${params.toString()}`
+  const res = await fetch(endpoint, {
     method: 'POST',
     headers: { Accept: 'text/event-stream' },
     signal,
@@ -116,6 +152,23 @@ export async function streamRunEval(
   }
 }
 
+export async function resumeEvalHistory(
+  runId: string,
+  callbacks: EvalStreamCallbacks,
+  signal?: AbortSignal,
+): Promise<void> {
+  return streamRunEval(
+    null,
+    'judge_only',
+    false,
+    null,
+    null,
+    callbacks,
+    signal,
+    runId,
+  )
+}
+
 export async function listEvalHistory(limit = 50): Promise<{ runs: any[]; count: number }> {
   const res = await fetch(`${API_BASE}/eval/history?limit=${limit}`)
   if (!res.ok) throw new Error(`load eval history failed: ${res.status} ${await res.text()}`)
@@ -144,6 +197,11 @@ export interface EvalDatasetInfo {
   label_basis: string
   label_warning?: string | null
   source?: string | null
+  license?: string | null
+  doi?: string | null
+  seed?: number | null
+  scenarios?: string[]
+  detectors?: string[]
   active: boolean
 }
 
@@ -152,7 +210,7 @@ export async function listEvalDatasets(): Promise<{
   active_id: string
   errors: { filename: string; error: string }[]
 }> {
-  const res = await fetch(`${API_BASE}/eval/datasets`)
+  const res = await fetch(`${API_BASE}/eval/datasets`, { cache: 'no-store' })
   if (!res.ok) throw new Error(`load datasets failed: ${res.status} ${await res.text()}`)
   return res.json()
 }
@@ -194,8 +252,13 @@ export async function streamJudgeAlert(
   callbacks: StreamCallbacks,
   signal?: AbortSignal,
   rag = false,
+  provider?: string,
+  model?: string,
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/alerts/judge/stream?rag=${rag}`, {
+  const params = new URLSearchParams({ rag: String(rag) })
+  if (provider) params.set('provider', provider)
+  if (model) params.set('model', model)
+  const res = await fetch(`${API_BASE}/alerts/judge/stream?${params.toString()}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

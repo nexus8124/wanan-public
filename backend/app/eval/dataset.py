@@ -210,6 +210,11 @@ def describe_eval_dataset(path: str | Path) -> dict[str, Any]:
         "label_basis": metadata.get("label_basis", "embedded_label"),
         "label_warning": metadata.get("label_warning"),
         "source": metadata.get("source"),
+        "license": metadata.get("license"),
+        "doi": metadata.get("doi"),
+        "seed": metadata.get("seed"),
+        "scenarios": metadata.get("scenarios") or [],
+        "detectors": metadata.get("detectors") or [],
     }
 
 
