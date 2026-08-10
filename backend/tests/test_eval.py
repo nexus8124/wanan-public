@@ -3,8 +3,14 @@
 from __future__ import annotations
 
 from app.eval.metrics import compute_metrics, format_report
-from app.eval.run import _paired_rag_summary, _paired_react_summary, run_eval
+from app.eval.run import (
+    _paired_multi_agent_summary,
+    _paired_rag_summary,
+    _paired_react_summary,
+    run_eval,
+)
 from app.data.generator import EVAL_DATASET
+from app.models.llm import get_llm
 
 
 class TestMetrics:
@@ -143,13 +149,39 @@ def test_paired_rag_summary_is_separate_from_react_changes():
     assert react["regressions"] == 1
 
 
+def test_paired_multi_agent_summary_tracks_team_activation():
+    details = [
+        {
+            "label": "真阳",
+            "post_rag_pred": "待查",
+            "pred": "真阳",
+            "agent_result": {
+                "multi_agent_used": True,
+                "multi_agent_verified": True,
+                "multi_agent_steps": [{"agent": "network_agent"}],
+            },
+        },
+        {
+            "label": "假阳",
+            "post_rag_pred": "假阳",
+            "pred": "假阳",
+            "agent_result": {"multi_agent_used": False},
+        },
+    ]
+    summary = _paired_multi_agent_summary(details)
+    assert summary["fixes"] == 1
+    assert summary["regressions"] == 0
+    assert summary["triggered"] == 1
+    assert summary["verified"] == 1
+
+
 def test_run_eval_reports_incremental_progress_and_stops():
     """评测应逐条回调进度，并能在样本边界安全停止。"""
     events: list[dict] = []
 
     result = run_eval(
         dataset_path=EVAL_DATASET,
-        mock=True,
+        llm=get_llm(mock=True),
         save_results=False,
         progress_callback=events.append,
         should_stop=lambda: len(events) >= 2,
@@ -169,7 +201,7 @@ def test_run_eval_limit_is_balanced_and_does_not_change_dataset():
     events: list[dict] = []
     result = run_eval(
         dataset_path=EVAL_DATASET,
-        mock=True,
+        llm=get_llm(mock=True),
         save_results=False,
         max_samples=10,
         progress_callback=events.append,
@@ -184,7 +216,7 @@ def test_run_eval_resumes_from_persisted_prefix_without_repeating_samples():
     first_events: list[dict] = []
     first = run_eval(
         dataset_path=EVAL_DATASET,
-        mock=True,
+        llm=get_llm(mock=True),
         save_results=False,
         max_samples=4,
         progress_callback=first_events.append,
@@ -193,7 +225,7 @@ def test_run_eval_resumes_from_persisted_prefix_without_repeating_samples():
     resumed_events: list[dict] = []
     resumed = run_eval(
         dataset_path=EVAL_DATASET,
-        mock=True,
+        llm=get_llm(mock=True),
         save_results=False,
         max_samples=4,
         initial_details=first["details"],
@@ -212,7 +244,7 @@ def test_run_eval_resumes_from_persisted_prefix_without_repeating_samples():
 def test_run_eval_judge_only_records_reproducible_config():
     result = run_eval(
         dataset_path=EVAL_DATASET,
-        mock=True,
+        llm=get_llm(mock=True),
         save_results=False,
         max_samples=2,
         strategy="judge_only",
@@ -222,3 +254,22 @@ def test_run_eval_judge_only_records_reproducible_config():
     assert result["experiment_config"]["tools_enabled"] is False
     assert result["experiment_config"]["prompt_version"]
     assert all(not item["agent_result"]["react_used"] for item in result["details"])
+
+
+def test_run_eval_multi_agent_is_independent_and_supports_rag_flag():
+    result = run_eval(
+        dataset_path=EVAL_DATASET,
+        llm=get_llm(mock=True),
+        save_results=False,
+        max_samples=2,
+        strategy="multi_agent",
+        enable_rag=True,
+    )
+    assert result["strategy"] == "multi_agent"
+    assert result["experiment_config"]["tools_enabled"] is True
+    assert result["experiment_config"]["multi_agent_enabled"] is True
+    assert result["experiment_config"]["rag_enabled"] is True
+    assert result["paired_multi_agent"]["n"] == 2
+    assert all(
+        not item["agent_result"]["react_used"] for item in result["details"]
+    )

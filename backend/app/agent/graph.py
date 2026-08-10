@@ -32,6 +32,13 @@ from app.agent.nodes import (
     preprocess_node,
     tool_executor_node,
 )
+from app.agent.multi_agent import (
+    make_multi_agent_verify_node,
+    multi_agent_has_tasks,
+    multi_agent_plan_node,
+    multi_agent_worker_node,
+    should_enter_multi_agent,
+)
 from app.agent.state import AgentState
 from app.models.llm import get_llm, provider_is_configured
 
@@ -116,6 +123,7 @@ def build_graph(
     llm: BaseChatModel | None = None,
     *,
     enable_react: bool = True,
+    enable_multi_agent: bool = False,
     enable_rag: bool = False,
     rag_service: Any | None = None,
 ):
@@ -126,6 +134,8 @@ def build_graph(
     """
     if llm is None:
         llm = get_llm()
+    if enable_react and enable_multi_agent:
+        raise ValueError("ReAct and multi_agent are independent strategies")
 
     judge_node = make_judge_node(llm)
     react_decide_node = make_react_decide_node(llm)
@@ -138,6 +148,10 @@ def build_graph(
     graph.add_node("judge", judge_node)
     graph.add_node("react_decide", react_decide_node)
     graph.add_node("tool_executor", tool_executor_node)
+    if enable_multi_agent:
+        graph.add_node("multi_agent_plan", multi_agent_plan_node)
+        graph.add_node("multi_agent_worker", multi_agent_worker_node)
+        graph.add_node("multi_agent_verify", make_multi_agent_verify_node(llm))
     graph.add_node("disposition", disposition_node)
     graph.add_node("output", output_node)
 
@@ -152,7 +166,29 @@ def build_graph(
         post_judge_node = "rag_refine"
 
     # Judge / RAG 后融合之后分叉
-    if enable_react:
+    if enable_multi_agent:
+        graph.add_conditional_edges(
+            post_judge_node,
+            lambda state: (
+                "multi_agent_plan" if should_enter_multi_agent(state) else "disposition"
+            ),
+            {
+                "multi_agent_plan": "multi_agent_plan",
+                "disposition": "disposition",
+            },
+        )
+        graph.add_conditional_edges(
+            "multi_agent_plan",
+            multi_agent_has_tasks,
+            {"worker": "multi_agent_worker", "verify": "multi_agent_verify"},
+        )
+        graph.add_conditional_edges(
+            "multi_agent_worker",
+            multi_agent_has_tasks,
+            {"worker": "multi_agent_worker", "verify": "multi_agent_verify"},
+        )
+        graph.add_edge("multi_agent_verify", "disposition")
+    elif enable_react:
         graph.add_conditional_edges(
             post_judge_node,
             _judge_router,
@@ -184,6 +220,7 @@ def judge_alert(
     llm: BaseChatModel | None = None,
     *,
     enable_react: bool = True,
+    enable_multi_agent: bool = False,
     enable_rag: bool = False,
     rag_service: Any | None = None,
     callbacks: list[Any] | None = None,
@@ -196,6 +233,7 @@ def judge_alert(
     graph = build_graph(
         llm=llm,
         enable_react=enable_react,
+        enable_multi_agent=enable_multi_agent,
         enable_rag=enable_rag,
         rag_service=rag_service,
     )
@@ -213,6 +251,9 @@ def judge_alert(
         "judge": "judge_completed",
         "react_decide": "decision_updated",
         "tool_executor": "tool_completed",
+        "multi_agent_plan": "multi_agent_plan_created",
+        "multi_agent_worker": "multi_agent_worker_completed",
+        "multi_agent_verify": "multi_agent_verified",
         "disposition": "disposition_completed",
         "output": "sample_completed",
     }

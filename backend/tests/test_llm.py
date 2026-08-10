@@ -111,6 +111,7 @@ def test_model_catalog_is_safe_and_contains_comparison_models():
         "deepseek-v4-pro",
         "deepseek-v4-flash",
     }
+    assert by_provider["deepseek"]["default_model"] == "deepseek-v4-pro"
     assert by_provider["siliconflow"]["configured"] is True
     assert by_provider["openai_relay"]["configured"] is True
     assert by_provider["openai_relay"]["default_model"] == "gpt-5.4"
@@ -118,6 +119,35 @@ def test_model_catalog_is_safe_and_contains_comparison_models():
     assert by_provider["qwen"]["display_name"] == "阿里云百炼"
     assert by_provider["qwen"]["default_model"] == "qwen3.7-flash"
     assert all("api_key" not in item for item in catalog)
+
+
+def test_deepseek_v4_pro_selection_reaches_client_unchanged():
+    from app.core.config import Settings
+
+    settings = Settings(
+        _env_file=None,
+        DEEPSEEK_API_KEY="test-key",
+        DEEPSEEK_BASE_URL="https://deepseek.example/v1",
+    )
+    llm = get_llm(
+        provider="deepseek",
+        model="deepseek-v4-pro",
+        settings=settings,
+    )
+    assert llm.model_name == "deepseek-v4-pro"
+    assert str(llm.openai_api_base).rstrip("/") == "https://deepseek.example/v1"
+
+
+def test_model_cannot_be_paired_with_the_wrong_provider():
+    from app.core.config import Settings
+
+    settings = Settings(_env_file=None, DEEPSEEK_API_KEY="test-key")
+    with pytest.raises(ValueError, match="does not belong to provider"):
+        get_llm(
+            provider="deepseek",
+            model="gpt-5.4",
+            settings=settings,
+        )
 
 
 def test_siliconflow_client_uses_openai_compatible_settings():

@@ -12,13 +12,14 @@ import json
 import logging
 from typing import Any, AsyncGenerator
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from sse_starlette.sse import EventSourceResponse
 
 from app.agent.graph import build_graph
 from app.core.config import get_settings
-from app.models.llm import get_llm, provider_is_configured
+from app.models.llm import get_llm, provider_is_configured, validate_model_selection
 from app.models.schemas import Alert
+from app.operations import record_alert_judgment
 
 logger = logging.getLogger(__name__)
 
@@ -31,13 +32,22 @@ def _safe_json(obj: Any) -> str:
 
 
 async def _stream_graph(
-    alert_dict: dict, use_mock: bool, *, enable_rag: bool
+    alert_dict: dict,
+    use_mock: bool,
+    *,
+    enable_rag: bool,
+    provider: str,
+    model: str,
+    truth_label: str | None = None,
 ) -> AsyncGenerator[dict, None]:
     """把 LangGraph 同步 stream 包成 async generator（供 SSE）。"""
     import asyncio
     import threading
 
-    graph = build_graph(llm=get_llm(mock=use_mock), enable_rag=enable_rag)
+    graph = build_graph(
+        llm=get_llm(provider=provider, model=model, mock=use_mock),
+        enable_rag=enable_rag,
+    )
     config = {"recursion_limit": 25}
 
     # 在线程池里跑同步 stream，避免阻塞事件循环
@@ -55,6 +65,21 @@ async def _stream_graph(
             ):
                 if stop_event.is_set():
                     break
+                output = event.get("output") if isinstance(event, dict) else None
+                result = output.get("result") if isinstance(output, dict) else None
+                if isinstance(result, dict):
+                    try:
+                        record_alert_judgment(
+                            alert_dict,
+                            result,
+                            truth_label=truth_label,
+                            channel="stream",
+                        )
+                    except Exception as history_error:
+                        logger.exception(
+                            "save streamed operational judgment failed: %s",
+                            history_error,
+                        )
                 put(event)
         except Exception as e:
             put({"__error__": str(e)})
@@ -86,7 +111,12 @@ async def _stream_graph(
 
 
 @router.post("/judge/stream")
-async def judge_stream(alert: Alert, rag: bool | None = None):
+async def judge_stream(
+    alert: Alert,
+    rag: bool | None = None,
+    provider: str | None = None,
+    model: str | None = None,
+):
     """SSE 流式研判接口。
 
     入参：Alert（与同步接口相同）
@@ -101,11 +131,19 @@ async def judge_stream(alert: Alert, rag: bool | None = None):
         event: error       data: {message}  （出错时）
     """
     settings = get_settings()
-    use_mock = not provider_is_configured(settings)
+    try:
+        selected_provider, selected_model = validate_model_selection(
+            provider, model, settings=settings
+        )
+    except ValueError as selection_error:
+        raise HTTPException(status_code=400, detail=str(selection_error)) from selection_error
+
+    use_mock = not provider_is_configured(settings, selected_provider)
     if use_mock:
         logger.warning("DEEPSEEK_API_KEY 未配置，流式研判降级到 mock")
 
     # 隐藏 label，避免泄露给 Agent
+    truth_label = alert.label
     alert_dict = alert.model_dump(mode="json")
     alert_dict.pop("label", None)
 
@@ -114,5 +152,8 @@ async def judge_stream(alert: Alert, rag: bool | None = None):
             alert_dict,
             use_mock,
             enable_rag=settings.rag_enabled if rag is None else rag,
+            provider=selected_provider,
+            model=selected_model,
+            truth_label=truth_label,
         )
     )

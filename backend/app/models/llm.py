@@ -27,8 +27,8 @@ logger = get_logger(__name__)
 # 注：DeepSeek、Qwen 均 OpenAI 兼容，base_url 不同
 _PROVIDER_DEFAULTS: dict[str, dict[str, Any]] = {
     "deepseek": {
-        # deepseek-v4-flash 是 V4 主力；deepseek-chat 已于 2026/07/24 弃用
-        "model": "deepseek-v4-flash",
+        # V4 Pro is the default; V4 Flash remains available for fast comparisons.
+        "model": "deepseek-v4-pro",
         "base_url": "https://api.deepseek.com",
     },
     "qwen": {
@@ -103,6 +103,38 @@ def get_model_catalog(settings: Settings | None = None) -> list[dict[str, Any]]:
         }
         for provider, models in _MODEL_CATALOG.items()
     ]
+
+
+def validate_model_selection(
+    provider: str | None = None,
+    model: str | None = None,
+    *,
+    settings: Settings | None = None,
+) -> tuple[str, str]:
+    """Resolve and validate a provider/model pair exposed by the public API."""
+    s = settings or get_settings()
+    provider_name = (provider or s.llm_provider).lower()
+    if provider_name not in _PROVIDER_DEFAULTS:
+        raise ValueError(
+            f"Unknown LLM provider: {provider_name!r}. "
+            f"Expected one of {list(_MODEL_CATALOG)}"
+        )
+
+    configured_model = (
+        s.llm_model
+        if provider is None or provider_name == s.llm_provider.lower()
+        else ""
+    )
+    model_name = model or configured_model or _PROVIDER_DEFAULTS[provider_name]["model"]
+    allowed_models = {
+        item["id"] for item in _MODEL_CATALOG.get(provider_name, [])
+    } or {_PROVIDER_DEFAULTS[provider_name]["model"]}
+    if model_name not in allowed_models:
+        raise ValueError(
+            f"Model {model_name!r} does not belong to provider {provider_name!r}. "
+            f"Expected one of {sorted(allowed_models)}"
+        )
+    return provider_name, model_name
 
 
 def _make_mock_llm() -> "FakeJudgeLLM":
@@ -217,6 +249,19 @@ class FakeJudgeLLM(BaseChatModel):
                     "next_action": None,
                     "reasoning": "mock ReAct：当前证据已足够，停止工具调用。",
                 }
+            elif schema.__name__ == "MultiAgentVerdict":
+                import re
+
+                evidence_ids = list(dict.fromkeys(re.findall(r"EV-[A-Za-z0-9-]+", text)))
+                knowledge_ids = list(dict.fromkeys(re.findall(r"KB-[A-Za-z0-9-]+", text)))
+                data = {
+                    "analysis": "mock 多智能体验证：已复核各专业智能体的结构化发现。",
+                    "judgment": judgment_data["judgment"],
+                    "confidence": judgment_data["confidence"],
+                    "reason": f"mock 多智能体：{judgment_data['reason']}",
+                    "cited_evidence": evidence_ids[:3],
+                    "cited_knowledge": knowledge_ids[:3],
+                }
             else:
                 data = judgment_data
 
@@ -283,20 +328,14 @@ def get_llm(
         llm = get_llm(provider="qwen")           # 切换 Qwen
         llm = get_llm(mock=True)                 # 测试不耗 token
     """
+    s = settings or get_settings()
+    provider, model_name = validate_model_selection(provider, model, settings=s)
+
     if mock:
         logger.info("LLM factory: returning mock LLM (no token cost)")
         return _make_mock_llm()
 
-    s = settings or get_settings()
-    provider = (provider or s.llm_provider).lower()
-    if provider not in _PROVIDER_DEFAULTS:
-        raise ValueError(
-            f"Unknown LLM provider: {provider!r}. "
-            f"Expected one of {list(_PROVIDER_DEFAULTS)}"
-        )
-
     defaults = _PROVIDER_DEFAULTS[provider]
-    model_name = model or s.llm_model or defaults["model"]
     temp = temperature if temperature is not None else s.llm_temperature
 
     if provider == "deepseek":

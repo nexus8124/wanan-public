@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { streamJudgeAlert } from '../api/client'
+import {
+  loadModelSelection,
+  selectedModel,
+  selectedProvider,
+} from '../modelSelection'
 import type { StreamEvent } from '../env'
 import JudgmentBadge from '../components/JudgmentBadge.vue'
 import ConfidenceGauge from '../components/ConfidenceGauge.vue'
 import CoTTimeline from '../components/CoTTimeline.vue'
 import ToolCard from '../components/ToolCard.vue'
 import DispositionCard from '../components/DispositionCard.vue'
+import AgentProcessMap from '../components/AgentProcessMap.vue'
 
 // 预置示例告警：常用 4 个常驻 + 其余收起
 const presetsCommon = [
@@ -133,6 +139,12 @@ const errorMsg = ref('')
 const abortCtrl = ref<AbortController | null>(null)
 const ragEnabled = ref(false)
 
+onMounted(() => {
+  loadModelSelection().catch((error) => {
+    errorMsg.value = error instanceof Error ? error.message : String(error)
+  })
+})
+
 // 累积的状态（流式过程中逐步更新）
 const trace = reactive({
   currentNode: '',          // 当前正在跑的节点
@@ -144,6 +156,9 @@ const trace = reactive({
   knowledgeHits: [] as any[],
   citedKnowledge: [] as string[],
   disposition: null as any,
+  evidence: [] as any[],
+  visitedNodes: [] as string[],
+  confidenceHistory: [] as Array<{ node: string; value: number }>,
   reason: '',
   done: false,
 })
@@ -163,6 +178,9 @@ function resetTrace() {
   trace.knowledgeHits = []
   trace.citedKnowledge = []
   trace.disposition = null
+  trace.evidence = []
+  trace.visitedNodes = []
+  trace.confidenceHistory = []
   trace.reason = ''
   trace.done = false
   errorMsg.value = ''
@@ -170,9 +188,16 @@ function resetTrace() {
 
 function handleEvent(ev: StreamEvent) {
   trace.currentNode = ev.node
+  if (!trace.visitedNodes.includes(ev.node)) trace.visitedNodes.push(ev.node)
   const u = ev.update
   // 各节点产出的字段按顺序累积
-  if (u.confidence !== undefined) trace.confidence = u.confidence
+  if (u.confidence !== undefined) {
+    trace.confidence = Number(u.confidence)
+    const latest = trace.confidenceHistory[trace.confidenceHistory.length - 1]
+    if (!latest || latest.node !== ev.node || latest.value !== trace.confidence) {
+      trace.confidenceHistory.push({ node: ev.node, value: trace.confidence })
+    }
+  }
   if (u.judgment !== undefined) trace.judgment = u.judgment
   if (u.reason !== undefined) trace.reason = u.reason
   if (u.cot_trace !== undefined) trace.cotTrace = u.cot_trace
@@ -181,6 +206,7 @@ function handleEvent(ev: StreamEvent) {
   if (u.cited_knowledge !== undefined) trace.citedKnowledge = u.cited_knowledge
   if (u.react_steps !== undefined) trace.reactSteps = u.react_steps
   if (u.disposition !== undefined) trace.disposition = u.disposition
+  if (u.evidence !== undefined) trace.evidence = u.evidence
 }
 
 async function startStream() {
@@ -206,6 +232,8 @@ async function startStream() {
       },
       abortCtrl.value.signal,
       ragEnabled.value,
+      selectedProvider.value,
+      selectedModel.value,
     )
   } catch (e: any) {
     if (e.name !== 'AbortError') {
@@ -233,6 +261,15 @@ const activeReactStep = computed(() => {
 const inReactPhase = computed(() =>
   ['react_decide', 'tool_executor'].includes(trace.currentNode)
 )
+
+const evidenceCount = computed(() => {
+  const directEvidence = trace.evidence.length
+  const toolEvidence = trace.reactSteps.reduce(
+    (total, step) => total + (Array.isArray(step.result?.evidence) ? step.result.evidence.length : 0),
+    0,
+  )
+  return Math.max(directEvidence, toolEvidence)
+})
 </script>
 
 <template>
@@ -335,22 +372,41 @@ const inReactPhase = computed(() =>
           <div v-else-if="trace.done" class="chip border-green text-green">✓ 完成</div>
         </div>
 
-        <!-- 空状态 -->
-        <div v-if="!trace.currentNode && !errorMsg" class="flex flex-col items-center justify-center py-20 text-text-mute">
-          <div class="text-5xl mb-3 opacity-40">🤖</div>
-          <div class="text-sm">点击左侧"开始研判"，观看 Agent 实时思考过程</div>
-          <div class="text-xs mt-1">SSE 流式推送：judge → 选择性 RAG → ReAct → 处置闭环</div>
-        </div>
-
         <!-- 错误 -->
         <div v-if="errorMsg" class="p-3 rounded-lg bg-red/10 border border-red/40 text-sm text-red">
           ⚠ {{ errorMsg }}
         </div>
 
+        <!-- Agent 执行拓扑始终可见，运行时实时点亮节点 -->
+        <section class="mb-5">
+          <div class="section-title mb-3 flex items-center justify-between gap-3">
+            <span>00 · Agent 执行拓扑</span>
+            <span class="normal-case tracking-normal text-[9px] text-text-mute">LIVE ORCHESTRATION MAP</span>
+          </div>
+          <AgentProcessMap
+            :current-node="trace.currentNode"
+            :visited-nodes="trace.visitedNodes"
+            :confidence-history="trace.confidenceHistory"
+            :streaming="streaming"
+            :done="trace.done"
+            :rag-enabled="ragEnabled"
+            :judgment="trace.judgment"
+            :knowledge-count="trace.knowledgeHits.length"
+            :tool-count="trace.reactSteps.length"
+            :evidence-count="evidenceCount"
+          />
+        </section>
+
+        <!-- 空状态 -->
+        <div v-if="!trace.currentNode && !errorMsg" class="rounded-lg border border-dashed border-border px-4 py-5 text-center text-text-mute">
+          <div class="text-xs text-text-dim">选择左侧示例并开始研判</div>
+          <div class="text-[10px] mt-1">节点、置信度、知识与工具证据将在上方画布中实时联动</div>
+        </div>
+
         <!-- 流式内容 -->
         <div v-if="trace.currentNode" class="space-y-5">
           <section v-if="trace.knowledgeHits.length">
-            <div class="section-title mb-3">00 · RAG 安全知识</div>
+            <div class="section-title mb-3">01 · RAG 安全知识</div>
             <div class="space-y-2">
               <div
                 v-for="hit in trace.knowledgeHits"
@@ -371,14 +427,17 @@ const inReactPhase = computed(() =>
 
           <!-- judge 节点输出 -->
           <section v-if="trace.cotTrace.length || trace.currentNode === 'judge'">
-            <div class="section-title mb-3">01 · CoT 思维链（节点3）</div>
+            <div class="section-title mb-3 flex items-center justify-between gap-3">
+              <span>02 · 可解释推理图</span>
+              <span class="normal-case tracking-normal text-[9px] text-text-mute">REASONING EVIDENCE BOARD</span>
+            </div>
             <CoTTimeline :steps="trace.cotTrace" :streaming="streaming && trace.currentNode === 'judge'" />
           </section>
 
           <!-- ReAct 阶段 -->
           <section v-if="inReactPhase || trace.reactSteps.length">
             <div class="section-title mb-3 flex items-center gap-2">
-              <span>02 · ReAct 工具调用</span>
+              <span>03 · ReAct 工具调查</span>
               <span v-if="inReactPhase" class="text-pink normal-case tracking-normal text-[10px]">自主调查中...</span>
               <span v-else class="text-text-mute normal-case tracking-normal text-[10px]">({{ trace.reactSteps.length }} 步)</span>
             </div>
@@ -398,7 +457,7 @@ const inReactPhase = computed(() =>
 
           <!-- 处置 -->
           <section v-if="trace.disposition">
-            <div class="section-title mb-3">03 · 处置闭环</div>
+            <div class="section-title mb-3">04 · 处置闭环</div>
             <DispositionCard :disposition="trace.disposition" />
           </section>
         </div>

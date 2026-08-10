@@ -9,9 +9,8 @@
   body {
     @apply bg-bg text-text font-sans antialiased;
     background-image:
-      linear-gradient(rgba(0, 217, 255, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 217, 255, 0.04) 1px, transparent 1px);
-    background-size: 48px 48px;
+      radial-gradient(circle at 18% -10%, rgba(66, 105, 173, 0.08), transparent 32%),
+      radial-gradient(circle at 90% 20%, rgba(31, 70, 126, 0.045), transparent 28%);
     overflow-x: hidden;
   }
 }
@@ -19,7 +18,8 @@
 @layer components {
   /* 卡片 */
   .card {
-    @apply bg-card border border-border rounded-2xl transition-all duration-300;
+    @apply bg-card border border-border rounded-lg transition-all duration-300;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   }
   .card:hover {
     @apply border-border-light bg-card-hover;
@@ -46,7 +46,7 @@
 
   /* 标签 chip */
   .chip {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border border-border-light bg-bg-2;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium border border-border-light bg-bg-2;
   }
 
   /* 导航链接 */

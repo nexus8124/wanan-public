@@ -10,8 +10,16 @@ const API_BASE = DEV ? 'http://127.0.0.1:18000/api' : '/api'
 
 // ---------- 同步接口 ----------
 
-export async function judgeAlert(alert: Record<string, any>): Promise<AgentResult> {
-  const res = await fetch(`${API_BASE}/alerts/judge`, {
+export async function judgeAlert(
+  alert: Record<string, any>,
+  provider?: string,
+  model?: string,
+): Promise<AgentResult> {
+  const params = new URLSearchParams()
+  if (provider) params.set('provider', provider)
+  if (model) params.set('model', model)
+  const query = params.size ? `?${params.toString()}` : ''
+  const res = await fetch(`${API_BASE}/alerts/judge${query}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(alert),
@@ -34,17 +42,25 @@ export async function listSamples(): Promise<{ samples: Record<string, any>[]; c
 
 export async function getStats(): Promise<Stats> {
   const res = await fetch(`${API_BASE}/stats`)
+  if (!res.ok) throw new Error(`load stats failed: ${res.status} ${await res.text()}`)
   return res.json()
 }
 
-export async function runEval(mock = true): Promise<any> {
-  const res = await fetch(`${API_BASE}/eval/run?mock=${mock}`, {
-    method: 'POST',
+/** Subscribe to operational dashboard updates. Returns a cleanup function. */
+export function subscribeStats(
+  onStats: (stats: Stats) => void,
+  onError?: () => void,
+): () => void {
+  const source = new EventSource(`${API_BASE}/stats/stream`)
+  source.addEventListener('stats', (event) => {
+    try {
+      onStats(JSON.parse((event as MessageEvent).data) as Stats)
+    } catch (error) {
+      console.warn('parse operational stats failed:', error)
+    }
   })
-  if (!res.ok) {
-    throw new Error(`eval failed: ${res.status} ${await res.text()}`)
-  }
-  return res.json()
+  source.onerror = () => onError?.()
+  return () => source.close()
 }
 
 export interface ModelProfile {
@@ -71,9 +87,8 @@ export interface EvalStreamCallbacks {
 
 /** 流式批量评测：后端每完成一条样本就推送一次 progress 事件。 */
 export async function streamRunEval(
-  mock: boolean,
   limit: number | null,
-  strategy: 'judge_only' | 'react',
+  strategy: 'judge_only' | 'react' | 'multi_agent',
   rag: boolean,
   provider: string | null,
   model: string | null,
@@ -82,7 +97,6 @@ export async function streamRunEval(
   resumeRunId?: string,
 ): Promise<void> {
   const params = new URLSearchParams({
-    mock: String(mock),
     strategy,
     rag: String(rag),
   })
@@ -144,7 +158,6 @@ export async function resumeEvalHistory(
   signal?: AbortSignal,
 ): Promise<void> {
   return streamRunEval(
-    false,
     null,
     'judge_only',
     false,
@@ -197,7 +210,7 @@ export async function listEvalDatasets(): Promise<{
   active_id: string
   errors: { filename: string; error: string }[]
 }> {
-  const res = await fetch(`${API_BASE}/eval/datasets`)
+  const res = await fetch(`${API_BASE}/eval/datasets`, { cache: 'no-store' })
   if (!res.ok) throw new Error(`load datasets failed: ${res.status} ${await res.text()}`)
   return res.json()
 }
@@ -239,8 +252,13 @@ export async function streamJudgeAlert(
   callbacks: StreamCallbacks,
   signal?: AbortSignal,
   rag = false,
+  provider?: string,
+  model?: string,
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/alerts/judge/stream?rag=${rag}`, {
+  const params = new URLSearchParams({ rag: String(rag) })
+  if (provider) params.set('provider', provider)
+  if (model) params.set('model', model)
+  const res = await fetch(`${API_BASE}/alerts/judge/stream?${params.toString()}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

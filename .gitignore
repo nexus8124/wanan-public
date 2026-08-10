@@ -38,6 +38,8 @@ logs/
 
 # Test / coverage
 .pytest_cache/
+.pytest-tmp*/
+**/.pytest-tmp*/
 .coverage
 htmlcov/
 coverage.xml

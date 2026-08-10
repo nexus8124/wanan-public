@@ -334,6 +334,63 @@ def build_react_prompt(tool_catalog: str) -> ChatPromptTemplate:
     )
 
 
+# ============================================================
+# 多智能体证据融合 Prompt
+# ============================================================
+
+MULTI_AGENT_VERIFY_SYSTEM_PROMPT = """你是 SOC 多智能体团队中的最终验证智能体。
+协调器已经把调查任务分配给只读的上下文、端点、网络和知识智能体。你只能依据它们
+返回的结构化结果交叉验证，不得假设不存在的遥测，也不得要求继续调用工具。
+
+必须遵守：
+1. 当前工作判定来自 Judge 或同轮 RAG 后融合，应默认保留。
+2. 只有引用本轮真实存在且 usable=true 的 EV-* 事件证据，才允许改变当前判定。
+3. KB-* 是通用知识，不能单独证明当前事件发生；没有事件证据时不得仅凭知识改判。
+4. not_found、timeout、failed 只表示没有取得证据，不表示安全。
+5. 不得把已明确的真阳/假阳仅因证据不足降为待查。
+6. 若专业智能体结果互相冲突，应降低置信度；证据仍不足则保持当前判定。
+7. 只输出一个合法 JSON 对象，不要输出 Markdown 或额外解释：
+{{
+  "analysis": "各专业智能体发现的简要交叉验证",
+  "judgment": "真阳或假阳或待查",
+  "confidence": 0.0,
+  "reason": "最终判定理由",
+  "cited_evidence": ["EV-实际证据编号"],
+  "cited_knowledge": ["KB-实际知识编号"]
+}}
+"""
+
+MULTI_AGENT_VERIFY_USER_TEMPLATE = """【原始告警】
+{alert_json}
+
+【当前工作判定】
+判定：{current_judgment}
+置信度：{current_confidence}
+理由：{current_reason}
+
+【任务账本】
+{task_ledger}
+
+【专业智能体调查结果】
+{agent_findings}
+
+【可用安全知识】
+{rag_context}
+
+请进行证据交叉验证并输出最终结构化裁决。
+"""
+
+
+def build_multi_agent_verify_prompt() -> ChatPromptTemplate:
+    """构建多智能体最终验证 Prompt。"""
+    return ChatPromptTemplate.from_messages(
+        [
+            ("system", MULTI_AGENT_VERIFY_SYSTEM_PROMPT),
+            ("user", MULTI_AGENT_VERIFY_USER_TEMPLATE),
+        ]
+    )
+
+
 def format_evidence(react_steps: list[dict]) -> str:
     """把已调工具的结果格式化成文本（喂给 LLM）。"""
     if not react_steps:

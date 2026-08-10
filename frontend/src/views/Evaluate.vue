@@ -3,7 +3,6 @@ import { ref, computed, onMounted } from 'vue'
 import {
   streamRunEval,
   resumeEvalHistory,
-  listModels,
   listEvalHistory,
   getEvalHistory,
   deleteEvalHistory,
@@ -11,8 +10,17 @@ import {
   selectEvalDataset,
   uploadEvalDataset,
   type EvalDatasetInfo,
-  type ModelProfile,
 } from '../api/client'
+import {
+  loadModelSelection,
+  modelProfiles,
+  selectedModel,
+  selectedModelKey,
+  selectedModelLabel,
+  selectedProfile,
+  selectedProvider,
+  selectModelKey,
+} from '../modelSelection'
 import StatCard from '../components/StatCard.vue'
 import JudgmentBadge from '../components/JudgmentBadge.vue'
 import ConfidenceGauge from '../components/ConfidenceGauge.vue'
@@ -35,12 +43,10 @@ const selectedDatasetId = ref('')
 const datasetBusy = ref(false)
 const uploadInput = ref<HTMLInputElement | null>(null)
 const evalLimit = ref(20)
-const evalStrategy = ref<'judge_only' | 'react'>('judge_only')
+const evalStrategy = ref<'judge_only' | 'react' | 'multi_agent'>('judge_only')
 const ragEnabled = ref(false)
-const modelProfiles = ref<ModelProfile[]>([])
-const selectedProvider = ref('deepseek')
-const selectedModel = ref('deepseek-v4-flash')
 const liveAgentEvents = ref<any[]>([])
+const requestedBudgetValues = [20, 50, 100, 200, 400]
 
 const eventLabels: Record<string, string> = {
   sample_started: '开始处理样本',
@@ -51,8 +57,21 @@ const eventLabels: Record<string, string> = {
   decision_updated: 'ReAct 决策更新',
   tool_started: '开始调用工具',
   tool_completed: '工具返回证据',
+  multi_agent_plan_created: '协调器生成调查计划',
+  multi_agent_worker_completed: '专业智能体完成调查',
+  multi_agent_verified: '验证智能体完成融合',
   disposition_completed: '处置建议生成',
   sample_completed: '样本流程完成',
+}
+
+const strategyLabels: Record<string, string> = {
+  judge_only: 'Judge-only 无工具基线',
+  react: '完整 ReAct',
+  multi_agent: '多智能体协同',
+}
+
+function strategyLabel(strategy: string | undefined): string {
+  return strategyLabels[strategy || ''] || strategy || '-'
 }
 
 const metrics = computed(() => result.value?.metrics || null)
@@ -60,9 +79,24 @@ const details = computed(() => result.value?.details || [])
 const activeDataset = computed(() =>
   datasets.value.find((item) => item.id === selectedDatasetId.value) || null,
 )
-const selectedProfile = computed(() =>
-  modelProfiles.value.find((item) => item.provider === selectedProvider.value) || null,
-)
+const budgetOptions = computed(() => {
+  const count = activeDataset.value?.count || 0
+  const options = requestedBudgetValues.filter((value) => value <= count)
+  return options.length ? options : (count > 0 ? [count] : [])
+})
+function normalizeEvalLimit(datasetCount: number) {
+  if (evalLimit.value === 0 || datasetCount < 1) return
+  const options = requestedBudgetValues.filter((value) => value <= datasetCount)
+  if (!options.length) {
+    evalLimit.value = datasetCount
+    return
+  }
+  if (options.includes(evalLimit.value)) return
+  const notAboveCurrent = options.filter((value) => value <= evalLimit.value)
+  evalLimit.value = notAboveCurrent.length
+    ? notAboveCurrent[notAboveCurrent.length - 1]
+    : options[0]
+}
 
 async function loadHistory() {
   historyLoading.value = true
@@ -84,6 +118,7 @@ async function loadDatasets() {
     selectedDatasetId.value = data.active_id
     const selected = datasets.value.find((item) => item.id === data.active_id)
     progress.value.total = selected?.count || progress.value.total
+    normalizeEvalLimit(selected?.count || 0)
     if (data.errors?.length) {
       console.warn('部分数据集校验失败:', data.errors)
     }
@@ -96,27 +131,16 @@ async function loadDatasets() {
 
 async function loadModels() {
   try {
-    const data = await listModels()
-    modelProfiles.value = data.providers
-    const configured = data.providers.find((item) => item.configured)
-    const initial = data.providers.find((item) => item.provider === selectedProvider.value) || configured
-    if (initial) {
-      selectedProvider.value = initial.provider
-      selectedModel.value = initial.models.find((item) => item.id === initial.default_model)?.id
-        || initial.models[0]?.id
-        || ''
-    }
+    await loadModelSelection()
   } catch (e: any) {
     errorMsg.value = e.message
   }
 }
 
-function changeProvider() {
-  const profile = selectedProfile.value
-  selectedModel.value = profile?.models.find((item) => item.id === profile.default_model)?.id
-    || profile?.default_model
-    || profile?.models[0]?.id
-    || ''
+function changeSelectedModel(event: Event) {
+  if (!selectModelKey((event.target as HTMLSelectElement).value)) {
+    errorMsg.value = '所选模型尚未配置，无法切换。'
+  }
 }
 
 onMounted(() => {
@@ -141,6 +165,7 @@ async function changeDataset(event: Event) {
     selectedDetail.value = null
     viewingRunId.value = ''
     progress.value = { completed: 0, total: selected.count }
+    normalizeEvalLimit(selected.count)
   } catch (e: any) {
     errorMsg.value = e.message
     await loadDatasets()
@@ -173,6 +198,7 @@ async function handleDatasetUpload(event: Event) {
     await loadDatasets()
     selectedDatasetId.value = uploaded.id
     progress.value = { completed: 0, total: uploaded.count }
+    normalizeEvalLimit(uploaded.count)
     result.value = null
     viewingRunId.value = ''
   } catch (e: any) {
@@ -182,14 +208,18 @@ async function handleDatasetUpload(event: Event) {
   }
 }
 
-async function startEval(useMock: boolean) {
+async function startEval() {
+  if (!selectedProfile.value?.configured) {
+    errorMsg.value = `${selectedProfile.value?.display_name || selectedProvider.value} 尚未配置 API Key。`
+    return
+  }
   const datasetCount = activeDataset.value?.count || progress.value.total
   const requestedLimit = evalLimit.value > 0 ? Math.min(evalLimit.value, datasetCount) : null
   const sampleCount = requestedLimit || datasetCount
-  const strategyText = evalStrategy.value === 'judge_only' ? '单次 Judge 基线' : '完整 ReAct'
+  const strategyText = strategyLabel(evalStrategy.value)
   const ragText = ragEnabled.value ? '启用 RAG' : '不启用 RAG'
-  const providerName = selectedProfile.value?.display_name || selectedProvider.value
-  if (!useMock && !confirm(`将以“${providerName} + ${strategyText} + ${ragText}”对 ${sampleCount} 条均衡样本调用真实模型并消耗 Token，确认继续？`)) {
+  const providerName = `${selectedProfile.value?.display_name || selectedProvider.value} / ${selectedModelLabel.value}`
+  if (!confirm(`将以“${providerName} + ${strategyText} + ${ragText}”对 ${sampleCount} 条均衡样本调用真实模型并消耗 Token，确认继续？`)) {
     return
   }
   loading.value = true
@@ -203,7 +233,6 @@ async function startEval(useMock: boolean) {
   abortCtrl.value = new AbortController()
   try {
     await streamRunEval(
-      useMock,
       requestedLimit,
       evalStrategy.value,
       ragEnabled.value,
@@ -225,12 +254,13 @@ async function startEval(useMock: boolean) {
           }
           const currentDetails = result.value?.details || []
           result.value = {
-            mode: useMock ? 'mock' : selectedProvider.value,
+            mode: selectedProvider.value,
             strategy: evalStrategy.value,
             experiment_config: data.experiment_config,
             metrics: data.metrics,
             initial_metrics: data.initial_metrics,
             paired_react: data.paired_react,
+            paired_multi_agent: data.paired_multi_agent,
             paired_rag: data.paired_rag,
             details: [...currentDetails, data.detail],
           }
@@ -281,6 +311,7 @@ async function viewHistory(run: any) {
       metrics: saved.metrics,
       initial_metrics: saved.initial_metrics,
       paired_react: saved.paired_react,
+      paired_multi_agent: saved.paired_multi_agent,
       paired_rag: saved.paired_rag,
       details: saved.details,
     }
@@ -309,6 +340,7 @@ async function resumeHistory(run: any) {
       metrics: saved.metrics,
       initial_metrics: saved.initial_metrics,
       paired_react: saved.paired_react,
+      paired_multi_agent: saved.paired_multi_agent,
       paired_rag: saved.paired_rag,
       details: saved.details || [],
     }
@@ -333,6 +365,7 @@ async function resumeHistory(run: any) {
           metrics: data.metrics,
           initial_metrics: data.initial_metrics,
           paired_react: data.paired_react,
+          paired_multi_agent: data.paired_multi_agent,
           paired_rag: data.paired_rag,
           details: [...(result.value?.details || []), data.detail],
         }
@@ -423,18 +456,9 @@ const progressPercent = computed(() => {
         </div>
         <div class="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:w-auto">
           <button
-            @click="startEval(true)"
-            :disabled="loading || datasetBusy || !activeDataset"
-            class="w-full lg:w-auto px-4 py-2 rounded-lg text-sm font-bold transition-all"
-            :class="loading
-              ? 'bg-bg-2 text-text-mute'
-              : 'bg-bg-2 border border-cyan/40 text-cyan hover:bg-cyan/10'"
-          >
-            🧪 Mock 评测（不耗 token）
-          </button>
-          <button
-            @click="startEval(false)"
-            :disabled="loading || datasetBusy || !activeDataset"
+            @click="startEval"
+            :disabled="loading || datasetBusy || !activeDataset || !selectedProfile?.configured"
+            :title="selectedProfile?.configured ? `使用 ${selectedModelLabel}` : '当前模型厂商未配置 API Key'"
             class="w-full lg:w-auto px-4 py-2 rounded-lg text-sm font-bold transition-all"
             :class="loading
               ? 'bg-bg-2 text-text-mute'
@@ -483,16 +507,27 @@ const progressPercent = computed(() => {
         />
 
         <label class="min-w-0">
-          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">模型厂商</span>
+          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">模型</span>
           <select
-            v-model="selectedProvider"
-            @change="changeProvider"
+            :value="selectedModelKey"
+            @change="changeSelectedModel"
             :disabled="loading || datasetBusy || !modelProfiles.length"
             class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
           >
-            <option v-for="profile in modelProfiles" :key="profile.provider" :value="profile.provider">
-              {{ profile.display_name || profile.provider }}{{ profile.configured ? ' · 已配置' : ' · 未配置' }}
-            </option>
+            <optgroup
+              v-for="profile in modelProfiles"
+              :key="profile.provider"
+              :label="`${profile.display_name} · ${profile.configured ? '已配置' : '未配置'}`"
+            >
+              <option
+                v-for="model in profile.models"
+                :key="`${profile.provider}::${model.id}`"
+                :value="`${profile.provider}::${model.id}`"
+                :disabled="!profile.configured"
+              >
+                {{ model.label }}
+              </option>
+            </optgroup>
           </select>
         </label>
 
@@ -503,14 +538,9 @@ const progressPercent = computed(() => {
             :disabled="loading || datasetBusy"
             class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
           >
-            <option :value="10">10 条（快速验证）</option>
-            <option :value="20">20 条（推荐）</option>
-            <option :value="50">50 条</option>
-            <option :value="100">100 条</option>
-            <option :value="250">250 条</option>
-            <option :value="500">500 条</option>
-            <option :value="1000">1,000 条</option>
-            <option :value="2000">2,000 条</option>
+            <option v-for="value in budgetOptions" :key="value" :value="value">
+              {{ value }} 条{{ value === 20 ? '（推荐）' : '' }}
+            </option>
             <option :value="0">全部样本</option>
           </select>
         </label>
@@ -524,6 +554,7 @@ const progressPercent = computed(() => {
           >
             <option value="judge_only">Judge-only（无工具基线）</option>
             <option value="react">完整 ReAct（多轮调用）</option>
+            <option value="multi_agent">多智能体协同（按数据源调查）</option>
           </select>
         </label>
 
@@ -554,7 +585,7 @@ const progressPercent = computed(() => {
           </span>
         </div>
         <div class="min-w-0 break-words sm:col-span-2 xl:col-span-6 text-[10px] text-text-mute">
-          RAG 先保留无知识初判，对待查、低置信及低特异性高置信真阳进行严格检索与后融合；高置信假阳和强攻击证据样本会跳过。标签不会传给 Agent。
+          三种策略均可独立组合 RAG。多智能体仅对待查、低置信或具备真实多源证据的样本启动，标签不会传给任何 Agent。
         </div>
       </div>
     </div>
@@ -583,11 +614,11 @@ const progressPercent = computed(() => {
           <div class="flex flex-wrap items-center gap-3">
             <code class="font-mono text-xs text-cyan">{{ run.id.slice(0, 8) }}</code>
             <span class="chip text-[10px]" :class="statusClass(run.status)">{{ statusText[run.status] || run.status }}</span>
-            <span class="text-xs" :class="run.mode === 'mock' ? 'text-purple' : 'text-pink'">
-              {{ run.mode === 'mock' ? 'Mock' : '真实模型' }}
+            <span class="text-xs text-pink">
+              真实模型
             </span>
             <span class="chip text-[10px] text-text-dim">
-              {{ run.strategy === 'judge_only' ? 'Judge-only' : 'ReAct' }}
+              {{ strategyLabel(run.strategy) }}
             </span>
             <span class="text-[10px] text-text-mute">{{ formatTime(run.started_at) }}</span>
             <span v-if="run.experiment_config?.model" class="text-[10px] text-text-mute font-mono">
@@ -690,7 +721,7 @@ const progressPercent = computed(() => {
     <!-- 结果 -->
     <template v-if="metrics">
       <div class="card px-4 py-3 flex flex-wrap items-center gap-4 text-xs text-text-dim">
-        <span>策略：<b class="text-cyan">{{ result?.strategy === 'judge_only' ? 'Judge-only 无工具基线' : '完整 ReAct' }}</b></span>
+        <span>策略：<b class="text-cyan">{{ strategyLabel(result?.strategy) }}</b></span>
         <span>模型：<b class="font-mono text-text">{{ result?.experiment_config?.model || '-' }}</b></span>
         <span>Prompt：<b class="font-mono text-text">{{ result?.experiment_config?.prompt_version || '-' }}</b></span>
         <span>RAG：<b class="text-text">{{ result?.experiment_config?.rag_enabled ? '选择性后融合' : '关闭' }}</b></span>
@@ -716,6 +747,17 @@ const progressPercent = computed(() => {
         <div><div class="text-text-mute">修正</div><div class="text-lg font-bold text-green">{{ result.paired_react.fixes }}</div></div>
         <div><div class="text-text-mute">退化</div><div class="text-lg font-bold text-red">{{ result.paired_react.regressions }}</div></div>
         <div><div class="text-text-mute">改变但仍错</div><div class="text-lg font-bold text-yellow">{{ result.paired_react.changed_wrong }}</div></div>
+      </div>
+      <div
+        v-if="result?.strategy === 'multi_agent' && result?.paired_multi_agent"
+        class="card px-5 py-4 grid grid-cols-2 md:grid-cols-6 gap-4 text-xs"
+      >
+        <div><div class="text-text-mute">{{ result?.experiment_config?.rag_enabled ? 'RAG 后判定' : '同轮初判' }}</div><div class="text-lg font-bold text-text">{{ (result.paired_multi_agent.initial_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">多智能体最终</div><div class="text-lg font-bold text-cyan">{{ (result.paired_multi_agent.final_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">净变化</div><div class="text-lg font-bold" :class="result.paired_multi_agent.accuracy_delta >= 0 ? 'text-green' : 'text-red'">{{ result.paired_multi_agent.accuracy_delta >= 0 ? '+' : '' }}{{ (result.paired_multi_agent.accuracy_delta * 100).toFixed(1) }} pp</div></div>
+        <div><div class="text-text-mute">触发 / 完成验证</div><div class="text-lg font-bold text-purple">{{ result.paired_multi_agent.triggered }} / {{ result.paired_multi_agent.verified }}</div></div>
+        <div><div class="text-text-mute">修正 / 退化</div><div class="text-lg font-bold"><span class="text-green">{{ result.paired_multi_agent.fixes }}</span> / <span class="text-red">{{ result.paired_multi_agent.regressions }}</span></div></div>
+        <div><div class="text-text-mute">改变但仍错</div><div class="text-lg font-bold text-yellow">{{ result.paired_multi_agent.changed_wrong }}</div></div>
       </div>
       <!-- 指标卡 -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -859,7 +901,7 @@ const progressPercent = computed(() => {
     <div v-if="!metrics && !loading && !errorMsg" class="card p-16 text-center">
       <div class="text-5xl mb-3 opacity-40">📊</div>
       <div class="text-sm text-text-dim mb-1">尚未运行评测</div>
-      <div class="text-xs text-text-mute">点击上方按钮开始（推荐先用 Mock 模式验证链路）</div>
+      <div class="text-xs text-text-mute">点击上方“真实评测”按钮开始</div>
     </div>
 
     <!-- 已完成样本的完整研判流程；仅展示本次已有结果，不会重复调用模型。 -->
@@ -897,7 +939,9 @@ const progressPercent = computed(() => {
               <div class="text-sm text-text-dim leading-relaxed">{{ selectedDetail.agent_result.reason }}</div>
               <div class="text-xs text-text-mute mt-3">
                 耗时 {{ selectedDetail.latency_s.toFixed(2) }}s ·
-                {{ selectedDetail.agent_result.react_used ? '进入过 ReAct' : '高置信直接处置' }}
+                {{ selectedDetail.agent_result.multi_agent_used
+                  ? '进入多智能体协同'
+                  : (selectedDetail.agent_result.react_used ? '进入过 ReAct' : '高置信直接处置') }}
               </div>
             </div>
           </div>
@@ -967,6 +1011,37 @@ const progressPercent = computed(() => {
                 :step="step"
                 :active="false"
               />
+            </div>
+          </section>
+
+          <section v-if="selectedDetail.agent_result.multi_agent_steps?.length">
+            <div class="section-title mb-3">02 · 多智能体调查轨迹</div>
+            <div class="card p-3 mb-3 text-[10px] text-text-mute flex flex-wrap gap-x-5 gap-y-2">
+              <span>协调计划：{{ selectedDetail.agent_result.progress_ledger?.planned_agents?.join(' → ') || '-' }}</span>
+              <span>已完成：{{ selectedDetail.agent_result.progress_ledger?.completed_agents?.length || 0 }}</span>
+              <span>新增证据：{{ selectedDetail.agent_result.progress_ledger?.new_evidence_ids?.length || 0 }}</span>
+              <span>状态：{{ selectedDetail.agent_result.progress_ledger?.status || '-' }}</span>
+            </div>
+            <div class="space-y-3">
+              <div
+                v-for="step in selectedDetail.agent_result.multi_agent_steps"
+                :key="`${step.step}-${step.agent}`"
+                class="card p-4 border-l-2 border-cyan/60"
+              >
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <span class="font-mono text-cyan">{{ String(step.step).padStart(2, '0') }}</span>
+                    <span class="font-bold text-text">{{ step.agent }}</span>
+                    <span class="chip text-[10px] text-text-dim">{{ step.capability }}</span>
+                  </div>
+                  <span class="text-[10px]" :class="step.status === 'completed' || step.result?.success ? 'text-green' : 'text-yellow'">
+                    {{ step.status || step.result?.status || '-' }}
+                  </span>
+                </div>
+                <div class="mt-2 text-xs text-text-dim">{{ step.purpose || step.summary }}</div>
+                <div class="mt-2 text-[10px] text-text-mute font-mono">{{ step.tool }} {{ JSON.stringify(step.args || {}) }}</div>
+                <div v-if="step.result?.summary" class="mt-2 text-[10px] text-text-mute">{{ step.result.summary }}</div>
+              </div>
             </div>
           </section>
 

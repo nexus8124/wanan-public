@@ -468,7 +468,7 @@ def build_dataset(
     ground_truth = {item.alert.alert_id: item.truth for item in selected}
     document = {
         "metadata": {
-            "name": "AIT-ADS pilot evaluation set",
+            "name": "AIT-ADS 安全告警评测集",
             "source": "https://zenodo.org/records/8263181",
             "doi": "10.5281/zenodo.8263181",
             "license": "CC-BY-4.0",

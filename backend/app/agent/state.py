@@ -77,3 +77,11 @@ class AgentState(TypedDict, total=False):
     estimated_tokens_used: int
     no_evidence_count: int
     termination_reason: str | None
+
+    # ----- 第四阶段：多智能体编排 -----
+    multi_agent_entered: bool
+    multi_agent_verified: bool
+    task_ledger: dict
+    progress_ledger: dict
+    agent_queue: list[dict]
+    multi_agent_steps: list[dict]

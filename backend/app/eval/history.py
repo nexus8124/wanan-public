@@ -48,6 +48,7 @@ def init_db() -> None:
                 metrics_json TEXT,
                 initial_metrics_json TEXT,
                 paired_react_json TEXT,
+                paired_multi_agent_json TEXT,
                 paired_rag_json TEXT,
                 experiment_config_json TEXT,
                 error TEXT
@@ -95,6 +96,8 @@ def init_db() -> None:
             conn.execute("ALTER TABLE eval_runs ADD COLUMN initial_metrics_json TEXT")
         if "paired_react_json" not in columns:
             conn.execute("ALTER TABLE eval_runs ADD COLUMN paired_react_json TEXT")
+        if "paired_multi_agent_json" not in columns:
+            conn.execute("ALTER TABLE eval_runs ADD COLUMN paired_multi_agent_json TEXT")
         if "paired_rag_json" not in columns:
             conn.execute("ALTER TABLE eval_runs ADD COLUMN paired_rag_json TEXT")
 
@@ -195,6 +198,7 @@ def save_progress(run_id: str, progress: dict[str, Any]) -> None:
             UPDATE eval_runs
             SET completed = ?, metrics_json = ?,
                 initial_metrics_json = ?, paired_react_json = ?,
+                paired_multi_agent_json = ?,
                 paired_rag_json = ?,
                 experiment_config_json = COALESCE(?, experiment_config_json)
             WHERE id = ?
@@ -204,6 +208,7 @@ def save_progress(run_id: str, progress: dict[str, Any]) -> None:
                 json.dumps(progress.get("metrics", {}), ensure_ascii=False),
                 json.dumps(progress.get("initial_metrics", {}), ensure_ascii=False),
                 json.dumps(progress.get("paired_react", {}), ensure_ascii=False),
+                json.dumps(progress.get("paired_multi_agent", {}), ensure_ascii=False),
                 json.dumps(progress.get("paired_rag", {}), ensure_ascii=False),
                 json.dumps(progress.get("experiment_config"), ensure_ascii=False)
                 if progress.get("experiment_config") is not None else None,
@@ -245,6 +250,7 @@ def finish_run(
     metrics: dict[str, Any] | None = None,
     initial_metrics: dict[str, Any] | None = None,
     paired_react: dict[str, Any] | None = None,
+    paired_multi_agent: dict[str, Any] | None = None,
     paired_rag: dict[str, Any] | None = None,
     experiment_config: dict[str, Any] | None = None,
     error: str | None = None,
@@ -257,6 +263,7 @@ def finish_run(
                 metrics_json = COALESCE(?, metrics_json),
                 initial_metrics_json = COALESCE(?, initial_metrics_json),
                 paired_react_json = COALESCE(?, paired_react_json),
+                paired_multi_agent_json = COALESCE(?, paired_multi_agent_json),
                 paired_rag_json = COALESCE(?, paired_rag_json),
                 experiment_config_json = COALESCE(?, experiment_config_json),
                 error = ?
@@ -270,6 +277,8 @@ def finish_run(
                 if initial_metrics is not None else None,
                 json.dumps(paired_react, ensure_ascii=False)
                 if paired_react is not None else None,
+                json.dumps(paired_multi_agent, ensure_ascii=False)
+                if paired_multi_agent is not None else None,
                 json.dumps(paired_rag, ensure_ascii=False)
                 if paired_rag is not None else None,
                 json.dumps(experiment_config, ensure_ascii=False)
@@ -289,6 +298,9 @@ def _decode_run(row: sqlite3.Row) -> dict[str, Any]:
     data["paired_react"] = json.loads(
         data.pop("paired_react_json", None) or "null"
     )
+    data["paired_multi_agent"] = json.loads(
+        data.pop("paired_multi_agent_json", None) or "null"
+    )
     data["paired_rag"] = json.loads(
         data.pop("paired_rag_json", None) or "null"
     )
@@ -303,7 +315,8 @@ def list_runs(limit: int = 50) -> list[dict[str, Any]]:
     safe_limit = max(1, min(int(limit), 200))
     with _connect() as conn:
         rows = conn.execute(
-            "SELECT * FROM eval_runs ORDER BY started_at DESC LIMIT ?",
+            "SELECT * FROM eval_runs WHERE mode <> 'mock' "
+            "ORDER BY started_at DESC LIMIT ?",
             (safe_limit,),
         ).fetchall()
     return [_decode_run(row) for row in rows]

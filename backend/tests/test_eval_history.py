@@ -20,6 +20,7 @@ def test_history_persists_partial_interrupted_run(tmp_path, monkeypatch):
                 "metrics": {"n": i, "accuracy": 1.0, "f1": 1.0},
                 "initial_metrics": {"n": i, "accuracy": 0.5},
                 "paired_react": {"fixes": 1, "regressions": 0},
+                "paired_multi_agent": {"fixes": 3, "regressions": 0},
                 "paired_rag": {"fixes": 2, "regressions": 0},
                 "experiment_config": {"prompt_version": "test-v1"},
                 "detail": {
@@ -44,6 +45,7 @@ def test_history_persists_partial_interrupted_run(tmp_path, monkeypatch):
         metrics={"n": 2, "accuracy": 1.0, "f1": 1.0},
         initial_metrics={"n": 2, "accuracy": 0.5},
         paired_react={"fixes": 1, "regressions": 0},
+        paired_multi_agent={"fixes": 3, "regressions": 0},
         paired_rag={"fixes": 2, "regressions": 0},
         error="用户中止",
     )
@@ -57,6 +59,7 @@ def test_history_persists_partial_interrupted_run(tmp_path, monkeypatch):
     assert saved["experiment_config"]["prompt_version"] == "test-v1"
     assert saved["initial_metrics"]["accuracy"] == 0.5
     assert saved["paired_react"]["fixes"] == 1
+    assert saved["paired_multi_agent"]["fixes"] == 3
     assert saved["paired_rag"]["fixes"] == 2
     assert saved["details"][0]["agent_result"]["cot_trace"] == ["证据摘要"]
     assert saved["events"][0]["type"] == "tool_completed"
@@ -110,32 +113,63 @@ def test_stale_running_history_becomes_interrupted(tmp_path, monkeypatch):
     assert saved["status"] == "interrupted"
 
 
+def test_legacy_mock_history_is_hidden_from_product_list(tmp_path, monkeypatch):
+    monkeypatch.setattr(history, "DB_PATH", tmp_path / "eval_history.db")
+    history.create_run(mode="mock", dataset="legacy.json", total=1)
+    visible_id = history.create_run(mode="deepseek", dataset="eval.json", total=1)
+
+    summaries = history.list_runs()
+    assert [item["id"] for item in summaries] == [visible_id]
+
+
+def test_eval_api_no_longer_exposes_mock_parameter():
+    from app.main import app
+
+    schema = app.openapi()
+    for path in ("/api/eval/run", "/api/eval/run/stream"):
+        parameters = schema["paths"][path]["post"].get("parameters", [])
+        assert "mock" not in {item["name"] for item in parameters}
+
+
+def test_legacy_mock_query_is_rejected_before_real_evaluation():
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    with TestClient(app) as client:
+        for path in ("/api/eval/run", "/api/eval/run/stream"):
+            response = client.post(f"{path}?mock=true")
+            assert response.status_code == 410
+
+
 def test_resume_endpoint_finishes_remaining_samples(tmp_path, monkeypatch):
     monkeypatch.setattr(history, "DB_PATH", tmp_path / "eval_history.db")
 
     from fastapi.testclient import TestClient
 
     from app.data.generator import EVAL_DATASET
+    from app.eval import run as run_module
     from app.eval.run import run_eval
     from app.main import app
+    from app.models.llm import get_llm
 
     progress: list[dict] = []
     partial = run_eval(
         dataset_path=EVAL_DATASET,
-        mock=True,
+        llm=get_llm(mock=True),
         save_results=False,
         max_samples=4,
         progress_callback=progress.append,
         should_stop=lambda: len(progress) >= 2,
     )
     run_id = history.create_run(
-        mode="mock",
+        mode="deepseek",
         strategy="judge_only",
         dataset=str(EVAL_DATASET),
         total=4,
         experiment_config={
-            "provider": "mock",
-            "model": "mock",
+            "provider": "deepseek",
+            "model": "deepseek-v4-pro",
             "rag_enabled": False,
         },
     )
@@ -148,6 +182,13 @@ def test_resume_endpoint_finishes_remaining_samples(tmp_path, monkeypatch):
         experiment_config=partial["experiment_config"],
         error="disconnect",
     )
+
+    production_run_eval = run_eval
+
+    def run_with_test_llm(**kwargs):
+        return production_run_eval(llm=get_llm(mock=True), **kwargs)
+
+    monkeypatch.setattr(run_module, "run_eval", run_with_test_llm)
 
     with TestClient(app) as client:
         with client.stream(
