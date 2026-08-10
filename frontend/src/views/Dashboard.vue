@@ -41,11 +41,6 @@ const maxSource = computed(() => {
   return Math.max(...values, 1)
 })
 
-const maxTrend = computed(() => {
-  const values = stats.value?.trend.map((item) => item.count) || []
-  return Math.max(...values, 1)
-})
-
 function percentage(value: number, total: number): number {
   if (!total) return 0
   return Math.round((value / total) * 100)
@@ -61,11 +56,6 @@ function formatUpdatedAt(value: string | null): string {
     second: '2-digit',
     hour12: false,
   }).format(new Date(value))
-}
-
-function formatDay(value: string): string {
-  const [, month, day] = value.split('-')
-  return `${month}/${day}`
 }
 
 function formatConfidence(value: number): string {
@@ -192,34 +182,6 @@ onBeforeUnmount(() => closeStatsStream?.())
     </section>
 
     <section class="ops-grid ops-grid-detail">
-      <article class="ops-panel quality-panel">
-        <div class="ops-panel-head">
-          <div><h3>模型质量</h3><p>仅基于具备真实标签的研判记录</p></div>
-          <small>MODEL QUALITY</small>
-        </div>
-        <div class="quality-body">
-          <div class="quality-score">
-            <span>累计准确率</span>
-            <strong>{{ stats.accuracy === null ? '--' : `${(stats.accuracy * 100).toFixed(1)}%` }}</strong>
-            <div class="quality-track"><i :style="{ width: `${(stats.accuracy || 0) * 100}%` }"></i></div>
-          </div>
-          <div class="quality-counters">
-            <div><span>有标签记录</span><b>{{ stats.labeled_alerts }}</b></div>
-            <div class="danger"><span>累计误判</span><b>{{ stats.misjudgments }}</b></div>
-          </div>
-          <div class="trend-block">
-            <div class="trend-title"><span>近 7 日新增告警</span><small>LAST 7 DAYS</small></div>
-            <div class="trend-chart">
-              <div v-for="item in stats.trend" :key="item.date" class="trend-column">
-                <span>{{ item.count }}</span>
-                <div><i :style="{ height: `${Math.max(6, item.count / maxTrend * 100)}%` }"></i></div>
-                <small>{{ formatDay(item.date) }}</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </article>
-
       <article class="ops-panel recent-panel">
         <div class="ops-panel-head">
           <div><h3>最新研判动态</h3><p>新告警与误判结果将自动加入此列表</p></div>
@@ -319,7 +281,7 @@ onBeforeUnmount(() => closeStatsStream?.())
 
 .ops-grid { display: grid; gap: 16px; }
 .ops-grid-main { grid-template-columns: .82fr 1.25fr; }
-.ops-grid-detail { grid-template-columns: .72fr 1.28fr; }
+.ops-grid-detail { grid-template-columns: minmax(0, 1fr); }
 .ops-panel { overflow: hidden; border: 1px solid var(--ops-line); border-radius: 8px; background: var(--ops-panel); }
 .ops-panel-head { min-height: 72px; padding: 16px 18px; display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--ops-line); }
 .ops-panel-head h3 { margin: 0; color: #e4edf9; font-size: 14px; font-weight: 700; }
@@ -343,25 +305,6 @@ onBeforeUnmount(() => closeStatsStream?.())
 .source-row > div:first-child { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; color: #8fa0b9; font-size: 11px; }
 .source-row b { color: #dce7f6; font: 600 11px ui-monospace, monospace; }
 .source-progress i { background: var(--ops-blue); box-shadow: 0 0 8px rgba(95,143,241,.25); }
-
-.quality-body { padding: 20px; }
-.quality-score > span { color: #7e90aa; font-size: 11px; }
-.quality-score strong { display: block; margin: 10px 0 12px; color: #eaf2ff; font: 700 34px/1 ui-monospace, monospace; }
-.quality-track { height: 5px; border-radius: 3px; background: #09101a; overflow: hidden; }
-.quality-track i { display: block; height: 100%; background: var(--ops-success); }
-.quality-counters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0 22px; }
-.quality-counters > div { padding: 12px; border: 1px solid var(--ops-line); border-radius: 6px; background: var(--ops-panel-deep); }
-.quality-counters span, .quality-counters b { display: block; }
-.quality-counters span { color: #687b94; font-size: 9px; }
-.quality-counters b { margin-top: 6px; color: #dce8f8; font: 700 18px ui-monospace, monospace; }
-.quality-counters .danger b { color: var(--ops-danger); }
-.trend-title { display: flex; justify-content: space-between; color: #8799b1; font-size: 10px; }
-.trend-title small { color: #50627a; font: 8px ui-monospace, monospace; }
-.trend-chart { height: 105px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; margin-top: 12px; }
-.trend-column { min-width: 0; display: grid; grid-template-rows: 14px 1fr 15px; text-align: center; }
-.trend-column > span, .trend-column > small { color: #5f7189; font: 8px ui-monospace, monospace; }
-.trend-column > div { position: relative; border-bottom: 1px solid #253143; }
-.trend-column i { position: absolute; inset: auto 20% 0; min-height: 3px; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, #6594f1, #335d9f); }
 
 .recent-list { max-height: 366px; overflow: auto; }
 .recent-row { min-height: 61px; display: grid; grid-template-columns: 3px minmax(0, 1fr) auto 46px; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid rgba(37,49,67,.75); }

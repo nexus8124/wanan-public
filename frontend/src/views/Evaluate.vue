@@ -26,6 +26,7 @@ import JudgmentBadge from '../components/JudgmentBadge.vue'
 import ConfidenceGauge from '../components/ConfidenceGauge.vue'
 import CoTTimeline from '../components/CoTTimeline.vue'
 import ToolCard from '../components/ToolCard.vue'
+import MultiAgentFlow from '../components/MultiAgentFlow.vue'
 import DispositionCard from '../components/DispositionCard.vue'
 
 const loading = ref(false)
@@ -34,6 +35,7 @@ const result = ref<any>(null)
 const progress = ref({ completed: 0, total: 50 })
 const abortCtrl = ref<AbortController | null>(null)
 const selectedDetail = ref<any | null>(null)
+const selectedDetailIndex = ref(-1)
 const historyRuns = ref<any[]>([])
 const historyLoading = ref(false)
 const activeRunId = ref('')
@@ -72,6 +74,19 @@ const strategyLabels: Record<string, string> = {
 
 function strategyLabel(strategy: string | undefined): string {
   return strategyLabels[strategy || ''] || strategy || '-'
+}
+
+function sampleNumber(zeroBasedIndex: number): string {
+  return `样本-${String(Math.max(0, zeroBasedIndex) + 1).padStart(3, '0')}`
+}
+
+function streamedSampleNumber(oneBasedIndex: number | undefined): string {
+  return oneBasedIndex ? `样本-${String(oneBasedIndex).padStart(3, '0')}` : '样本-待定'
+}
+
+function runNumber(index: number): string {
+  // 历史接口按时间倒序返回；倒序编号可使旧记录在新增运行后保持原编号。
+  return `评测-${String(historyRuns.value.length - index).padStart(3, '0')}`
 }
 
 const metrics = computed(() => result.value?.metrics || null)
@@ -400,7 +415,7 @@ async function resumeHistory(run: any) {
 }
 
 async function removeHistory(run: any) {
-  if (!confirm(`确认删除评测记录 ${run.id.slice(0, 8)}？`)) return
+  if (!confirm(`确认删除这条${strategyLabel(run.strategy)}评测记录？`)) return
   try {
     await deleteEvalHistory(run.id)
     if (viewingRunId.value === run.id) {
@@ -431,8 +446,9 @@ function statusClass(status: string): string {
   return 'border-red/40 text-red bg-red/5'
 }
 
-function openDetail(detail: any) {
+function openDetail(detail: any, index: number) {
   selectedDetail.value = detail
+  selectedDetailIndex.value = index
 }
 
 const progressPercent = computed(() => {
@@ -606,13 +622,13 @@ const progressPercent = computed(() => {
 
       <div v-if="historyRuns.length" class="divide-y divide-border">
         <div
-          v-for="run in historyRuns"
+          v-for="(run, runIndex) in historyRuns"
           :key="run.id"
           class="p-4 hover:bg-bg-2/60 transition-colors"
           :class="viewingRunId === run.id ? 'bg-cyan/5' : ''"
         >
           <div class="flex flex-wrap items-center gap-3">
-            <code class="font-mono text-xs text-cyan">{{ run.id.slice(0, 8) }}</code>
+            <code class="font-mono text-xs text-cyan" :title="`原始运行ID：${run.id}`">{{ runNumber(runIndex) }}</code>
             <span class="chip text-[10px]" :class="statusClass(run.status)">{{ statusText[run.status] || run.status }}</span>
             <span class="text-xs text-pink">
               真实模型
@@ -687,7 +703,7 @@ const progressPercent = computed(() => {
         ></div>
       </div>
       <div v-if="details.length" class="text-xs text-text-mute mt-3">
-        最近完成：{{ details[details.length - 1].alert_id }} ·
+        最近完成：<span :title="`原始样本ID：${details[details.length - 1].alert_id}`">{{ sampleNumber(details.length - 1) }}</span> ·
         {{ details[details.length - 1].pred }} ·
         {{ (details[details.length - 1].confidence * 100).toFixed(0) }}%
       </div>
@@ -705,10 +721,12 @@ const progressPercent = computed(() => {
             :key="`${event.event_seq}-${event.type}`"
             class="px-4 py-2 text-xs flex gap-3"
           >
-            <span class="font-mono text-cyan shrink-0">{{ event.sample_index || '-' }}/{{ event.sample_total || progress.total }}</span>
+            <span class="font-mono text-cyan shrink-0" :title="event.alert_id ? `原始样本ID：${event.alert_id}` : ''">
+              {{ streamedSampleNumber(event.sample_index) }}/{{ event.sample_total || progress.total }}
+            </span>
             <span class="text-text w-32 shrink-0">{{ eventLabels[event.type] || event.type }}</span>
             <span class="text-text-mute truncate">
-              {{ event.alert_id }}
+              {{ event.node || 'Agent 流程' }}
               <template v-if="event.tool"> · {{ event.tool }}</template>
               <template v-else-if="event.data?.next_action?.tool"> · {{ event.data.next_action.tool }}</template>
               <template v-else-if="event.data?.judgment"> · {{ event.data.judgment }} {{ Math.round((event.data.confidence || 0) * 100) }}%</template>
@@ -851,7 +869,7 @@ const progressPercent = computed(() => {
           <table class="w-full text-xs">
             <thead>
               <tr class="bg-bg-2 text-text-mute">
-                <th class="px-4 py-3 text-left font-medium">告警 ID</th>
+                <th class="px-4 py-3 text-left font-medium">样本编号</th>
                 <th class="px-4 py-3 text-left font-medium">真实标签</th>
                 <th class="px-4 py-3 text-left font-medium">预测</th>
                 <th class="px-4 py-3 text-left font-medium">置信度</th>
@@ -865,12 +883,14 @@ const progressPercent = computed(() => {
               <tr
                 v-for="(d, i) in details"
                 :key="d.alert_id"
-                @click="openDetail(d)"
+                @click="openDetail(d, i)"
                 class="border-t border-border hover:bg-bg-2 transition-colors cursor-pointer"
                 :class="i % 2 === 1 ? 'bg-bg/30' : ''"
                 title="点击查看完整研判流程"
               >
-                <td class="px-4 py-2.5"><code class="font-mono text-cyan">{{ d.alert_id }}</code></td>
+                <td class="px-4 py-2.5" :title="`原始样本ID：${d.alert_id}`">
+                  <code class="font-mono text-cyan font-bold">{{ sampleNumber(i) }}</code>
+                </td>
                 <td class="px-4 py-2.5">
                   <JudgmentBadge :judgment="d.label" size="sm" />
                 </td>
@@ -910,12 +930,14 @@ const progressPercent = computed(() => {
       class="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-start justify-center p-4 md:p-8 overflow-y-auto"
       @click.self="selectedDetail = null"
     >
-      <div class="card w-full max-w-5xl p-6 my-auto">
+      <div class="card eval-detail-board w-[96vw] max-w-[1600px] p-6 md:p-8 my-6">
         <div class="flex items-start justify-between gap-4 mb-6">
           <div>
-            <div class="text-[10px] text-text-mute mb-1">评测样本研判流程</div>
-            <h2 class="text-xl font-bold font-mono text-cyan">{{ selectedDetail.alert_id }}</h2>
-            <div class="text-xs text-text-dim mt-1">{{ selectedDetail.alert?.rule_name }}</div>
+            <div class="text-xs text-text-mute mb-1">评测样本研判流程</div>
+            <h2 class="text-2xl font-bold font-mono text-cyan" :title="`原始样本ID：${selectedDetail.alert_id}`">
+              {{ sampleNumber(selectedDetailIndex) }}
+            </h2>
+            <div class="text-sm text-text-dim mt-1">{{ selectedDetail.alert?.rule_name }}</div>
           </div>
           <button
             @click="selectedDetail = null"
@@ -931,13 +953,13 @@ const progressPercent = computed(() => {
             <div class="card p-4 md:col-span-2">
               <div class="flex flex-wrap items-center gap-3 mb-3">
                 <JudgmentBadge :judgment="selectedDetail.agent_result.judgment" size="lg" />
-                <span :class="selectedDetail.correct ? 'text-green' : 'text-red'" class="text-xs font-bold">
+                <span :class="selectedDetail.correct ? 'text-green' : 'text-red'" class="text-sm font-bold">
                   {{ selectedDetail.correct ? '✓ 与标签一致' : '✗ 与标签不一致' }}
                 </span>
-                <span class="text-xs text-text-mute">真实标签：{{ selectedDetail.label }}</span>
+                <span class="text-sm text-text-mute">真实标签：{{ selectedDetail.label }}</span>
               </div>
-              <div class="text-sm text-text-dim leading-relaxed">{{ selectedDetail.agent_result.reason }}</div>
-              <div class="text-xs text-text-mute mt-3">
+              <div class="text-base text-text-dim leading-relaxed">{{ selectedDetail.agent_result.reason }}</div>
+              <div class="text-sm text-text-mute mt-3">
                 耗时 {{ selectedDetail.latency_s.toFixed(2) }}s ·
                 {{ selectedDetail.agent_result.multi_agent_used
                   ? '进入多智能体协同'
@@ -953,7 +975,7 @@ const progressPercent = computed(() => {
 
           <section v-if="selectedDetail.agent_result.retrieval_trace?.strategy">
             <div class="section-title mb-3">RAG · 检索知识与引用</div>
-            <div class="card p-3 mb-3 text-[10px] text-text-mute flex flex-wrap gap-x-5 gap-y-2">
+            <div class="card p-4 mb-3 text-xs text-text-mute flex flex-wrap gap-x-5 gap-y-2">
               <span>策略：选择性后融合</span>
               <span>是否触发：{{ selectedDetail.agent_result.rag_attempted ? '是' : '否' }}</span>
               <span>召回：{{ selectedDetail.agent_result.knowledge_hits?.length || 0 }} 条</span>
@@ -979,8 +1001,14 @@ const progressPercent = computed(() => {
             </div>
             <div
               v-if="selectedDetail.agent_result.rag_refinement?.diagnostics?.length"
-              class="mb-3 rounded-lg border border-red/30 bg-red/5 p-3 text-[10px] text-red"
+              class="mb-3 rounded-lg p-3 text-xs"
+              :class="selectedDetail.agent_result.rag_refinement?.accepted
+                ? 'border border-yellow/35 bg-yellow/5 text-yellow'
+                : 'border border-red/30 bg-red/5 text-red'"
             >
+              <b class="mr-2">
+                {{ selectedDetail.agent_result.rag_refinement?.accepted ? '⚠ 首次请求异常，备用路径已恢复' : '✕ 后融合失败' }}
+              </b>
               {{ selectedDetail.agent_result.rag_refinement.diagnostics.join(' · ') }}
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -990,14 +1018,14 @@ const progressPercent = computed(() => {
                 class="card p-4"
               >
                 <div class="flex items-center justify-between gap-3">
-                  <code class="text-[10px] text-cyan">{{ hit.knowledge_id }}</code>
-                  <span class="text-[10px] text-text-mute">{{ Math.round(hit.score * 100) }}%</span>
+                  <code class="text-xs text-cyan">{{ hit.knowledge_id }}</code>
+                  <span class="text-xs text-text-mute">{{ Math.round(hit.score * 100) }}%</span>
                 </div>
-                <div class="mt-2 text-xs font-semibold">{{ hit.title }}</div>
-                <div class="mt-2 text-[10px] text-text-mute line-clamp-3">{{ hit.content }}</div>
+                <div class="mt-2 text-sm font-semibold">{{ hit.title }}</div>
+                <div class="mt-2 text-xs text-text-mute line-clamp-3">{{ hit.content }}</div>
               </div>
             </div>
-            <div class="mt-2 text-[10px] text-text-mute">
+            <div class="mt-2 text-xs text-text-mute">
               本次实际引用：{{ selectedDetail.agent_result.cited_knowledge?.join(', ') || '无' }}
             </div>
           </section>
@@ -1016,33 +1044,15 @@ const progressPercent = computed(() => {
 
           <section v-if="selectedDetail.agent_result.multi_agent_steps?.length">
             <div class="section-title mb-3">02 · 多智能体调查轨迹</div>
-            <div class="card p-3 mb-3 text-[10px] text-text-mute flex flex-wrap gap-x-5 gap-y-2">
-              <span>协调计划：{{ selectedDetail.agent_result.progress_ledger?.planned_agents?.join(' → ') || '-' }}</span>
-              <span>已完成：{{ selectedDetail.agent_result.progress_ledger?.completed_agents?.length || 0 }}</span>
-              <span>新增证据：{{ selectedDetail.agent_result.progress_ledger?.new_evidence_ids?.length || 0 }}</span>
-              <span>状态：{{ selectedDetail.agent_result.progress_ledger?.status || '-' }}</span>
-            </div>
-            <div class="space-y-3">
-              <div
-                v-for="step in selectedDetail.agent_result.multi_agent_steps"
-                :key="`${step.step}-${step.agent}`"
-                class="card p-4 border-l-2 border-cyan/60"
-              >
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div class="flex items-center gap-3">
-                    <span class="font-mono text-cyan">{{ String(step.step).padStart(2, '0') }}</span>
-                    <span class="font-bold text-text">{{ step.agent }}</span>
-                    <span class="chip text-[10px] text-text-dim">{{ step.capability }}</span>
-                  </div>
-                  <span class="text-[10px]" :class="step.status === 'completed' || step.result?.success ? 'text-green' : 'text-yellow'">
-                    {{ step.status || step.result?.status || '-' }}
-                  </span>
-                </div>
-                <div class="mt-2 text-xs text-text-dim">{{ step.purpose || step.summary }}</div>
-                <div class="mt-2 text-[10px] text-text-mute font-mono">{{ step.tool }} {{ JSON.stringify(step.args || {}) }}</div>
-                <div v-if="step.result?.summary" class="mt-2 text-[10px] text-text-mute">{{ step.result.summary }}</div>
-              </div>
-            </div>
+            <MultiAgentFlow
+              :steps="selectedDetail.agent_result.multi_agent_steps"
+              :ledger="selectedDetail.agent_result.progress_ledger"
+              :evidence="selectedDetail.agent_result.evidence"
+              :knowledge-hits="selectedDetail.agent_result.knowledge_hits"
+              :cited-evidence="selectedDetail.agent_result.cited_evidence"
+              :judgment="selectedDetail.agent_result.judgment"
+              :confidence="selectedDetail.agent_result.confidence"
+            />
           </section>
 
           <section v-if="selectedDetail.agent_result.disposition">
@@ -1051,10 +1061,10 @@ const progressPercent = computed(() => {
           </section>
 
           <details class="card p-4">
-            <summary class="text-xs font-bold text-text-dim cursor-pointer">查看原始告警与归一化特征</summary>
+            <summary class="text-sm font-bold text-text-dim cursor-pointer">查看原始告警与归一化特征</summary>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <pre class="text-[10px] text-text-dim bg-bg rounded-lg p-3 overflow-auto">{{ JSON.stringify(selectedDetail.alert, null, 2) }}</pre>
-              <pre class="text-[10px] text-text-dim bg-bg rounded-lg p-3 overflow-auto">{{ JSON.stringify(selectedDetail.agent_result.features, null, 2) }}</pre>
+              <pre class="text-xs text-text-dim bg-bg rounded-lg p-3 overflow-auto">{{ JSON.stringify(selectedDetail.alert, null, 2) }}</pre>
+              <pre class="text-xs text-text-dim bg-bg rounded-lg p-3 overflow-auto">{{ JSON.stringify(selectedDetail.agent_result.features, null, 2) }}</pre>
             </div>
           </details>
         </div>
