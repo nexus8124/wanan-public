@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-interface ConfidencePoint {
-  node: string
-  value: number
-}
-
 interface FlowNode {
   key: string
   code: string
@@ -17,15 +12,10 @@ interface FlowNode {
 const props = defineProps<{
   currentNode: string
   visitedNodes: string[]
-  confidenceHistory: ConfidencePoint[]
   streaming: boolean
   done: boolean
   ragEnabled: boolean
   multiAgentEnabled: boolean
-  judgment: string
-  knowledgeCount: number
-  toolCount: number
-  evidenceCount: number
 }>()
 
 const flowNodes = computed<FlowNode[]>(() => [
@@ -61,33 +51,6 @@ function edgeState(index: number): string {
   return 'pending'
 }
 
-const chartPoints = computed(() => {
-  const values = props.confidenceHistory.slice(-8)
-  return values.map((item, index) => {
-    const x = values.length === 1 ? 150 : 16 + (index * 268) / (values.length - 1)
-    const y = 70 - Math.max(0, Math.min(1, item.value)) * 52
-    return { ...item, x, y }
-  })
-})
-
-const polyline = computed(() => chartPoints.value.map((point) => `${point.x},${point.y}`).join(' '))
-const latestConfidence = computed(() => (
-  props.confidenceHistory[props.confidenceHistory.length - 1]?.value ?? 0
-))
-
-const currentLabel = computed(() => {
-  for (const node of flowNodes.value) {
-    if (node.aliases.includes(props.currentNode)) return node.title
-  }
-  return props.done ? '研判完成' : '等待启动'
-})
-
-function judgmentClass(): string {
-  if (props.judgment === '真阳') return 'danger'
-  if (props.judgment === '假阳') return 'success'
-  if (props.judgment === '待查') return 'warning'
-  return 'neutral'
-}
 </script>
 
 <template>
@@ -110,41 +73,6 @@ function judgmentClass(): string {
       </template>
     </div>
 
-    <div class="process-insights">
-      <section class="confidence-panel">
-        <div class="insight-head">
-          <div><small>CONFIDENCE EVOLUTION</small><b>置信度演进</b></div>
-          <strong>{{ Math.round(latestConfidence * 100) }}%</strong>
-        </div>
-        <svg viewBox="0 0 300 82" preserveAspectRatio="none" aria-label="置信度变化曲线">
-          <line x1="16" y1="18" x2="284" y2="18" class="guide"></line>
-          <line x1="16" y1="44" x2="284" y2="44" class="guide"></line>
-          <line x1="16" y1="70" x2="284" y2="70" class="axis"></line>
-          <polyline v-if="chartPoints.length > 1" :points="polyline" class="confidence-line"></polyline>
-          <g v-for="(point, index) in chartPoints" :key="`${point.node}-${index}`">
-            <circle :cx="point.x" :cy="point.y" r="3.5" class="confidence-dot"></circle>
-          </g>
-        </svg>
-        <div v-if="confidenceHistory.length" class="chart-labels">
-          <span>{{ confidenceHistory[0].node }}</span>
-          <span>{{ confidenceHistory[confidenceHistory.length - 1]?.node }}</span>
-        </div>
-        <div v-else class="chart-empty">研判开始后生成动态曲线</div>
-      </section>
-
-      <section class="signal-panel">
-        <div class="insight-head">
-          <div><small>INVESTIGATION SIGNALS</small><b>调查信号</b></div>
-          <span class="current-stage"><i :class="{ live: streaming }"></i>{{ currentLabel }}</span>
-        </div>
-        <div class="signal-grid">
-          <div><span>KB</span><b>{{ knowledgeCount }}</b><small>知识命中</small></div>
-          <div><span>TL</span><b>{{ toolCount }}</b><small>工具调用</small></div>
-          <div><span>EV</span><b>{{ evidenceCount }}</b><small>事件证据</small></div>
-          <div class="verdict" :class="judgmentClass()"><span>结果</span><b>{{ judgment || '--' }}</b><small>当前判定</small></div>
-        </div>
-      </section>
-    </div>
   </div>
 </template>
 
@@ -180,39 +108,9 @@ function judgmentClass(): string {
 .flow-edge.active i { background: linear-gradient(90deg, #4dad8c, #6598ef); box-shadow: 0 0 7px rgba(101,152,239,.35); }
 .flow-edge.active { color: #6598ef; }
 
-.process-insights { display: grid; grid-template-columns: .9fr 1.1fr; border-top: 1px solid #27364b; }
-.confidence-panel, .signal-panel { min-width: 0; padding: 14px 16px; }
-.confidence-panel { border-right: 1px solid #27364b; }
-.insight-head { min-height: 30px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.insight-head small, .insight-head b { display: block; }
-.insight-head small { color: #4d678c; font: 7px ui-monospace, monospace; letter-spacing: .09em; }
-.insight-head b { margin-top: 3px; color: #aebed2; font-size: 10px; }
-.insight-head strong { color: #79a7f6; font: 700 20px ui-monospace, monospace; }
-.confidence-panel svg { width: 100%; height: 76px; margin-top: 5px; overflow: visible; }
-.guide { stroke: #1d2a3b; stroke-width: 1; stroke-dasharray: 3 4; }
-.axis { stroke: #334158; stroke-width: 1; }
-.confidence-line { fill: none; stroke: #69a0f4; stroke-width: 2; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 4px rgba(105,160,244,.45)); }
-.confidence-dot { fill: #0c131e; stroke: #69a0f4; stroke-width: 2; vector-effect: non-scaling-stroke; }
-.chart-labels { display: flex; justify-content: space-between; margin-top: -6px; color: #4e6078; font: 7px ui-monospace, monospace; text-transform: uppercase; }
-.chart-empty { height: 15px; margin-top: -5px; color: #405168; font-size: 8px; text-align: center; }
-.current-stage { display: inline-flex; align-items: center; gap: 5px; color: #71849e; font-size: 8px; }
-.current-stage i { width: 5px; height: 5px; border-radius: 50%; background: #526177; }
-.current-stage i.live { background: #65a0ff; box-shadow: 0 0 8px #65a0ff; animation: pulse 1.5s infinite; }
-.signal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
-.signal-grid > div { min-width: 0; padding: 11px 8px; border: 1px solid #26354a; border-radius: 6px; background: #0a111b; text-align: center; }
-.signal-grid span, .signal-grid b, .signal-grid small { display: block; }
-.signal-grid span { color: #48658c; font: 7px ui-monospace, monospace; }
-.signal-grid b { margin: 7px 0 4px; color: #d2deed; font: 700 17px ui-monospace, monospace; white-space: nowrap; }
-.signal-grid small { color: #52637a; font-size: 8px; white-space: nowrap; }
-.signal-grid .verdict.danger b { color: #e6767e; }
-.signal-grid .verdict.success b { color: #65c59f; }
-.signal-grid .verdict.warning b { color: #dcb35e; }
-
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
 @keyframes orbitPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.5); } }
 @media (max-width: 720px) {
   .flow-node { min-width: 66px; }
-  .process-insights { grid-template-columns: 1fr; }
-  .confidence-panel { border-right: 0; border-bottom: 1px solid #27364b; }
 }
 </style>

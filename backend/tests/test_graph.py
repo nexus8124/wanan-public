@@ -191,6 +191,19 @@ class TestEndToEnd:
             "context_agent", "endpoint_agent"
         }
 
+    def test_forced_multi_agent_runs_for_high_confidence_interactive_alert(self, tp_alert):
+        result = judge_alert(
+            tp_alert,
+            llm=get_llm(mock=True),
+            enable_react=False,
+            enable_multi_agent=True,
+            force_multi_agent=True,
+        )
+        assert result["multi_agent_used"] is True
+        assert result["multi_agent_verified"] is True
+        assert result["multi_agent_steps"]
+        assert result["progress_ledger"]["status"] == "completed"
+
     def test_multi_agent_and_react_cannot_be_enabled_together(self, tp_alert):
         with pytest.raises(ValueError, match="independent strategies"):
             judge_alert(

@@ -124,6 +124,7 @@ def build_graph(
     *,
     enable_react: bool = True,
     enable_multi_agent: bool = False,
+    force_multi_agent: bool = False,
     enable_rag: bool = False,
     rag_service: Any | None = None,
 ):
@@ -170,7 +171,9 @@ def build_graph(
         graph.add_conditional_edges(
             post_judge_node,
             lambda state: (
-                "multi_agent_plan" if should_enter_multi_agent(state) else "disposition"
+                "multi_agent_plan"
+                if force_multi_agent or should_enter_multi_agent(state)
+                else "disposition"
             ),
             {
                 "multi_agent_plan": "multi_agent_plan",
@@ -221,6 +224,7 @@ def judge_alert(
     *,
     enable_react: bool = True,
     enable_multi_agent: bool = False,
+    force_multi_agent: bool = False,
     enable_rag: bool = False,
     rag_service: Any | None = None,
     callbacks: list[Any] | None = None,
@@ -234,6 +238,7 @@ def judge_alert(
         llm=llm,
         enable_react=enable_react,
         enable_multi_agent=enable_multi_agent,
+        force_multi_agent=force_multi_agent,
         enable_rag=enable_rag,
         rag_service=rag_service,
     )

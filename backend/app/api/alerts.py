@@ -51,16 +51,17 @@ def judge(
     except ValueError as selection_error:
         raise HTTPException(status_code=400, detail=str(selection_error)) from selection_error
 
-    # 无 DeepSeek key 时降级到 mock（保证 demo 可用，不阻断）
-    use_mock = not provider_is_configured(settings, selected_provider)
-    if use_mock:
-        logger.warning("DEEPSEEK_API_KEY 未配置，降级到 mock LLM（仅 demo 用）")
+    if not provider_is_configured(settings, selected_provider):
+        raise HTTPException(
+            status_code=503,
+            detail=f"{selected_provider} 未配置 API Key，告警研判不会降级为 Mock 模型",
+        )
 
     try:
         llm = get_llm(
             provider=selected_provider,
             model=selected_model,
-            mock=use_mock,
+            mock=False,
             settings=settings,
         )
         # 不把 label 传给 Agent（推理时不应看到答案）
@@ -72,6 +73,7 @@ def judge(
             llm=llm,
             enable_react=not multi_agent,
             enable_multi_agent=multi_agent,
+            force_multi_agent=multi_agent,
             enable_rag=settings.rag_enabled if rag is None else rag,
         )
         try:

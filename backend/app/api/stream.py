@@ -49,6 +49,7 @@ async def _stream_graph(
         llm=get_llm(provider=provider, model=model, mock=use_mock),
         enable_react=not enable_multi_agent,
         enable_multi_agent=enable_multi_agent,
+        force_multi_agent=enable_multi_agent,
         enable_rag=enable_rag,
     )
     config = {"recursion_limit": 25}
@@ -142,9 +143,11 @@ async def judge_stream(
     except ValueError as selection_error:
         raise HTTPException(status_code=400, detail=str(selection_error)) from selection_error
 
-    use_mock = not provider_is_configured(settings, selected_provider)
-    if use_mock:
-        logger.warning("DEEPSEEK_API_KEY 未配置，流式研判降级到 mock")
+    if not provider_is_configured(settings, selected_provider):
+        raise HTTPException(
+            status_code=503,
+            detail=f"{selected_provider} 未配置 API Key，实时研判不会降级为 Mock 模型",
+        )
 
     # 隐藏 label，避免泄露给 Agent
     truth_label = alert.label
@@ -154,7 +157,7 @@ async def judge_stream(
     return EventSourceResponse(
         _stream_graph(
             alert_dict,
-            use_mock,
+            False,
             enable_rag=settings.rag_enabled if rag is None else rag,
             enable_multi_agent=multi_agent,
             provider=selected_provider,

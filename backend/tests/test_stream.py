@@ -44,6 +44,7 @@ def test_stream_graph_enables_multi_agent_as_independent_strategy(monkeypatch):
 
     assert captured["enable_react"] is False
     assert captured["enable_multi_agent"] is True
+    assert captured["force_multi_agent"] is True
     assert captured["enable_rag"] is True
     assert events[0]["event"] == "multi_agent_plan"
     assert events[-1]["event"] == "done"
