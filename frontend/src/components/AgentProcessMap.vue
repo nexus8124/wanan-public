@@ -21,20 +21,29 @@ const props = defineProps<{
   streaming: boolean
   done: boolean
   ragEnabled: boolean
+  multiAgentEnabled: boolean
   judgment: string
   knowledgeCount: number
   toolCount: number
   evidenceCount: number
 }>()
 
-const flowNodes: FlowNode[] = [
+const flowNodes = computed<FlowNode[]>(() => [
   { key: 'preprocess', code: '01', title: '特征解析', subtitle: 'PREPROCESS', aliases: ['preprocess'] },
   { key: 'judge', code: '02', title: '模型初判', subtitle: 'JUDGE', aliases: ['judge'] },
   { key: 'rag', code: '03', title: '知识增强', subtitle: 'RAG', aliases: ['rag_retrieve', 'rag_refine'] },
-  { key: 'react', code: '04', title: '自主调查', subtitle: 'REACT', aliases: ['react_decide', 'tool_executor'] },
+  {
+    key: 'investigate',
+    code: '04',
+    title: props.multiAgentEnabled ? '协同调查' : '自主调查',
+    subtitle: props.multiAgentEnabled ? 'MULTI-AGENT' : 'REACT',
+    aliases: props.multiAgentEnabled
+      ? ['multi_agent_plan', 'multi_agent_worker', 'multi_agent_verify']
+      : ['react_decide', 'tool_executor'],
+  },
   { key: 'disposition', code: '05', title: '处置决策', subtitle: 'DISPOSITION', aliases: ['disposition'] },
   { key: 'output', code: '06', title: '结果输出', subtitle: 'OUTPUT', aliases: ['output'] },
-]
+])
 
 function nodeState(node: FlowNode): 'pending' | 'active' | 'complete' | 'skipped' {
   if (node.key === 'rag' && !props.ragEnabled) return 'skipped'
@@ -45,8 +54,8 @@ function nodeState(node: FlowNode): 'pending' | 'active' | 'complete' | 'skipped
 }
 
 function edgeState(index: number): string {
-  const source = nodeState(flowNodes[index])
-  const target = nodeState(flowNodes[index + 1])
+  const source = nodeState(flowNodes.value[index])
+  const target = nodeState(flowNodes.value[index + 1])
   if (source === 'complete' && ['complete', 'active', 'skipped'].includes(target)) return 'complete'
   if (source === 'active' || target === 'active') return 'active'
   return 'pending'
@@ -67,7 +76,7 @@ const latestConfidence = computed(() => (
 ))
 
 const currentLabel = computed(() => {
-  for (const node of flowNodes) {
+  for (const node of flowNodes.value) {
     if (node.aliases.includes(props.currentNode)) return node.title
   }
   return props.done ? '研判完成' : '等待启动'

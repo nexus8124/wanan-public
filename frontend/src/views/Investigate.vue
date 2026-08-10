@@ -13,6 +13,7 @@ import CoTTimeline from '../components/CoTTimeline.vue'
 import ToolCard from '../components/ToolCard.vue'
 import DispositionCard from '../components/DispositionCard.vue'
 import AgentProcessMap from '../components/AgentProcessMap.vue'
+import MultiAgentFlow from '../components/MultiAgentFlow.vue'
 
 // 预置示例告警：常用 4 个常驻 + 其余收起
 const presetsCommon = [
@@ -138,6 +139,7 @@ const streaming = ref(false)
 const errorMsg = ref('')
 const abortCtrl = ref<AbortController | null>(null)
 const ragEnabled = ref(false)
+const multiAgentEnabled = ref(false)
 
 onMounted(() => {
   loadModelSelection().catch((error) => {
@@ -152,11 +154,15 @@ const trace = reactive({
   confidence: 0,             // 当前置信度
   cotTrace: [] as string[],  // CoT 步骤
   reactSteps: [] as any[],   // ReAct 工具调用
+  multiAgentSteps: [] as any[],
+  taskLedger: {} as Record<string, any>,
+  progressLedger: {} as Record<string, any>,
   toolsCalled: [] as string[],
   knowledgeHits: [] as any[],
   citedKnowledge: [] as string[],
   disposition: null as any,
   evidence: [] as any[],
+  citedEvidence: [] as string[],
   visitedNodes: [] as string[],
   confidenceHistory: [] as Array<{ node: string; value: number }>,
   reason: '',
@@ -174,11 +180,15 @@ function resetTrace() {
   trace.confidence = 0
   trace.cotTrace = []
   trace.reactSteps = []
+  trace.multiAgentSteps = []
+  trace.taskLedger = {}
+  trace.progressLedger = {}
   trace.toolsCalled = []
   trace.knowledgeHits = []
   trace.citedKnowledge = []
   trace.disposition = null
   trace.evidence = []
+  trace.citedEvidence = []
   trace.visitedNodes = []
   trace.confidenceHistory = []
   trace.reason = ''
@@ -205,8 +215,12 @@ function handleEvent(ev: StreamEvent) {
   if (u.knowledge_hits !== undefined) trace.knowledgeHits = u.knowledge_hits
   if (u.cited_knowledge !== undefined) trace.citedKnowledge = u.cited_knowledge
   if (u.react_steps !== undefined) trace.reactSteps = u.react_steps
+  if (u.multi_agent_steps !== undefined) trace.multiAgentSteps = u.multi_agent_steps
+  if (u.task_ledger !== undefined) trace.taskLedger = u.task_ledger
+  if (u.progress_ledger !== undefined) trace.progressLedger = u.progress_ledger
   if (u.disposition !== undefined) trace.disposition = u.disposition
   if (u.evidence !== undefined) trace.evidence = u.evidence
+  if (u.cited_evidence !== undefined) trace.citedEvidence = u.cited_evidence
 }
 
 async function startStream() {
@@ -232,6 +246,7 @@ async function startStream() {
       },
       abortCtrl.value.signal,
       ragEnabled.value,
+      multiAgentEnabled.value,
       selectedProvider.value,
       selectedModel.value,
     )
@@ -262,13 +277,29 @@ const inReactPhase = computed(() =>
   ['react_decide', 'tool_executor'].includes(trace.currentNode)
 )
 
+const inMultiAgentPhase = computed(() =>
+  ['multi_agent_plan', 'multi_agent_worker', 'multi_agent_verify'].includes(trace.currentNode)
+)
+
+const totalToolSteps = computed(() => (
+  multiAgentEnabled.value ? trace.multiAgentSteps.length : trace.reactSteps.length
+))
+
+const participatingAgentCount = computed(() => new Set(
+  trace.multiAgentSteps.map((step) => step.agent).filter(Boolean),
+).size)
+
 const evidenceCount = computed(() => {
   const directEvidence = trace.evidence.length
   const toolEvidence = trace.reactSteps.reduce(
     (total, step) => total + (Array.isArray(step.result?.evidence) ? step.result.evidence.length : 0),
     0,
   )
-  return Math.max(directEvidence, toolEvidence)
+  const multiAgentEvidence = trace.multiAgentSteps.reduce(
+    (total, step) => total + (Array.isArray(step.result?.evidence) ? step.result.evidence.length : 0),
+    0,
+  )
+  return Math.max(directEvidence, toolEvidence, multiAgentEvidence)
 })
 </script>
 
@@ -345,6 +376,23 @@ const evidenceCount = computed(() => {
           />
         </label>
 
+        <label class="mt-2 flex items-center justify-between rounded-lg border border-border bg-bg px-3 py-2 text-xs">
+          <span>
+            <b class="text-text">多智能体研判</b>
+            <span class="block text-[10px] text-text-mute">按上下文、端点和网络证据源协同调查</span>
+          </span>
+          <input
+            v-model="multiAgentEnabled"
+            type="checkbox"
+            :disabled="streaming"
+            class="h-4 w-4 accent-purple"
+          />
+        </label>
+
+        <div v-if="multiAgentEnabled" class="mt-2 rounded-md border border-purple/30 bg-purple/5 px-3 py-2 text-[10px] text-text-mute">
+          多智能体与单智能体 ReAct 为独立策略；开启后由协调器分配专业智能体，可与 RAG 同时使用。
+        </div>
+
         <button
           @click="streaming ? stopStream() : startStream()"
           :disabled="!alertJson && !streaming"
@@ -378,7 +426,7 @@ const evidenceCount = computed(() => {
         </div>
 
         <!-- Agent 执行拓扑始终可见，运行时实时点亮节点 -->
-        <section class="mb-5">
+        <section v-if="trace.currentNode || streaming || trace.done" class="mb-5">
           <div class="section-title mb-3 flex items-center justify-between gap-3">
             <span>00 · Agent 执行拓扑</span>
             <span class="normal-case tracking-normal text-[9px] text-text-mute">LIVE ORCHESTRATION MAP</span>
@@ -390,17 +438,21 @@ const evidenceCount = computed(() => {
             :streaming="streaming"
             :done="trace.done"
             :rag-enabled="ragEnabled"
+            :multi-agent-enabled="multiAgentEnabled"
             :judgment="trace.judgment"
             :knowledge-count="trace.knowledgeHits.length"
-            :tool-count="trace.reactSteps.length"
+            :tool-count="totalToolSteps"
             :evidence-count="evidenceCount"
           />
         </section>
 
         <!-- 空状态 -->
-        <div v-if="!trace.currentNode && !errorMsg" class="rounded-lg border border-dashed border-border px-4 py-5 text-center text-text-mute">
-          <div class="text-xs text-text-dim">选择左侧示例并开始研判</div>
-          <div class="text-[10px] mt-1">节点、置信度、知识与工具证据将在上方画布中实时联动</div>
+        <div
+          v-if="!trace.currentNode && !streaming && !trace.done && !errorMsg"
+          class="min-h-[500px] flex flex-col items-center justify-center text-center text-text-mute"
+        >
+          <div class="text-sm text-text-dim">选择左侧告警示例或粘贴告警 JSON，然后开始研判</div>
+          <div class="text-xs mt-2">研判开始后，思维链、多智能体协作与证据调用将在这里实时展示</div>
         </div>
 
         <!-- 流式内容 -->
@@ -434,8 +486,26 @@ const evidenceCount = computed(() => {
             <CoTTimeline :steps="trace.cotTrace" :streaming="streaming && trace.currentNode === 'judge'" />
           </section>
 
+          <!-- 多智能体阶段 -->
+          <section v-if="multiAgentEnabled && (inMultiAgentPhase || trace.multiAgentSteps.length || Object.keys(trace.progressLedger).length)">
+            <div class="section-title mb-3 flex items-center gap-2">
+              <span>03 · 多智能体调查轨迹</span>
+              <span v-if="inMultiAgentPhase" class="text-purple normal-case tracking-normal text-[10px]">协同取证中...</span>
+              <span v-else class="text-text-mute normal-case tracking-normal text-[10px]">({{ trace.multiAgentSteps.length }} 次调用)</span>
+            </div>
+            <MultiAgentFlow
+              :steps="trace.multiAgentSteps"
+              :ledger="trace.progressLedger"
+              :evidence="trace.evidence"
+              :knowledge-hits="trace.knowledgeHits"
+              :cited-evidence="trace.citedEvidence"
+              :judgment="trace.judgment"
+              :confidence="trace.confidence"
+            />
+          </section>
+
           <!-- ReAct 阶段 -->
-          <section v-if="inReactPhase || trace.reactSteps.length">
+          <section v-if="!multiAgentEnabled && (inReactPhase || trace.reactSteps.length)">
             <div class="section-title mb-3 flex items-center gap-2">
               <span>03 · ReAct 工具调查</span>
               <span v-if="inReactPhase" class="text-pink normal-case tracking-normal text-[10px]">自主调查中...</span>
@@ -484,6 +554,27 @@ const evidenceCount = computed(() => {
 
         <div v-if="trace.reason" class="text-xs text-text-dim leading-relaxed p-3 rounded-lg bg-bg-2 border border-border">
           {{ trace.reason }}
+        </div>
+      </div>
+
+      <!-- 多智能体摘要 -->
+      <div v-if="trace.multiAgentSteps.length" class="card p-5">
+        <h3 class="font-bold text-sm mb-3 flex items-center gap-2">
+          <span>🧩</span> 多智能体协同统计
+        </h3>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between">
+            <span class="text-text-dim">参与智能体</span>
+            <span class="font-mono text-purple">{{ participatingAgentCount }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-text-dim">工具调用</span>
+            <span class="font-mono text-cyan">{{ trace.multiAgentSteps.length }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-text-dim">有效证据</span>
+            <span class="font-mono text-green">{{ evidenceCount }}</span>
+          </div>
         </div>
       </div>
 

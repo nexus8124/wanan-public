@@ -36,6 +36,7 @@ async def _stream_graph(
     use_mock: bool,
     *,
     enable_rag: bool,
+    enable_multi_agent: bool,
     provider: str,
     model: str,
     truth_label: str | None = None,
@@ -46,6 +47,8 @@ async def _stream_graph(
 
     graph = build_graph(
         llm=get_llm(provider=provider, model=model, mock=use_mock),
+        enable_react=not enable_multi_agent,
+        enable_multi_agent=enable_multi_agent,
         enable_rag=enable_rag,
     )
     config = {"recursion_limit": 25}
@@ -114,6 +117,7 @@ async def _stream_graph(
 async def judge_stream(
     alert: Alert,
     rag: bool | None = None,
+    multi_agent: bool = False,
     provider: str | None = None,
     model: str | None = None,
 ):
@@ -152,6 +156,7 @@ async def judge_stream(
             alert_dict,
             use_mock,
             enable_rag=settings.rag_enabled if rag is None else rag,
+            enable_multi_agent=multi_agent,
             provider=selected_provider,
             model=selected_model,
             truth_label=truth_label,

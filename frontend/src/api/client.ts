@@ -252,10 +252,14 @@ export async function streamJudgeAlert(
   callbacks: StreamCallbacks,
   signal?: AbortSignal,
   rag = false,
+  multiAgent = false,
   provider?: string,
   model?: string,
 ): Promise<void> {
-  const params = new URLSearchParams({ rag: String(rag) })
+  const params = new URLSearchParams({
+    rag: String(rag),
+    multi_agent: String(multiAgent),
+  })
   if (provider) params.set('provider', provider)
   if (model) params.set('model', model)
   const res = await fetch(`${API_BASE}/alerts/judge/stream?${params.toString()}`, {

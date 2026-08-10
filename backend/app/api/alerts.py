@@ -25,6 +25,7 @@ router = APIRouter(prefix="/api/alerts", tags=["alerts"])
 def judge(
     alert: Alert,
     rag: bool | None = None,
+    multi_agent: bool = False,
     provider: str | None = None,
     model: str | None = None,
 ) -> JSONResponse:
@@ -69,6 +70,8 @@ def judge(
         result = judge_alert(
             alert_dict,
             llm=llm,
+            enable_react=not multi_agent,
+            enable_multi_agent=multi_agent,
             enable_rag=settings.rag_enabled if rag is None else rag,
         )
         try:
