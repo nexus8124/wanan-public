@@ -154,6 +154,25 @@ class ReactDecision(BaseModel):
     )
 
 
+class MultiAgentVerdict(BaseModel):
+    """多智能体证据融合后的最终裁决。"""
+
+    analysis: str = Field(..., description="对各专业智能体发现的简要交叉验证")
+    judgment: Literal["真阳", "假阳", "待查"] = Field(
+        ..., description="融合后的最终判定"
+    )
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    reason: str = Field(..., description="面向分析员的最终判定理由")
+    cited_evidence: list[str] = Field(
+        default_factory=list,
+        description="实际支撑结论的 EV-* 事件证据编号",
+    )
+    cited_knowledge: list[str] = Field(
+        default_factory=list,
+        description="实际使用的 KB-* 通用知识编号",
+    )
+
+
 class Disposition(BaseModel):
     """处置建议（节点6 disposition 输出）。
 

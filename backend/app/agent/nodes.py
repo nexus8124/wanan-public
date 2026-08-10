@@ -869,6 +869,11 @@ def output_node(state: AgentState) -> AgentState:
         # ----- D4 ReAct 扩展 -----
         "react_used": bool(state.get("react_entered", False)),
         "react_steps": react_steps,
+        "multi_agent_used": bool(state.get("multi_agent_entered", False)),
+        "multi_agent_verified": bool(state.get("multi_agent_verified", False)),
+        "multi_agent_steps": state.get("multi_agent_steps", []),
+        "task_ledger": state.get("task_ledger", {}),
+        "progress_ledger": state.get("progress_ledger", {}),
         "tools_called": state.get("tools_called", []),
         "disposition": state.get("disposition"),
         "evidence": state.get("evidence", []),

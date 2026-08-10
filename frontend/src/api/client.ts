@@ -88,7 +88,7 @@ export interface EvalStreamCallbacks {
 /** 流式批量评测：后端每完成一条样本就推送一次 progress 事件。 */
 export async function streamRunEval(
   limit: number | null,
-  strategy: 'judge_only' | 'react',
+  strategy: 'judge_only' | 'react' | 'multi_agent',
   rag: boolean,
   provider: string | null,
   model: string | null,

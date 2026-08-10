@@ -19,6 +19,11 @@ export interface AgentResult {
   features: Record<string, any>
   react_used: boolean
   react_steps: ReactStep[]
+  multi_agent_used?: boolean
+  multi_agent_verified?: boolean
+  multi_agent_steps?: MultiAgentStep[]
+  task_ledger?: Record<string, any>
+  progress_ledger?: Record<string, any>
   tools_called: string[]
   disposition: Disposition | null
   evidence?: Array<Record<string, any>>
@@ -37,6 +42,15 @@ export interface ReactStep {
   tool: string
   args: Record<string, any>
   result: Record<string, any>
+}
+
+export interface MultiAgentStep extends ReactStep {
+  agent: string
+  capability?: string
+  status?: string
+  purpose?: string
+  summary?: string
+  knowledge_ids?: string[]
 }
 
 export interface Disposition {

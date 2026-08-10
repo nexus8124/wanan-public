@@ -35,7 +35,7 @@ from app.rag.service import get_rag_service
 
 logger = get_logger(__name__)
 
-EvalStrategy = Literal["judge_only", "react"]
+EvalStrategy = Literal["judge_only", "react", "multi_agent"]
 
 
 class _LLMCallCounter(BaseCallbackHandler):
@@ -116,9 +116,39 @@ def _paired_stage_summary(
 
 def _paired_react_summary(details: list[dict]) -> dict[str, int | float]:
     """Measure ReAct after RAG; without RAG, post-RAG equals initial Judge."""
-    return _paired_stage_summary(
-        details, before_key="post_rag_pred", after_key="pred"
+    scoped = (
+        [detail for detail in details if detail.get("eval_strategy") == "react"]
+        if any("eval_strategy" in detail for detail in details)
+        else details
     )
+    return _paired_stage_summary(
+        scoped, before_key="post_rag_pred", after_key="pred"
+    )
+
+
+def _paired_multi_agent_summary(details: list[dict]) -> dict[str, int | float]:
+    """Measure the multi-agent team after optional same-run RAG refinement."""
+    scoped = (
+        [detail for detail in details if detail.get("eval_strategy") == "multi_agent"]
+        if any("eval_strategy" in detail for detail in details)
+        else details
+    )
+    summary = _paired_stage_summary(
+        scoped, before_key="post_rag_pred", after_key="pred"
+    )
+    results = [detail.get("agent_result") or {} for detail in scoped]
+    summary.update({
+        "triggered": sum(bool(result.get("multi_agent_used")) for result in results),
+        "verified": sum(bool(result.get("multi_agent_verified")) for result in results),
+        "tool_calls": sum(
+            sum(
+                step.get("tool") != "rag_retrieve"
+                for step in (result.get("multi_agent_steps") or [])
+            )
+            for result in results
+        ),
+    })
+    return summary
 
 
 def _paired_rag_summary(details: list[dict]) -> dict[str, int | float]:
@@ -176,11 +206,11 @@ def run_eval(
         agent_event_callback: Agent 每个节点/工具事件的回调，供实时轨迹与持久化
         should_stop: 返回 True 时在下一条样本前安全停止
         max_samples: 仅评测一个确定、标签均衡的子集；用于控制真实模型成本
-        strategy: judge_only=单次模型、无工具基线；react=完整 ReAct Agent
+        strategy: judge_only=单次模型基线；react=单智能体 ReAct；multi_agent=专业智能体团队
     """
     setup_logging(level="INFO")
-    if strategy not in {"judge_only", "react"}:
-        raise ValueError("strategy must be 'judge_only' or 'react'")
+    if strategy not in {"judge_only", "react", "multi_agent"}:
+        raise ValueError("strategy must be 'judge_only', 'react', or 'multi_agent'")
 
     # 选数据集
     dataset = load_eval_dataset(dataset_path)
@@ -212,7 +242,11 @@ def run_eval(
         "rag_strategy": (
             "selective_weak_signal_calibration_v3" if enable_rag else None
         ),
-        "tools_enabled": strategy == "react",
+        "tools_enabled": strategy in {"react", "multi_agent"},
+        "multi_agent_enabled": strategy == "multi_agent",
+        "multi_agent_architecture": (
+            "soc_orchestrator_tool_owners_v1" if strategy == "multi_agent" else None
+        ),
         "provider": effective_provider,
         "model": effective_model,
         "temperature": settings.llm_temperature,
@@ -283,6 +317,7 @@ def run_eval(
                 alert_dict,
                 llm=llm,
                 enable_react=strategy == "react",
+                enable_multi_agent=strategy == "multi_agent",
                 enable_rag=enable_rag,
                 callbacks=callbacks,
                 event_callback=(
@@ -324,7 +359,8 @@ def run_eval(
             "initial_pred": initial_pred,
             "post_rag_pred": post_rag_pred,
             "rag_changed": initial_pred != post_rag_pred,
-            "react_changed": initial_pred != pred,
+            "react_changed": strategy == "react" and post_rag_pred != pred,
+            "multi_agent_changed": strategy == "multi_agent" and post_rag_pred != pred,
             "confidence": conf,
             "latency_s": round(latency, 3),
             "correct": pred == label,
@@ -360,6 +396,7 @@ def run_eval(
                     ).as_dict(),
                     "initial_metrics": compute_metrics(initial_predictions).as_dict(),
                     "paired_react": _paired_react_summary(details),
+                    "paired_multi_agent": _paired_multi_agent_summary(details),
                     "paired_rag": _paired_rag_summary(details),
                 }
             )
@@ -373,6 +410,7 @@ def run_eval(
     report = format_report(metrics)
     print("\n" + report)
     paired_react = _paired_react_summary(details)
+    paired_multi_agent = _paired_multi_agent_summary(details)
     paired_rag = _paired_rag_summary(details)
     if enable_rag:
         print(
@@ -392,6 +430,16 @@ def run_eval(
             f"净变化={paired_react['accuracy_delta']:+.4f} "
             f"修正={paired_react['fixes']} 退化={paired_react['regressions']}"
         )
+    if strategy == "multi_agent":
+        print(
+            "同轮 Multi-Agent 配对: "
+            f"RAG后/初判={paired_multi_agent['initial_accuracy']:.4f} "
+            f"最终={paired_multi_agent['final_accuracy']:.4f} "
+            f"净变化={paired_multi_agent['accuracy_delta']:+.4f} "
+            f"修正={paired_multi_agent['fixes']} "
+            f"退化={paired_multi_agent['regressions']} "
+            f"触发={paired_multi_agent['triggered']}"
+        )
 
     output = {
         "mode": mode,
@@ -402,6 +450,7 @@ def run_eval(
         "metrics": metrics.as_dict(),
         "initial_metrics": compute_metrics(initial_predictions).as_dict(),
         "paired_react": paired_react,
+        "paired_multi_agent": paired_multi_agent,
         "paired_rag": paired_rag,
         "details": details,
     }
@@ -464,8 +513,8 @@ def _main() -> None:
         help="仅运行一个标签均衡的确定性子集，用于控制真实模型成本",
     )
     parser.add_argument(
-        "--strategy", choices=("judge_only", "react"), default="judge_only",
-        help="judge_only=无工具单次调用基线；react=完整 ReAct Agent",
+        "--strategy", choices=("judge_only", "react", "multi_agent"), default="judge_only",
+        help="judge_only=单次调用基线；react=单智能体 ReAct；multi_agent=专业智能体团队",
     )
     parser.add_argument(
         "--rag", action="store_true",

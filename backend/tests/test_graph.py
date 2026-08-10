@@ -168,6 +168,38 @@ class TestEndToEnd:
         assert result["react_steps"] == []
         assert result["tools_called"] == []
 
+    def test_multi_agent_strategy_builds_ledgers_and_uses_owned_tools(self, tp_alert):
+        tp_alert["raw_payload"] = {
+            "evidence_capabilities": ["endpoint_logs"],
+            "query_targets": {"endpoint": [{"ip": tp_alert["src_ip"]}]},
+        }
+        result = judge_alert(
+            tp_alert,
+            llm=get_llm(mock=True),
+            enable_react=False,
+            enable_multi_agent=True,
+        )
+        assert result["react_used"] is False
+        assert result["multi_agent_used"] is True
+        assert result["multi_agent_verified"] is True
+        assert result["task_ledger"]["plan"]
+        assert result["progress_ledger"]["status"] == "completed"
+        assert result["tools_called"] == [
+            "inspect_alert_context", "fetch_endpoint_logs"
+        ]
+        assert {step["agent"] for step in result["multi_agent_steps"]} == {
+            "context_agent", "endpoint_agent"
+        }
+
+    def test_multi_agent_and_react_cannot_be_enabled_together(self, tp_alert):
+        with pytest.raises(ValueError, match="independent strategies"):
+            judge_alert(
+                tp_alert,
+                llm=get_llm(mock=True),
+                enable_react=True,
+                enable_multi_agent=True,
+            )
+
 
 # ============================================================
 # 数据加载（保留 Week 1 的测试）

@@ -249,6 +249,19 @@ class FakeJudgeLLM(BaseChatModel):
                     "next_action": None,
                     "reasoning": "mock ReAct：当前证据已足够，停止工具调用。",
                 }
+            elif schema.__name__ == "MultiAgentVerdict":
+                import re
+
+                evidence_ids = list(dict.fromkeys(re.findall(r"EV-[A-Za-z0-9-]+", text)))
+                knowledge_ids = list(dict.fromkeys(re.findall(r"KB-[A-Za-z0-9-]+", text)))
+                data = {
+                    "analysis": "mock 多智能体验证：已复核各专业智能体的结构化发现。",
+                    "judgment": judgment_data["judgment"],
+                    "confidence": judgment_data["confidence"],
+                    "reason": f"mock 多智能体：{judgment_data['reason']}",
+                    "cited_evidence": evidence_ids[:3],
+                    "cited_knowledge": knowledge_ids[:3],
+                }
             else:
                 data = judgment_data
 

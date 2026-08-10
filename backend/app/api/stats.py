@@ -117,7 +117,7 @@ def run_eval_endpoint(
     # 延迟导入，避免 main.py 启动时拉起整个评测模块
     from app.eval.run import run_eval
 
-    if strategy not in {"judge_only", "react"}:
+    if strategy not in {"judge_only", "react", "multi_agent"}:
         raise HTTPException(status_code=422, detail="invalid eval strategy")
     try:
         result = run_eval(
@@ -156,7 +156,7 @@ async def _stream_eval(
     loaded_dataset = load_eval_dataset(dataset_path)
     if limit is not None and limit < 1:
         raise HTTPException(status_code=422, detail="limit must be at least 1")
-    if strategy not in {"judge_only", "react"}:
+    if strategy not in {"judge_only", "react", "multi_agent"}:
         raise HTTPException(status_code=422, detail="invalid eval strategy")
     total = min(limit, len(loaded_dataset.samples)) if limit else len(loaded_dataset.samples)
     dataset_id = dataset_id_for_path(dataset_path)
@@ -166,7 +166,8 @@ async def _stream_eval(
     initial_config = {
         "strategy": strategy,
         "rag_enabled": rag,
-        "tools_enabled": strategy == "react",
+        "tools_enabled": strategy in {"react", "multi_agent"},
+        "multi_agent_enabled": strategy == "multi_agent",
         "provider": effective_provider,
         "model": model,
         "requested_max_samples": limit,
@@ -234,6 +235,7 @@ async def _stream_eval(
                 metrics=result.get("metrics"),
                 initial_metrics=result.get("initial_metrics"),
                 paired_react=result.get("paired_react"),
+                paired_multi_agent=result.get("paired_multi_agent"),
                 paired_rag=result.get("paired_rag"),
                 experiment_config=result.get("experiment_config"),
                 error="用户中止或浏览器连接断开" if was_stopped else None,
