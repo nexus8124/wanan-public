@@ -35,14 +35,24 @@ def should_enter_multi_agent(state: AgentState) -> bool:
     """只把需要补证的样本送入多智能体团队。"""
     alert = state.get("alert") or {}
     payload = alert.get("raw_payload") or {}
-    has_real_sources = bool(
-        payload.get("_evidence_ref")
-        or payload.get("_evidence_store")
-        or payload.get("evidence_capabilities")
-        or payload.get("temporal_context")
+    capabilities = set(payload.get("evidence_capabilities") or [])
+    # Enter the expensive team path immediately only when the case can actually
+    # cross-check detector context against a second modality.  A lone opaque
+    # reference or temporal count still remains available to ReAct, but does not
+    # by itself justify running every specialist on every easy sample.
+    has_cross_source_evidence = bool(
+        "detector_context" in capabilities
+        and ({"endpoint_logs", "network_alerts", "network_flows", "netflow"} & capabilities)
     )
+    if payload.get("dataset") != "AIT-ADS-EVENT-GOLD":
+        has_cross_source_evidence = bool(
+            payload.get("_evidence_ref")
+            or payload.get("_evidence_store")
+            or capabilities
+            or payload.get("temporal_context")
+        )
     return bool(
-        has_real_sources
+        has_cross_source_evidence
         or state.get("judgment") == "待查"
         or float(state.get("confidence", 0.0)) < MULTI_AGENT_CONFIDENCE_THRESHOLD
     )

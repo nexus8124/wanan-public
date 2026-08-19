@@ -194,6 +194,28 @@ def _main() -> None:
     prepare.add_argument("--per-class", type=int, default=1000)
     prepare.add_argument("--seed", type=int, default=20260805)
     prepare.add_argument("--output", default="data/processed/ait_ads_eval_2000.json")
+    formal = subparsers.add_parser(
+        "prepare-ait-event-gold",
+        help="build development/validation/frozen-test sets from official event labels",
+    )
+    formal.add_argument("--output-dir", default="data/processed/ait_ads_event_gold")
+    formal.add_argument(
+        "--evidence-root", default="data/processed/ait_ads_event_evidence"
+    )
+    formal.add_argument("--seed", type=int, default=20260819)
+    ton = subparsers.add_parser(
+        "prepare-ton-iot",
+        help="build the frozen network + Modbus industrial external-validation set",
+    )
+    ton.add_argument(
+        "--output",
+        default=(
+            "data/processed/ton_iot_industrial/"
+            "ton_iot_industrial_external_validation.json"
+        ),
+    )
+    ton.add_argument("--per-modality-class", type=int, default=500)
+    ton.add_argument("--seed", type=int, default=20260819)
     rag = subparsers.add_parser("build-rag", help="download and build the local RAG index")
     rag.add_argument("--force", action="store_true")
     rag.add_argument(
@@ -214,6 +236,26 @@ def _main() -> None:
             PROJECT_ROOT / "data/raw/ait_ads/labels.csv",
             PROJECT_ROOT / args.output,
             per_class=args.per_class,
+            seed=args.seed,
+        )
+    elif args.command == "prepare-ait-event-gold":
+        fetch_source("ait-ads-event-labels")
+        from app.data.ait_event_gold import build_formal_suite
+        result = build_formal_suite(
+            PROJECT_ROOT / "data/raw/ait_ads/event_labels",
+            PROJECT_ROOT / args.output_dir,
+            evidence_root=PROJECT_ROOT / args.evidence_root,
+            seed=args.seed,
+        )
+    elif args.command == "prepare-ton-iot":
+        fetch_source("ton-iot-network")
+        fetch_source("ton-iot-modbus")
+        from app.data.ton_iot import build_external_validation
+        result = build_external_validation(
+            PROJECT_ROOT / "data/raw/ton_iot/network/train_test_network.csv",
+            PROJECT_ROOT / "data/raw/ton_iot/telemetry/IoT_Modbus.csv",
+            PROJECT_ROOT / args.output,
+            per_modality_class=args.per_modality_class,
             seed=args.seed,
         )
     else:

@@ -20,6 +20,12 @@ from app.rag.nvd import load_cisa_kev, load_nvd_feeds
 def test_catalog_has_pinned_sources_and_checksums():
     catalog = load_catalog()
     assert catalog["ait-ads"]["license"] == "CC-BY-4.0"
+    assert catalog["ait-ads-event-labels"]["revision"]
+    assert catalog["ait-ads-event-labels"]["artifacts"][0]["checksum"].startswith("sha256:")
+    assert catalog["ton-iot-network"]["revision"]
+    assert catalog["ton-iot-network"]["artifacts"][0]["checksum"].startswith("sha256:")
+    assert catalog["ton-iot-modbus"]["revision"]
+    assert catalog["ton-iot-modbus"]["artifacts"][0]["checksum"].startswith("sha256:")
     assert catalog["mitre-attack"]["revision"]
     assert catalog["sigma"]["artifacts"][0]["checksum"].startswith("sha256:")
     assert catalog["cisa-kev"]["revision"] == "2026.08.04"

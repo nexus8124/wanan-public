@@ -54,10 +54,18 @@ def _path_from_dataset_id(dataset_id: str) -> Path | None:
     ):
         if dataset_id.startswith(prefix):
             filename = dataset_id[len(prefix):]
-            if not filename or Path(filename).name != filename or not filename.endswith(".json"):
+            relative = Path(filename)
+            if (
+                not filename
+                or relative.is_absolute()
+                or relative.suffix.lower() != ".json"
+                or any(part in {"", ".", ".."} for part in relative.parts)
+                or (prefix == "uploaded:" and len(relative.parts) != 1)
+            ):
                 return None
-            candidate = (directory / filename).resolve()
-            if candidate.parent != directory.resolve():
+            root = directory.resolve()
+            candidate = (directory / relative).resolve()
+            if candidate != root and root not in candidate.parents:
                 return None
             return candidate
     return None
@@ -189,8 +197,8 @@ def dataset_id_for_path(path: str | Path) -> str:
             relative = resolved.relative_to(directory.resolve())
         except ValueError:
             continue
-        if len(relative.parts) == 1:
-            return f"{prefix}:{relative.name}"
+        if prefix == "processed" or len(relative.parts) == 1:
+            return f"{prefix}:{relative.as_posix()}"
     return f"configured:{resolved.name}"
 
 
@@ -221,9 +229,19 @@ def describe_eval_dataset(path: str | Path) -> dict[str, Any]:
 def list_eval_datasets() -> dict[str, Any]:
     """List valid built-in, generated, and uploaded evaluation datasets."""
     paths: list[Path] = [EVAL_DATASET, DEFAULT_DATASET]
-    for directory in (PROCESSED_DATASET_DIR, UPLOADED_DATASET_DIR):
-        if directory.exists():
-            paths.extend(sorted(directory.glob("*.json")))
+    if PROCESSED_DATASET_DIR.exists():
+        paths.extend(sorted(PROCESSED_DATASET_DIR.glob("*.json")))
+        # Formal builders keep data and manifests in one-level subdirectories.
+        # Do not recurse into evidence stores containing thousands of case JSONs.
+        for directory in sorted(PROCESSED_DATASET_DIR.iterdir()):
+            if not directory.is_dir() or "evidence" in directory.name.lower():
+                continue
+            paths.extend(
+                path for path in sorted(directory.glob("*.json"))
+                if path.name not in {"manifest.json", "index.json"}
+            )
+    if UPLOADED_DATASET_DIR.exists():
+        paths.extend(sorted(UPLOADED_DATASET_DIR.glob("*.json")))
 
     active_path = resolve_eval_dataset_path()
     if active_path.exists() and active_path not in paths:

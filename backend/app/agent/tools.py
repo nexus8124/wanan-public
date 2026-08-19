@@ -101,6 +101,24 @@ TOOL_CATALOG: list[dict[str, Any]] = [
 # 该逻辑不再执行；Mock 工具改为只查询下面按可观察 IoC 建立的固定夹具。
 _SUSPICIOUS_ENDPOINT_HOSTS = {"10.20.33.51"}
 _SUSPICIOUS_FLOW_HOSTS = {"10.20.33.51"}
+_PUBLIC_EVAL_DATASETS = {
+    "AIT-ADS",
+    "AIT-ADS-EVENT-GOLD",
+    "TON-IOT-INDUSTRIAL",
+}
+
+
+def _public_eval_dataset(alert_ctx: dict) -> str | None:
+    value = (alert_ctx.get("raw_payload") or {}).get("dataset")
+    return str(value) if value in _PUBLIC_EVAL_DATASETS else None
+
+
+def _external_evidence_for_alert(alert_ctx: dict) -> dict | None:
+    """Resolve an opaque evidence reference without exposing ground truth."""
+    from app.data.ait_event_gold import evidence_for_alert as ait_evidence_for_alert
+    from app.data.cam_lds import evidence_for_alert as cam_evidence_for_alert
+
+    return ait_evidence_for_alert(alert_ctx) or cam_evidence_for_alert(alert_ctx)
 
 
 def inspect_alert_context(alert_ctx: dict) -> dict:
@@ -111,15 +129,14 @@ def inspect_alert_context(alert_ctx: dict) -> dict:
     temporal aggregation that was computed from neighbouring raw events.
     """
     payload = alert_ctx.get("raw_payload") or {}
-    from app.data.cam_lds import evidence_for_alert
-
-    external = evidence_for_alert(alert_ctx)
+    external = _external_evidence_for_alert(alert_ctx)
     if external:
         detector_event = external.get("detector_event") or {}
         endpoint_targets = external.get("endpoint_targets") or []
         network_targets = external.get("network_targets") or []
         return {
             "data_source": "detector_event_store",
+            "dataset": external.get("dataset"),
             "detector": payload.get("detector"),
             "event": detector_event,
             "detector_events": external.get("detector_events") or [detector_event],
@@ -142,6 +159,19 @@ def inspect_alert_context(alert_ctx: dict) -> dict:
             "status": "ok",
             "source_available": True,
             "verdict": "已取得检测器原始告警及可用证据源概况；该结果不包含评测标签",
+        }
+    if payload.get("dataset") == "TON-IOT-INDUSTRIAL":
+        return {
+            "data_source": "ton_iot_embedded_source_record",
+            "dataset": payload.get("dataset"),
+            "modality": payload.get("modality"),
+            "event": payload.get("observation") or {},
+            "timestamp_semantics": payload.get("timestamp_semantics"),
+            "correlation_scope": payload.get("correlation_scope"),
+            "query_targets": payload.get("query_targets") or {},
+            "status": "ok",
+            "source_available": True,
+            "verdict": "已取得不含标签的 ToN_IoT 源记录；该记录仅支持本模态复核，不代表跨源事件关联",
         }
     temporal = payload.get("temporal_context")
     evidence = {
@@ -216,10 +246,13 @@ _MALICIOUS_IPS = {
 def fetch_endpoint_logs(alert_ctx: dict, host_ip: str) -> dict:
     """查询指定主机的端点进程日志（EDR 数据源）。"""
     payload = alert_ctx.get("raw_payload") or {}
-    from app.data.cam_lds import evidence_for_alert
-
-    external = evidence_for_alert(alert_ctx)
+    external = _external_evidence_for_alert(alert_ctx)
     if external:
+        endpoint_source = (
+            "ait_ads_event_gold_host_alerts"
+            if external.get("dataset") == "AIT-ADS-EVENT-GOLD"
+            else "cam_lds_endpoint_logs"
+        )
         records = external.get("endpoint_logs") or []
         primary_ip = external.get("primary_host_ip")
         targets = external.get("endpoint_targets") or []
@@ -228,7 +261,7 @@ def fetch_endpoint_logs(alert_ctx: dict, host_ip: str) -> dict:
         )
         if targets and not matched_target:
             return {
-                "data_source": "cam_lds_endpoint_logs",
+                "data_source": endpoint_source,
                 "host": host_ip,
                 "primary_host": external.get("primary_host"),
                 "primary_host_ip": primary_ip,
@@ -244,7 +277,7 @@ def fetch_endpoint_logs(alert_ctx: dict, host_ip: str) -> dict:
             ]
         if not records:
             return {
-                "data_source": "cam_lds_endpoint_logs",
+                "data_source": endpoint_source,
                 "host": host_ip,
                 "status": "no_records",
                 "source_available": True,
@@ -256,7 +289,7 @@ def fetch_endpoint_logs(alert_ctx: dict, host_ip: str) -> dict:
             name = str(record.get("source") or "unknown")
             sources[name] = sources.get(name, 0) + 1
         return {
-            "data_source": "cam_lds_endpoint_logs",
+            "data_source": endpoint_source,
             "host": host_ip,
             "primary_host": external.get("primary_host"),
             "primary_host_ip": primary_ip,
@@ -270,9 +303,40 @@ def fetch_endpoint_logs(alert_ctx: dict, host_ip: str) -> dict:
             "source_counts": sources,
             "records": records[:80],
             "truncated": len(records) > 80,
-            "verdict": "已返回攻击步骤时间窗内采集的真实主机日志；需根据具体记录判断是否支持攻击假设",
+            "verdict": "已返回案例时间窗内采集的真实主机侧检测记录；需根据具体记录判断是否支持攻击假设",
         }
-    if payload.get("dataset") == "AIT-ADS":
+    if payload.get("dataset") == "TON-IOT-INDUSTRIAL":
+        if payload.get("modality") != "modbus_telemetry":
+            return {
+                "data_source": "ton_iot_modbus_telemetry",
+                "host": host_ip,
+                "status": "no_records",
+                "source_available": False,
+                "records": [],
+                "verdict": "该 ToN_IoT 样本是网络流记录，不含设备遥测",
+            }
+        if host_ip != "ton-iot-modbus":
+            return {
+                "data_source": "ton_iot_modbus_telemetry",
+                "host": host_ip,
+                "status": "no_records",
+                "source_available": True,
+                "records": [],
+                "available_targets": ["ton-iot-modbus"],
+                "verdict": "请使用样本声明的 Modbus 设备目标",
+            }
+        observation = payload.get("observation") or {}
+        return {
+            "data_source": "ton_iot_modbus_telemetry",
+            "host": host_ip,
+            "status": "ok",
+            "source_available": True,
+            "record_count": 1,
+            "records": [observation],
+            "correlation_scope": "same_source_record_not_independent_endpoint_log",
+            "verdict": "已返回原始 Modbus 遥测记录；不含攻击标签，且不是独立端点日志",
+        }
+    if payload.get("dataset") in {"AIT-ADS", "AIT-ADS-EVENT-GOLD"}:
         return {
             "data_source": "edr_unavailable_for_ait_ads",
             "host": host_ip,
@@ -330,10 +394,13 @@ def fetch_endpoint_logs(alert_ctx: dict, host_ip: str) -> dict:
 def fetch_network_flows(alert_ctx: dict, host_ip: str, window_min: int = 30) -> dict:
     """查询网络流量历史（NDR/NetFlow 数据源）。"""
     payload = alert_ctx.get("raw_payload") or {}
-    from app.data.cam_lds import evidence_for_alert
-
-    external = evidence_for_alert(alert_ctx)
+    external = _external_evidence_for_alert(alert_ctx)
     if external:
+        network_source = (
+            "ait_ads_event_gold_suricata_alerts"
+            if external.get("dataset") == "AIT-ADS-EVENT-GOLD"
+            else "cam_lds_suricata_fast"
+        )
         all_alerts = external.get("network_alerts") or []
         alerts = [
             item for item in all_alerts
@@ -341,7 +408,7 @@ def fetch_network_flows(alert_ctx: dict, host_ip: str, window_min: int = 30) -> 
         ]
         if not alerts:
             return {
-                "data_source": "cam_lds_suricata_fast",
+                "data_source": network_source,
                 "host": host_ip,
                 "window_min": window_min,
                 "status": "no_records",
@@ -349,10 +416,10 @@ def fetch_network_flows(alert_ctx: dict, host_ip: str, window_min: int = 30) -> 
                 "netflow_available": False,
                 "network_alerts": [],
                 "available_targets": external.get("network_targets") or [],
-                "verdict": "filtered 版中没有与该查询 IP 匹配的 Suricata 网络告警；这不等于网络行为正常",
+                "verdict": "案例证据中没有与该查询 IP 匹配的 Suricata 网络告警；这不等于网络行为正常",
             }
         return {
-            "data_source": "cam_lds_suricata_fast",
+            "data_source": network_source,
             "host": host_ip,
             "window_min": window_min,
             "status": "ok",
@@ -362,9 +429,46 @@ def fetch_network_flows(alert_ctx: dict, host_ip: str, window_min: int = 30) -> 
             "alert_count": len(alerts),
             "network_alerts": alerts[:60],
             "truncated": len(alerts) > 60,
-            "verdict": "已返回真实 Suricata fast.log 告警；filtered 版不含完整 NetFlow，不能据此推断流量基线",
+            "verdict": "已返回真实 Suricata 告警；当前证据不含完整 NetFlow，不能据此推断流量基线",
         }
-    if payload.get("dataset") == "AIT-ADS":
+    if payload.get("dataset") == "TON-IOT-INDUSTRIAL":
+        if payload.get("modality") != "network":
+            return {
+                "data_source": "ton_iot_network_flow",
+                "host": host_ip,
+                "window_min": window_min,
+                "status": "no_records",
+                "source_available": False,
+                "flows": [],
+                "verdict": "该 ToN_IoT 样本是 Modbus 遥测记录，不含网络流",
+            }
+        observation = payload.get("observation") or {}
+        targets = {observation.get("src_ip"), observation.get("dst_ip")}
+        if host_ip not in targets:
+            return {
+                "data_source": "ton_iot_network_flow",
+                "host": host_ip,
+                "window_min": window_min,
+                "status": "no_records",
+                "source_available": True,
+                "flows": [],
+                "available_targets": sorted(item for item in targets if item),
+                "verdict": "查询 IP 不属于该 ToN_IoT 网络流记录",
+            }
+        return {
+            "data_source": "ton_iot_network_flow",
+            "host": host_ip,
+            "window_min": window_min,
+            "status": "ok",
+            "source_available": True,
+            "netflow_available": True,
+            "network_evidence_kind": "zeek_argus_train_test_flow_record",
+            "flow_count": 1,
+            "flows": [observation],
+            "correlation_scope": "same_source_record_not_cross_source_window",
+            "verdict": "已返回不含标签的 ToN_IoT 网络流特征；源文件无时间戳，不能扩展为时间窗结论",
+        }
+    if payload.get("dataset") in {"AIT-ADS", "AIT-ADS-EVENT-GOLD"}:
         return {
             "data_source": "netflow_unavailable_for_ait_ads",
             "host": host_ip,
@@ -414,14 +518,15 @@ def fetch_network_flows(alert_ctx: dict, host_ip: str, window_min: int = 30) -> 
 
 def check_threat_intel(alert_ctx: dict, indicator: str) -> dict:
     """查询 IP/域名/哈希的威胁情报信誉。"""
-    if (alert_ctx.get("raw_payload") or {}).get("dataset") == "AIT-ADS":
+    public_dataset = _public_eval_dataset(alert_ctx)
+    if public_dataset:
         return {
             "indicator": indicator,
             "malicious": None,
             "tags": [],
             "status": "no_records",
             "source_available": False,
-            "verdict": "AIT-ADS 评测未连接实时威胁情报源，不能使用演示夹具生成情报结论",
+            "verdict": f"{public_dataset} 评测未连接实时威胁情报源，不能使用演示夹具生成情报结论",
         }
     info = _MALICIOUS_IPS.get(indicator)
     if info:
@@ -445,7 +550,8 @@ def check_threat_intel(alert_ctx: dict, indicator: str) -> dict:
 
 def query_similar_alerts(alert_ctx: dict, rule_name: str) -> dict:
     """查询历史相似告警，判断是否首次出现。"""
-    if (alert_ctx.get("raw_payload") or {}).get("dataset") == "AIT-ADS":
+    public_dataset = _public_eval_dataset(alert_ctx)
+    if public_dataset:
         return {
             "data_source": "history_unavailable_for_ait_ads",
             "rule": rule_name,
@@ -453,7 +559,7 @@ def query_similar_alerts(alert_ctx: dict, rule_name: str) -> dict:
             "related_incidents": [],
             "status": "no_records",
             "source_available": False,
-            "verdict": "AIT-ADS 评测未连接独立历史告警库，不能使用演示夹具生成相似案例",
+            "verdict": f"{public_dataset} 评测未连接独立历史告警库，不能使用演示夹具生成相似案例",
         }
     if alert_ctx.get("dst_ip") in _MALICIOUS_IPS:
         return {

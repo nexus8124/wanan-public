@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 
 
@@ -46,12 +47,20 @@ class EvalMetrics:
     selective_accuracy: float = 0.0  # 仅在已明确判定样本上的准确率
     macro_f1: float = 0.0     # 真阳/假阳两类 F1 的宏平均，待查会降低对应类别召回
     negative_f1: float = 0.0  # 以假阳为目标类别计算的 F1
+    accuracy_wilson_95_lower: float = 0.0  # 总体准确率的 Wilson 95% 单侧保守下界
     llm_calls: int = 0
     input_tokens: int = 0
     output_tokens: int = 0
     total_tokens: int = 0
 
     def as_dict(self) -> dict:
+        acceptance_checks = {
+            "accuracy_gte_0_88": self.accuracy >= 0.88,
+            "accuracy_wilson_95_lower_gte_0_85": self.accuracy_wilson_95_lower >= 0.85,
+            "macro_f1_gte_0_85": self.macro_f1 >= 0.85,
+            "negative_f1_gte_0_85": self.negative_f1 >= 0.85,
+            "coverage_gte_0_90": self.coverage >= 0.90,
+        }
         return {
             "n": self.n,
             "confusion_matrix": {
@@ -71,12 +80,17 @@ class EvalMetrics:
             "selective_accuracy": round(self.selective_accuracy, 4),
             "macro_f1": round(self.macro_f1, 4),
             "negative_f1": round(self.negative_f1, 4),
+            "accuracy_wilson_95_lower": round(self.accuracy_wilson_95_lower, 4),
             "llm_calls": self.llm_calls,
             "input_tokens": self.input_tokens,
             "output_tokens": self.output_tokens,
             "total_tokens": self.total_tokens,
             "avg_llm_calls_per_sample": round(self.llm_calls / self.n, 3) if self.n else 0.0,
             "avg_tokens_per_sample": round(self.total_tokens / self.n, 1) if self.n else 0.0,
+            "credible_85_gate": {
+                "passed": all(acceptance_checks.values()),
+                "checks": acceptance_checks,
+            },
         }
 
 
@@ -134,6 +148,17 @@ def compute_metrics(
     avg_lat = sum(latencies) / len(latencies) if latencies else 0.0
     coverage = decided / total if total else 0.0
     selective_accuracy = (cm.tp + cm.tn) / decided if decided else 0.0
+    if total:
+        z = 1.959963984540054
+        p_hat = accuracy
+        denominator = 1 + z * z / total
+        centre = p_hat + z * z / (2 * total)
+        margin = z * math.sqrt(
+            (p_hat * (1 - p_hat) + z * z / (4 * total)) / total
+        )
+        accuracy_wilson_95_lower = (centre - margin) / denominator
+    else:
+        accuracy_wilson_95_lower = 0.0
 
     return EvalMetrics(
         n=total,
@@ -148,6 +173,7 @@ def compute_metrics(
         selective_accuracy=selective_accuracy,
         macro_f1=macro_f1,
         negative_f1=negative_f1,
+        accuracy_wilson_95_lower=accuracy_wilson_95_lower,
         llm_calls=llm_calls,
         input_tokens=int((token_usage or {}).get("input_tokens", 0)),
         output_tokens=int((token_usage or {}).get("output_tokens", 0)),
@@ -167,6 +193,7 @@ def format_report(m: EvalMetrics) -> str:
         f"真实假阳={m.cm.abstain_negative} "
         f"(召回率中的 FN 总数={m.cm.fn})\n"
         f"准确率 (accuracy): {m.accuracy:.4f}\n"
+        f"准确率 Wilson 95% 下界: {m.accuracy_wilson_95_lower:.4f}\n"
         f"精确率 (precision): {m.precision:.4f}   ← 预测真阳里的真阳比例\n"
         f"召回率 (recall):    {m.recall:.4f}   ← 真实真阳被找回的比例\n"
         f"F1 分数:            {m.f1:.4f}\n"

@@ -167,6 +167,22 @@ def test_dataset_catalog_selection_persists(monkeypatch, tmp_path):
     assert resolve_eval_dataset_path() == path.resolve()
 
 
+def test_dataset_catalog_lists_and_selects_formal_nested_sets(monkeypatch, tmp_path):
+    processed, _, _ = _isolate_dataset_storage(monkeypatch, tmp_path)
+    nested = processed / "formal"
+    nested.mkdir(parents=True)
+    path = nested / "frozen.json"
+    path.write_text(json.dumps(_separated_dataset_document()), encoding="utf-8")
+    (nested / "manifest.json").write_text("{}", encoding="utf-8")
+
+    catalog = list_eval_datasets()
+    dataset_id = "processed:formal/frozen.json"
+    assert any(item["id"] == dataset_id for item in catalog["datasets"])
+    assert not any(item["filename"] == "manifest.json" for item in catalog["datasets"])
+    assert select_eval_dataset(dataset_id)["count"] == 1
+    assert resolve_eval_dataset_path() == path.resolve()
+
+
 def test_upload_endpoint_validates_and_selects_dataset(monkeypatch, tmp_path):
     _, uploaded, selection = _isolate_dataset_storage(monkeypatch, tmp_path)
     client = TestClient(app)

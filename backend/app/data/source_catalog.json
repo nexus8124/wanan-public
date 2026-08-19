@@ -25,6 +25,61 @@
       }
     ]
   },
+  "ait-ads-event-labels": {
+    "name": "AIT-ADS official event/time label tables",
+    "kind": "evaluation_ground_truth",
+    "license": "AIT-ADS data: CC-BY-4.0; label-generation repository: GPL-3.0",
+    "source": "https://github.com/ait-aecid/alert-data-set",
+    "revision": "ce927ddaeaa674f6909e1de676fa7dc293e393bd",
+    "label_basis": "official_event_and_time_labels_from_AIT-LDSv2_and_AIT-NDS",
+    "warning": "Descriptions contain unquoted commas; parse the final five fields from the right. Exclude every time/event disagreement.",
+    "artifacts": [
+      {
+        "name": "alerts_csv.zip",
+        "url": "https://raw.githubusercontent.com/ait-aecid/alert-data-set/ce927ddaeaa674f6909e1de676fa7dc293e393bd/alerts_csv/alerts_csv.zip",
+        "path": "data/raw/ait_ads/alerts_csv.zip",
+        "size": 3429496,
+        "checksum": "sha256:2bf1a81527a3fe15d92079a7834c9d77c5305546e15569657d2097d6294825c3",
+        "extract_to": "data/raw/ait_ads/event_labels"
+      }
+    ]
+  },
+  "ton-iot-network": {
+    "name": "ToN_IoT Train_Test network records",
+    "kind": "industrial_external_validation",
+    "license": "Free academic research use in perpetuity; commercial use requires permission from the ToN_IoT author; official-paper citation required",
+    "source": "https://research.unsw.edu.au/projects/toniot-datasets",
+    "revision": "community mirror LalitKJ/Network-Intrusion-Detection@45152c3ed1e33750e589bf708fdea60775d04660",
+    "label_basis": "published binary label and attack type columns",
+    "warning": "The mirror is pinned and checksummed. The Train_Test table has no timestamp column, so it cannot support temporal joins to telemetry.",
+    "artifacts": [
+      {
+        "name": "train_test_network.csv",
+        "url": "https://raw.githubusercontent.com/LalitKJ/Network-Intrusion-Detection/45152c3ed1e33750e589bf708fdea60775d04660/dataset/train_test_network.csv",
+        "path": "data/raw/ton_iot/network/train_test_network.csv",
+        "size": 29691731,
+        "checksum": "sha256:3019999cb8a94172c2d24bdaa5cec64ffa308768ae3835938b786eb42657405d"
+      }
+    ]
+  },
+  "ton-iot-modbus": {
+    "name": "ToN_IoT Modbus telemetry records",
+    "kind": "industrial_external_validation",
+    "license": "Free academic research use in perpetuity; commercial use requires permission from the ToN_IoT author; official-paper citation required",
+    "source": "https://research.unsw.edu.au/projects/toniot-datasets",
+    "revision": "community mirror SHVleV9CYWkK/IoT-anomaly-detection@770a7d744b1a3754ccd16f0e8a53cbc16ad4039d",
+    "label_basis": "published binary label and attack type columns",
+    "warning": "The mirror is pinned and checksummed. This source provides Modbus telemetry only, not independently correlated endpoint logs.",
+    "artifacts": [
+      {
+        "name": "IoT_Modbus.csv",
+        "url": "https://raw.githubusercontent.com/SHVleV9CYWkK/IoT-anomaly-detection/770a7d744b1a3754ccd16f0e8a53cbc16ad4039d/datasets/IoT_Modbus.csv",
+        "path": "data/raw/ton_iot/telemetry/IoT_Modbus.csv",
+        "size": 15347014,
+        "checksum": "sha256:1cdb245661db3f15be52c3e8aeba5b1a3af37b8eed3f9132a7f1a03d8111aa16"
+      }
+    ]
+  },
   "cam-lds-filtered": {
     "name": "Cyber Attack Manifestations - Log Data Set (filtered)",
     "kind": "evidence_pilot",

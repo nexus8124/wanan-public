@@ -15,7 +15,21 @@
 
 ## 当前状态：可信评测基线 + 受控 ReAct + 选择性 RAG + 多智能体协同
 
+> **正式准确率口径（2026-08-19）**：原有 50 条演示集 100% 仅是工程回归结果，不能作为正式准确率。现在以场景隔离的 `AIT-ADS-EVENT-GOLD` 冻结测试集为主评测；只有总准确率 ≥88%、Wilson 95% 下界 ≥85%、Macro-F1/假阳类 F1 ≥85%、覆盖率 ≥90% 同时成立，才可声明“可信 85%”。本次只完成数据与代码接入，不调用真实模型。
+
 ### ✅ 已完成
+
+- **AIT-ADS 正式事件级评测**：
+  - 扫描 2,655,821 条官方事件/时间标签，排除 91,755 条冲突记录
+  - 以场景、检测器、规则、资产和一分钟桶聚合告警风暴，避免逐告警重复计分
+  - 场景隔离的 development 600 / validation 200 / frozen test 1000
+  - 真值与 Agent 输入分离；1800 个案例均可通过不透明引用查询标签无关的官方检测器证据
+  - 评测器内置可信 85% 组合门槛和 Wilson 95% 置信下界
+- **ToN_IoT 工业互联网双模态外部验证**：
+  - 接入 211,043 条网络流与 287,194 条 Modbus 遥测原始记录
+  - 生成 2,000 条冻结外部验证集，网络/Modbus 各 1000，模态内真阳/假阳各 500
+  - 网络流和 Modbus 工具返回真实源记录，正式样本不会回退到演示 Mock 证据
+  - 明确网络 Train_Test 文件无时间戳，只验证双模态覆盖和跨域泛化，不伪称跨源时间关联
 
 - **Week 1 基础设施**：脚手架 + LLM 工厂 + Hello World + 数据 schema
 - **Week 2-3 MVP 核心链路**：preprocess + judge + CoT + 评测 + API
@@ -79,7 +93,8 @@ F1 分数:            1.0000
 
 ### 🚧 下一步
 
-- 在冻结的 AIT-ADS 与 CAM-LDS 同样本上运行四组 RAG A/B 实验
+- 在最终模型、Prompt 和阈值锁定后运行一次 AIT-ADS 冻结测试集正式验收
+- 将 ToN_IoT 作为独立工业外部验证报告，不与 AIT-ADS 指标混算
 - 选取官方 Sigma 规则子集并完成规则质量、许可证和重复项审计
 - Week 6 工程化：Docker 部署、日志、红队样本
 - Week 5-6 前端：CoTViewer / ToolCallTrace 可视化（评委视觉记忆点）
@@ -149,6 +164,12 @@ cd backend && uv run python -m app.data.loader
 # 生成评测数据集（50 条）
 uv run python -m app.data.generator
 
+# 构造正式 AIT-ADS 事件级三段评测集
+uv run python -m app.data.catalog prepare-ait-event-gold
+
+# 构造 ToN_IoT 网络 + Modbus 冻结外部验证集
+uv run python -m app.data.catalog prepare-ton-iot
+
 # 跑真实模型评测（会消耗所选模型的 Token）
 uv run python -m app.eval.run
 
@@ -169,6 +190,7 @@ uv run pytest -v
 
 阶段文档：
 
+- [正式评测协议：AIT-ADS 可信 85% 与 ToN_IoT 工业外部验证](docs/FORMAL_EVALUATION_PROTOCOL.md)
 - [AIT-ADS 第一阶段评测基线](docs/AIT_ADS_BASELINE.md)
 - [第二阶段 ReAct 受控执行说明](docs/REACT_PHASE2.md)
 - [第三阶段安全知识 RAG 与 A/B 实验](docs/RAG_PHASE3.md)
