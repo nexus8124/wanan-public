@@ -1,5 +1,7 @@
 # XH-202614 · AI+安全大模型平台的智能体研究
 
+> 本次正式评测与 ToN_IoT 接入的完整中文说明：[README_UPDATE_20260819_CN.md](README_UPDATE_20260819_CN.md)
+
 > **挑战杯揭榜挂帅** · 发榜单位：深信服科技 · 截止 2026.09.05
 > 核心场景：**SOC 告警误报剔除**｜核心技术：LangGraph + DeepSeek + RAG + ReAct + Multi-Agent
 
