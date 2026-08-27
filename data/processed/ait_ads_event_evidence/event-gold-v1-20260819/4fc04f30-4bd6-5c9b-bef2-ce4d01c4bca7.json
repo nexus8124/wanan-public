@@ -1,0 +1,477 @@
+{
+  "case_id": "4fc04f30-4bd6-5c9b-bef2-ce4d01c4bca7",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-18T13:14:32+00:00",
+    "detector": "aminer",
+    "source": "edr",
+    "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+    "rule_short": "A-Aud-Com6",
+    "sensor_ip": "10.35.35.206",
+    "sensor_host": "intranet_server"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-18T13:14:32+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-18T13:09:44+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-18T13:09:44+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-18T13:09:44+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-18T13:09:46+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-18T13:13:28+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: User successfully changed UID.",
+      "rule_short": "W-Aut-Uid",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Login session opened.",
+      "rule_short": "W-Aut-Pam1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:41+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Successful sudo to ROOT executed.",
+      "rule_short": "W-Aut-Sud",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:43+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Login session closed.",
+      "rule_short": "W-Aut-Pam1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:18+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-18T13:17:40+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-18T13:17:52+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: CMS (WordPress or Joomla) login attempt.",
+      "rule_short": "W-Acc-Cms",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    }
+  ],
+  "primary_host": "intranet_server",
+  "primary_host_ip": "10.35.35.206",
+  "endpoint_targets": [
+    {
+      "host": "intranet_server",
+      "ip": "10.35.35.206"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "10.35.32.1"
+    },
+    {
+      "host": "mail",
+      "ip": "172.17.131.81"
+    }
+  ],
+  "network_targets": [
+    "10.35.32.1"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-18T13:09:44+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.35.32.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:09:46+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.35.32.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:13:28+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: User successfully changed UID.",
+      "rule_short": "W-Aut-Uid",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Login session opened.",
+      "rule_short": "W-Aut-Pam1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:41+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Successful sudo to ROOT executed.",
+      "rule_short": "W-Aut-Sud",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:43+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Login session closed.",
+      "rule_short": "W-Aut-Pam1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:18+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:31+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:14:32+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:17:40+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.17.131.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:17:52+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: CMS (WordPress or Joomla) login attempt.",
+      "rule_short": "W-Acc-Cms",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-18T13:09:44+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.35.32.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-18T13:09:44+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.35.32.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 104,
+    "detector_counts": {
+      "suricata": 36,
+      "wazuh": 59,
+      "aminer": 9
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 35
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 18
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+        "count": 18
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 12
+      },
+      {
+        "rule_name": "Wazuh: PAM: Login session opened.",
+        "count": 4
+      },
+      {
+        "rule_name": "Wazuh: Successful sudo to ROOT executed.",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 3
+      },
+      {
+        "rule_name": "Wazuh: PAM: Login session closed.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+        "count": 1
+      },
+      {
+        "rule_name": "Wazuh: User successfully changed UID.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: High entropy in Apache Access request.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "inet-firewall",
+        "count": 72
+      },
+      {
+        "host": "intranet_server",
+        "count": 20
+      },
+      {
+        "host": "mail",
+        "count": 12
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 15,
+    "network_alerts": 2,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

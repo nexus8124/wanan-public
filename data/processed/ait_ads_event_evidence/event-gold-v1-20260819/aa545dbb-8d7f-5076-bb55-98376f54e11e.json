@@ -1,0 +1,989 @@
+{
+  "case_id": "aa545dbb-8d7f-5076-bb55-98376f54e11e",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-02-04T00:09:58+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: New ip address in DNS logs.",
+    "rule_short": "A-Dns-Val1",
+    "sensor_ip": "172.28.255.254",
+    "sensor_host": "inet-dns"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-02-04T00:09:58+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.28.255.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:02+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "192.168.131.109",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:02+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "192.168.131.109",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:02+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:02+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:41+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New query record in DNS logs.",
+      "rule_short": "A-Dns-Val2",
+      "sensor_ip": "172.28.255.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:41+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.28.255.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:41+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:50+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "172.28.255.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:50+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.28.255.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-04T00:05:20+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-02-04T00:05:23+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.237.2.255",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:05:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "192.168.130.229",
+      "sensor_host": "monitoring"
+    },
+    {
+      "timestamp": "2022-02-04T00:06:16+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.28.192.97",
+      "sensor_host": "smith_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:05+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New login parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com3",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_refr parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_login parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_disp parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_end parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_cmd parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com1",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New login parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com3",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_disp parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_end parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:14+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:14+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-04T00:10:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+      "rule_short": "A-Dns-Clc1",
+      "sensor_ip": "172.28.255.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-04T00:11:36+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail"
+    }
+  ],
+  "primary_host": "inet-dns",
+  "primary_host_ip": "172.28.255.254",
+  "endpoint_targets": [
+    {
+      "host": "inet-dns",
+      "ip": "172.28.255.254"
+    },
+    {
+      "host": "internal_share",
+      "ip": "192.168.131.109"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "192.168.128.1"
+    },
+    {
+      "host": "mail",
+      "ip": "10.237.2.255"
+    },
+    {
+      "host": "monitoring",
+      "ip": "192.168.130.229"
+    },
+    {
+      "host": "smith_mail",
+      "ip": "172.28.192.97"
+    },
+    {
+      "host": "taylor_mail",
+      "ip": "172.28.192.7"
+    },
+    {
+      "host": "cloud_share",
+      "ip": "10.237.0.4"
+    }
+  ],
+  "network_targets": [
+    "192.168.131.109",
+    "192.168.128.1"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-02-04T00:04:02+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "192.168.131.109",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "192.168.131.109",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:02+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "192.168.128.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:41+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New query record in DNS logs.",
+      "rule_short": "A-Dns-Val2",
+      "sensor_ip": "172.28.255.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.28.255.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:41+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.28.255.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.28.255.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:41+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "192.168.128.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:50+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "172.28.255.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.28.255.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:50+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.28.255.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.28.255.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:05:20+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "192.168.128.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:05:23+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.237.2.255",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.237.2.255",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:05:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "192.168.130.229",
+      "sensor_host": "monitoring",
+      "host": "monitoring",
+      "host_ip": "192.168.130.229",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:06:16+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.28.192.97",
+      "sensor_host": "smith_mail",
+      "host": "smith_mail",
+      "host_ip": "172.28.192.97",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:05+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "192.168.128.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New login parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com3",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_refr parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_login parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_disp parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_end parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_cmd parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com1",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.237.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.237.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New login parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com3",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.237.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.237.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_disp parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.237.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_end parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.237.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.237.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:14+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.237.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:09:14+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.237.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:10:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+      "rule_short": "A-Dns-Clc1",
+      "sensor_ip": "172.28.255.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.28.255.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:11:36+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.28.192.7",
+      "sensor_host": "taylor_mail",
+      "host": "taylor_mail",
+      "host_ip": "172.28.192.7",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-02-04T00:04:02+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "192.168.131.109",
+      "sensor_host": "internal_share",
+      "src_ip": "192.168.131.109",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-02-04T00:04:02+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "192.168.128.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 232,
+    "detector_counts": {
+      "suricata": 90,
+      "wazuh": 98,
+      "aminer": 44
+    },
+    "top_rules": [
+      {
+        "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+        "count": 90
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 85
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 9
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 8
+      },
+      {
+        "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+        "count": 6
+      },
+      {
+        "rule_name": "AMiner: New ip address in DNS logs.",
+        "count": 4
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: New query record in DNS logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New login parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+        "count": 2
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "inet-firewall",
+        "count": 91
+      },
+      {
+        "host": "internal_share",
+        "count": 90
+      },
+      {
+        "host": "taylor_mail",
+        "count": 20
+      },
+      {
+        "host": "cloud_share",
+        "count": 10
+      },
+      {
+        "host": "inet-dns",
+        "count": 8
+      },
+      {
+        "host": "mail",
+        "count": 6
+      },
+      {
+        "host": "monitoring",
+        "count": 6
+      },
+      {
+        "host": "smith_mail",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 37,
+    "network_alerts": 2,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

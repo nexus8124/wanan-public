@@ -1,0 +1,618 @@
+{
+  "case_id": "e4ad742f-1244-51dc-9bbb-c6abdf28ee88",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-21T06:27:22+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+    "rule_short": "A-Mon-Rng",
+    "sensor_ip": "10.143.0.35",
+    "sensor_host": "monitoring"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-21T06:27:22+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "10.143.0.35",
+      "sensor_host": "monitoring"
+    },
+    {
+      "timestamp": "2022-01-21T06:22:29+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.231.164",
+      "sensor_host": "morris_mail"
+    },
+    {
+      "timestamp": "2022-01-21T06:23:24+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-21T06:23:24+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-21T06:23:24+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-21T06:23:48+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.231.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-21T06:23:48+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-21T06:25:08+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-21T06:25:52+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "10.143.0.35",
+      "sensor_host": "monitoring"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:42+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Auditd: SELinux permission check.",
+      "rule_short": "W-Aud-Sel",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:45+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:45+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:50+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:55+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:56+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T06:30:20+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-21T06:30:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.131.174",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-21T06:30:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-21T06:30:20+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-21T06:30:20+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-21T06:31:26+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-21T06:32:08+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Auditd: SELinux permission check.",
+      "rule_short": "W-Aud-Sel",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver"
+    }
+  ],
+  "primary_host": "monitoring",
+  "primary_host_ip": "10.143.0.35",
+  "endpoint_targets": [
+    {
+      "host": "monitoring",
+      "ip": "10.143.0.35"
+    },
+    {
+      "host": "morris_mail",
+      "ip": "192.168.231.164"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "172.19.128.1"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "192.168.231.254"
+    },
+    {
+      "host": "mail",
+      "ip": "172.19.130.4"
+    },
+    {
+      "host": "intranet_server",
+      "ip": "10.143.2.4"
+    },
+    {
+      "host": "cloud_share",
+      "ip": "172.19.130.106"
+    },
+    {
+      "host": "vpn",
+      "ip": "172.19.131.174"
+    },
+    {
+      "host": "webserver",
+      "ip": "172.19.130.68"
+    }
+  ],
+  "network_targets": [
+    "172.19.128.1"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-21T06:22:29+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.231.164",
+      "sensor_host": "morris_mail",
+      "host": "morris_mail",
+      "host_ip": "192.168.231.164",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:23:24+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.19.128.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:23:48+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.231.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.231.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:23:48+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.19.128.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:25:08+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.19.130.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:25:52+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "10.143.0.35",
+      "sensor_host": "monitoring",
+      "host": "monitoring",
+      "host_ip": "10.143.0.35",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:42+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Auditd: SELinux permission check.",
+      "rule_short": "W-Aud-Sel",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:45+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:45+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:50+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:55+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:29:56+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:30:20+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.19.130.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:30:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.131.174",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "172.19.131.174",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:30:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.19.130.68",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:30:20+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.19.130.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:30:20+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.19.130.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:31:26+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.19.130.68",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:32:08+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Auditd: SELinux permission check.",
+      "rule_short": "W-Aud-Sel",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.19.130.68",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-21T06:23:24+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.19.128.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:23:24+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.19.128.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 69,
+    "detector_counts": {
+      "wazuh": 29,
+      "suricata": 8,
+      "aminer": 32
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 15
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 12
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 8
+      },
+      {
+        "rule_name": "Wazuh: Auditd: SELinux permission check.",
+        "count": 8
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 4
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: New ip address in DNS logs.",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: New characters in Apache Access request.",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: New characters in Apache Access referer.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New status code in Apache Access log.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 19
+      },
+      {
+        "host": "inet-firewall",
+        "count": 18
+      },
+      {
+        "host": "cloud_share",
+        "count": 9
+      },
+      {
+        "host": "vpn",
+        "count": 8
+      },
+      {
+        "host": "webserver",
+        "count": 6
+      },
+      {
+        "host": "intranet_server",
+        "count": 4
+      },
+      {
+        "host": "monitoring",
+        "count": 3
+      },
+      {
+        "host": "morris_mail",
+        "count": 1
+      },
+      {
+        "host": "inet-dns",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 19,
+    "network_alerts": 2,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

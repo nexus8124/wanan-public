@@ -1,0 +1,201 @@
+{
+  "case_id": "add853b4-d745-5bec-a5b9-e6df8ee9da73",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-23T11:05:05+00:00",
+    "detector": "wazuh",
+    "source": "edr",
+    "rule_name": "Wazuh: Dovecot Authentication Success.",
+    "rule_short": "W-Sys-Dov",
+    "sensor_ip": "192.168.231.56",
+    "sensor_host": "davey_mail"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-23T11:05:05+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.231.56",
+      "sensor_host": "davey_mail"
+    },
+    {
+      "timestamp": "2022-01-23T11:01:34+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.231.56",
+      "sensor_host": "davey_mail"
+    },
+    {
+      "timestamp": "2022-01-23T11:02:31+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-23T11:02:32+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-23T11:02:32+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-23T11:02:32+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver"
+    }
+  ],
+  "primary_host": "davey_mail",
+  "primary_host_ip": "192.168.231.56",
+  "endpoint_targets": [
+    {
+      "host": "davey_mail",
+      "ip": "192.168.231.56"
+    },
+    {
+      "host": "mail",
+      "ip": "172.19.130.4"
+    },
+    {
+      "host": "webserver",
+      "ip": "172.19.130.68"
+    }
+  ],
+  "network_targets": [
+    "172.19.130.68"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-23T11:01:34+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.231.56",
+      "sensor_host": "davey_mail",
+      "host": "davey_mail",
+      "host_ip": "192.168.231.56",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T11:02:31+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.19.130.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T11:02:32+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.19.130.68",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-23T11:02:32+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver",
+      "src_ip": "172.19.130.68",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-23T11:02:32+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver",
+      "src_ip": "172.19.130.68",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 110,
+    "detector_counts": {
+      "wazuh": 106,
+      "suricata": 4
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 102
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 4
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+        "count": 2
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 2
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "davey_mail",
+        "count": 75
+      },
+      {
+        "host": "mail",
+        "count": 27
+      },
+      {
+        "host": "webserver",
+        "count": 8
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 3,
+    "network_alerts": 2,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

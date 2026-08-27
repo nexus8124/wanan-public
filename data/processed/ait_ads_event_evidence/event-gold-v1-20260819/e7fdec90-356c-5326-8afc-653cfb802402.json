@@ -1,0 +1,172 @@
+{
+  "case_id": "e7fdec90-356c-5326-8afc-653cfb802402",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-24T07:02:40+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+    "rule_short": "A-Acc-Clc",
+    "sensor_ip": "172.19.130.68",
+    "sensor_host": "webserver"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-24T07:02:40+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-24T06:57:01+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-24T06:57:01+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-24T07:06:52+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.231.164",
+      "sensor_host": "morris_mail"
+    }
+  ],
+  "primary_host": "webserver",
+  "primary_host_ip": "172.19.130.68",
+  "endpoint_targets": [
+    {
+      "host": "webserver",
+      "ip": "172.19.130.68"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "172.19.128.1"
+    },
+    {
+      "host": "morris_mail",
+      "ip": "192.168.231.164"
+    }
+  ],
+  "network_targets": [
+    "172.19.128.1"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-24T06:57:01+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.19.128.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T07:02:40+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.19.130.68",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T07:06:52+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.231.164",
+      "sensor_host": "morris_mail",
+      "host": "morris_mail",
+      "host_ip": "192.168.231.164",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-24T06:57:01+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.19.128.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 23,
+    "detector_counts": {
+      "suricata": 5,
+      "wazuh": 17,
+      "aminer": 1
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 12
+      },
+      {
+        "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+        "count": 5
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 5
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "morris_mail",
+        "count": 12
+      },
+      {
+        "host": "inet-firewall",
+        "count": 10
+      },
+      {
+        "host": "webserver",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 3,
+    "network_alerts": 1,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

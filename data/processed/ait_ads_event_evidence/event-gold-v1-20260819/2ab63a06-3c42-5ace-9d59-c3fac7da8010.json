@@ -1,0 +1,76 @@
+{
+  "case_id": "2ab63a06-3c42-5ace-9d59-c3fac7da8010",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-17T22:18:51+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+    "rule_short": "A-Acc-Clc",
+    "sensor_ip": "172.21.129.224",
+    "sensor_host": "webserver"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-17T22:18:51+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "172.21.129.224",
+      "sensor_host": "webserver"
+    }
+  ],
+  "primary_host": "webserver",
+  "primary_host_ip": "172.21.129.224",
+  "endpoint_targets": [
+    {
+      "host": "webserver",
+      "ip": "172.21.129.224"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-17T22:18:51+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "172.21.129.224",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.21.129.224",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 1,
+    "detector_counts": {
+      "aminer": 1
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "webserver",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 1,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

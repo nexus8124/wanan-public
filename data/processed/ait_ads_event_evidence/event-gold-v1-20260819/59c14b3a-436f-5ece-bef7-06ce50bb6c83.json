@@ -1,0 +1,255 @@
+{
+  "case_id": "59c14b3a-436f-5ece-bef7-06ce50bb6c83",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-19T02:41:07+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: New characters in DNS domain.",
+    "rule_short": "A-Dns-Chr",
+    "sensor_ip": "192.168.127.254",
+    "sensor_host": "inet-dns"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-19T02:41:07+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in DNS domain.",
+      "rule_short": "A-Dns-Chr",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-19T02:38:42+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T02:38:21+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-19T02:39:50+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.99.0",
+      "sensor_host": "walker_mail"
+    },
+    {
+      "timestamp": "2022-01-19T02:44:59+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail"
+    },
+    {
+      "timestamp": "2022-01-19T02:44:12+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-19T02:45:26+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.98.239",
+      "sensor_host": "smith_mail"
+    }
+  ],
+  "primary_host": "inet-dns",
+  "primary_host_ip": "192.168.127.254",
+  "endpoint_targets": [
+    {
+      "host": "inet-dns",
+      "ip": "192.168.127.254"
+    },
+    {
+      "host": "mail",
+      "ip": "10.132.56.171"
+    },
+    {
+      "host": "walker_mail",
+      "ip": "192.168.99.0"
+    },
+    {
+      "host": "watkins_mail",
+      "ip": "192.168.96.99"
+    },
+    {
+      "host": "vpn",
+      "ip": "10.132.56.81"
+    },
+    {
+      "host": "smith_mail",
+      "ip": "192.168.98.239"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-19T02:38:42+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.132.56.171",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T02:38:21+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.127.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T02:39:50+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.99.0",
+      "sensor_host": "walker_mail",
+      "host": "walker_mail",
+      "host_ip": "192.168.99.0",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T02:41:07+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in DNS domain.",
+      "rule_short": "A-Dns-Chr",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.127.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T02:44:59+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail",
+      "host": "watkins_mail",
+      "host_ip": "192.168.96.99",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T02:44:12+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "10.132.56.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T02:45:26+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.98.239",
+      "sensor_host": "smith_mail",
+      "host": "smith_mail",
+      "host_ip": "192.168.98.239",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 15,
+    "detector_counts": {
+      "wazuh": 8,
+      "aminer": 7
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 8
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: High entropy in DNS domain.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New characters in DNS domain.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 6
+      },
+      {
+        "host": "inet-dns",
+        "count": 3
+      },
+      {
+        "host": "smith_mail",
+        "count": 3
+      },
+      {
+        "host": "walker_mail",
+        "count": 1
+      },
+      {
+        "host": "watkins_mail",
+        "count": 1
+      },
+      {
+        "host": "vpn",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 7,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

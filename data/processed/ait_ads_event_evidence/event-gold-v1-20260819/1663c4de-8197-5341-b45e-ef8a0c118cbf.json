@@ -1,0 +1,218 @@
+{
+  "case_id": "1663c4de-8197-5341-b45e-ef8a0c118cbf",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-29T20:12:00+00:00",
+    "detector": "wazuh",
+    "source": "edr",
+    "rule_name": "Wazuh: PAM: User login failed.",
+    "rule_short": "W-Aut-Pam2",
+    "sensor_ip": "10.38.242.195",
+    "sensor_host": "mail"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-29T20:12:00+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: User login failed.",
+      "rule_short": "W-Aut-Pam2",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-29T20:07:30+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-29T20:08:11+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-29T20:08:15+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.24.249.224",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-29T20:12:04+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: syslog: User authentication failure.",
+      "rule_short": "W-Sys-Fai",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-29T20:12:04+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+      "rule_short": "W-Mai-Inv",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail"
+    }
+  ],
+  "primary_host": "mail",
+  "primary_host_ip": "10.38.242.195",
+  "endpoint_targets": [
+    {
+      "host": "mail",
+      "ip": "10.38.242.195"
+    },
+    {
+      "host": "butcherrowe_mail",
+      "ip": "10.70.33.128"
+    },
+    {
+      "host": "vpn",
+      "ip": "172.24.249.224"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-29T20:07:30+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T20:08:11+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.38.242.195",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T20:08:15+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.24.249.224",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "172.24.249.224",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T20:12:00+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: User login failed.",
+      "rule_short": "W-Aut-Pam2",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.38.242.195",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T20:12:04+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: syslog: User authentication failure.",
+      "rule_short": "W-Sys-Fai",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.38.242.195",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T20:12:04+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+      "rule_short": "W-Mai-Inv",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.38.242.195",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 87,
+    "detector_counts": {
+      "wazuh": 82,
+      "aminer": 5
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 75
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 5
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+        "count": 3
+      },
+      {
+        "rule_name": "Wazuh: syslog: User authentication failure.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 1
+      },
+      {
+        "rule_name": "Wazuh: PAM: User login failed.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 81
+      },
+      {
+        "host": "vpn",
+        "count": 5
+      },
+      {
+        "host": "butcherrowe_mail",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 6,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

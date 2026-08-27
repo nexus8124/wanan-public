@@ -1,0 +1,511 @@
+{
+  "case_id": "f36cd6cd-8fe6-57de-a8ad-aacafd0f3594",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-14T06:34:42+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: New status code in Apache Access log.",
+    "rule_short": "A-Acc-Val2",
+    "sensor_ip": "172.21.128.54",
+    "sensor_host": "cloud_share"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-14T06:34:42+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "172.21.128.54",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-14T06:29:03+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.21.131.50",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-14T06:29:10+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-14T06:29:10+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-14T06:29:10+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-14T06:29:10+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-14T06:29:25+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.229.2.25",
+      "sensor_host": "hayes_mail"
+    },
+    {
+      "timestamp": "2022-01-14T06:31:01+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:35+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.21.131.50",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:48+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:53+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.21.129.224",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:53+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.21.129.224",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:53+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.21.129.224",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:34+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.21.128.54",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-14T06:36:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.229.0.32",
+      "sensor_host": "rogersturnbull_mail"
+    },
+    {
+      "timestamp": "2022-01-14T06:39:16+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.21.131.50",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-14T06:39:16+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.21.131.50",
+      "sensor_host": "mail"
+    }
+  ],
+  "primary_host": "cloud_share",
+  "primary_host_ip": "172.21.128.54",
+  "endpoint_targets": [
+    {
+      "host": "cloud_share",
+      "ip": "172.21.128.54"
+    },
+    {
+      "host": "mail",
+      "ip": "172.21.131.50"
+    },
+    {
+      "host": "internal_share",
+      "ip": "192.168.104.218"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "10.229.0.4"
+    },
+    {
+      "host": "hayes_mail",
+      "ip": "10.229.2.25"
+    },
+    {
+      "host": "webserver",
+      "ip": "172.21.129.224"
+    },
+    {
+      "host": "rogersturnbull_mail",
+      "ip": "10.229.0.32"
+    }
+  ],
+  "network_targets": [
+    "192.168.104.218",
+    "10.229.0.4",
+    "172.21.129.224"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-14T06:29:03+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.21.131.50",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.21.131.50",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:29:10+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "192.168.104.218",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:29:10+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.229.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:29:25+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.229.2.25",
+      "sensor_host": "hayes_mail",
+      "host": "hayes_mail",
+      "host_ip": "10.229.2.25",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:31:01+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.229.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:35+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.21.131.50",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.21.131.50",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:48+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.229.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:53+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.21.129.224",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.21.129.224",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:34+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.21.128.54",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.21.128.54",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:42+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "172.21.128.54",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.21.128.54",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:36:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.229.0.32",
+      "sensor_host": "rogersturnbull_mail",
+      "host": "rogersturnbull_mail",
+      "host_ip": "10.229.0.32",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:39:16+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.21.131.50",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.21.131.50",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:39:16+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "172.21.131.50",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.21.131.50",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-14T06:29:10+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share",
+      "src_ip": "192.168.104.218",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:29:10+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.229.0.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:53+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.21.129.224",
+      "sensor_host": "webserver",
+      "src_ip": "172.21.129.224",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-14T06:34:53+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.21.129.224",
+      "sensor_host": "webserver",
+      "src_ip": "172.21.129.224",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 290,
+    "detector_counts": {
+      "wazuh": 197,
+      "suricata": 88,
+      "aminer": 5
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 102
+      },
+      {
+        "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+        "count": 84
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 83
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 7
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+        "count": 4
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 2
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New status code in Apache Access log.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "internal_share",
+        "count": 84
+      },
+      {
+        "host": "inet-firewall",
+        "count": 84
+      },
+      {
+        "host": "mail",
+        "count": 68
+      },
+      {
+        "host": "hayes_mail",
+        "count": 42
+      },
+      {
+        "host": "webserver",
+        "count": 8
+      },
+      {
+        "host": "cloud_share",
+        "count": 3
+      },
+      {
+        "host": "rogersturnbull_mail",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 13,
+    "network_alerts": 4,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

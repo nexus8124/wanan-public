@@ -1,0 +1,134 @@
+{
+  "case_id": "70959174-b0bc-5842-a5ef-2ed8aee367e0",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-23T18:25:14+00:00",
+    "detector": "wazuh",
+    "source": "edr",
+    "rule_name": "Wazuh: ClamAV database update",
+    "rule_short": "W-Sys-Cav",
+    "sensor_ip": "192.168.231.56",
+    "sensor_host": "davey_mail"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-23T18:25:14+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.231.56",
+      "sensor_host": "davey_mail"
+    },
+    {
+      "timestamp": "2022-01-23T18:25:24+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.231.164",
+      "sensor_host": "morris_mail"
+    },
+    {
+      "timestamp": "2022-01-23T18:29:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail"
+    }
+  ],
+  "primary_host": "davey_mail",
+  "primary_host_ip": "192.168.231.56",
+  "endpoint_targets": [
+    {
+      "host": "davey_mail",
+      "ip": "192.168.231.56"
+    },
+    {
+      "host": "morris_mail",
+      "ip": "192.168.231.164"
+    },
+    {
+      "host": "mail",
+      "ip": "172.19.130.4"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-23T18:25:14+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.231.56",
+      "sensor_host": "davey_mail",
+      "host": "davey_mail",
+      "host_ip": "192.168.231.56",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T18:25:24+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.231.164",
+      "sensor_host": "morris_mail",
+      "host": "morris_mail",
+      "host_ip": "192.168.231.164",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T18:29:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.19.130.4",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 8,
+    "detector_counts": {
+      "wazuh": 8
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 8
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 6
+      },
+      {
+        "host": "davey_mail",
+        "count": 1
+      },
+      {
+        "host": "morris_mail",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 3,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

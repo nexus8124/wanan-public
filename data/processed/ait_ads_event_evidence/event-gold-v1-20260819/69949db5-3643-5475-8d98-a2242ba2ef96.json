@@ -1,0 +1,289 @@
+{
+  "case_id": "69949db5-3643-5475-8d98-a2242ba2ef96",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-19T13:35:48+00:00",
+    "detector": "wazuh",
+    "source": "siem",
+    "rule_name": "Wazuh: Web server 500 error code (Internal Error).",
+    "rule_short": "W-Acc-500",
+    "sensor_ip": "172.17.130.37",
+    "sensor_host": "webserver"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-19T13:35:48+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 500 error code (Internal Error).",
+      "rule_short": "W-Acc-500",
+      "sensor_ip": "172.17.130.37",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-19T13:30:05+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T13:30:12+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.128.170",
+      "sensor_host": "jonesmorgan_mail"
+    },
+    {
+      "timestamp": "2022-01-19T13:31:55+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: User login failed.",
+      "rule_short": "W-Aut-Pam2",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T13:32:00+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+      "rule_short": "W-Mai-Inv",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T13:32:00+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: syslog: User authentication failure.",
+      "rule_short": "W-Sys-Fai",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T13:35:48+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 500 error code (Internal Error).",
+      "rule_short": "W-Acc-500",
+      "sensor_ip": "172.17.129.140",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-19T13:38:16+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "172.17.129.140",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-19T13:38:16+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "172.17.130.37",
+      "sensor_host": "webserver"
+    }
+  ],
+  "primary_host": "webserver",
+  "primary_host_ip": "172.17.130.37",
+  "endpoint_targets": [
+    {
+      "host": "webserver",
+      "ip": "172.17.130.37"
+    },
+    {
+      "host": "mail",
+      "ip": "172.17.131.81"
+    },
+    {
+      "host": "jonesmorgan_mail",
+      "ip": "192.168.128.170"
+    },
+    {
+      "host": "cloud_share",
+      "ip": "172.17.129.140"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-19T13:30:05+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.17.131.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T13:30:12+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.128.170",
+      "sensor_host": "jonesmorgan_mail",
+      "host": "jonesmorgan_mail",
+      "host_ip": "192.168.128.170",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T13:31:55+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: User login failed.",
+      "rule_short": "W-Aut-Pam2",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.17.131.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T13:32:00+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+      "rule_short": "W-Mai-Inv",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.17.131.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T13:32:00+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: syslog: User authentication failure.",
+      "rule_short": "W-Sys-Fai",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.17.131.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T13:35:48+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 500 error code (Internal Error).",
+      "rule_short": "W-Acc-500",
+      "sensor_ip": "172.17.129.140",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.17.129.140",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T13:35:48+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 500 error code (Internal Error).",
+      "rule_short": "W-Acc-500",
+      "sensor_ip": "172.17.130.37",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.17.130.37",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T13:38:16+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "172.17.129.140",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.17.129.140",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T13:38:16+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "172.17.130.37",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.17.130.37",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 107,
+    "detector_counts": {
+      "wazuh": 101,
+      "aminer": 6
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 93
+      },
+      {
+        "rule_name": "AMiner: New characters in Apache Access request.",
+        "count": 6
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+        "count": 3
+      },
+      {
+        "rule_name": "Wazuh: syslog: User authentication failure.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: Web server 500 error code (Internal Error).",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: PAM: User login failed.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 60
+      },
+      {
+        "host": "jonesmorgan_mail",
+        "count": 39
+      },
+      {
+        "host": "cloud_share",
+        "count": 4
+      },
+      {
+        "host": "webserver",
+        "count": 4
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 9,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

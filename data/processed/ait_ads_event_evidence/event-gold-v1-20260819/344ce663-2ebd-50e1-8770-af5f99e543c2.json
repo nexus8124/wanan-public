@@ -1,0 +1,302 @@
+{
+  "case_id": "344ce663-2ebd-50e1-8770-af5f99e543c2",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-27T15:04:55+00:00",
+    "detector": "wazuh",
+    "source": "edr",
+    "rule_name": "Wazuh: Dovecot brute force attack (multiple auth failures).",
+    "rule_short": "W-Mai-Brt",
+    "sensor_ip": "10.70.33.128",
+    "sensor_host": "butcherrowe_mail"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-27T15:04:55+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot brute force attack (multiple auth failures).",
+      "rule_short": "W-Mai-Brt",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-27T14:59:05+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: User login failed.",
+      "rule_short": "W-Aut-Pam2",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-27T14:59:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-27T14:59:24+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Multiple failed logins in a small period of time.",
+      "rule_short": "W-Aut-Pam3",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-27T14:59:28+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+      "rule_short": "W-Mai-Inv",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-27T14:59:52+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-27T15:00:26+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.34.215",
+      "sensor_host": "collinsbecker_mail"
+    },
+    {
+      "timestamp": "2022-01-27T15:00:49+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot brute force attack (multiple auth failures).",
+      "rule_short": "W-Mai-Brt",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-27T15:03:33+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+      "rule_short": "A-Dns-Clc2",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-27T15:07:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    }
+  ],
+  "primary_host": "butcherrowe_mail",
+  "primary_host_ip": "10.70.33.128",
+  "endpoint_targets": [
+    {
+      "host": "butcherrowe_mail",
+      "ip": "10.70.33.128"
+    },
+    {
+      "host": "mail",
+      "ip": "10.38.242.195"
+    },
+    {
+      "host": "collinsbecker_mail",
+      "ip": "10.70.34.215"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "172.27.183.254"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-27T14:59:05+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: User login failed.",
+      "rule_short": "W-Aut-Pam2",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T14:59:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T14:59:24+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Multiple failed logins in a small period of time.",
+      "rule_short": "W-Aut-Pam3",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T14:59:28+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+      "rule_short": "W-Mai-Inv",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T14:59:52+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.38.242.195",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:00:26+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.34.215",
+      "sensor_host": "collinsbecker_mail",
+      "host": "collinsbecker_mail",
+      "host_ip": "10.70.34.215",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:00:49+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot brute force attack (multiple auth failures).",
+      "rule_short": "W-Mai-Brt",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:03:33+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+      "rule_short": "A-Dns-Clc2",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.27.183.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:07:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 170,
+    "detector_counts": {
+      "wazuh": 169,
+      "aminer": 1
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 126
+      },
+      {
+        "rule_name": "Wazuh: PAM: User login failed.",
+        "count": 21
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+        "count": 16
+      },
+      {
+        "rule_name": "Wazuh: PAM: Multiple failed logins in a small period of time.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: Dovecot brute force attack (multiple auth failures).",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 96
+      },
+      {
+        "host": "butcherrowe_mail",
+        "count": 72
+      },
+      {
+        "host": "collinsbecker_mail",
+        "count": 1
+      },
+      {
+        "host": "inet-dns",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 9,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

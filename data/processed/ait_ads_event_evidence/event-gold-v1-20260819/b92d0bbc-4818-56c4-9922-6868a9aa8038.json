@@ -1,0 +1,168 @@
+{
+  "case_id": "b92d0bbc-4818-56c4-9922-6868a9aa8038",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-30T22:20:47+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+    "rule_short": "A-Acc-Clc",
+    "sensor_ip": "10.38.243.24",
+    "sensor_host": "webserver"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-30T22:20:47+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-30T22:25:26+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-30T22:25:27+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.34.215",
+      "sensor_host": "collinsbecker_mail"
+    },
+    {
+      "timestamp": "2022-01-30T22:25:36+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.32.243",
+      "sensor_host": "smith_mail"
+    }
+  ],
+  "primary_host": "webserver",
+  "primary_host_ip": "10.38.243.24",
+  "endpoint_targets": [
+    {
+      "host": "webserver",
+      "ip": "10.38.243.24"
+    },
+    {
+      "host": "butcherrowe_mail",
+      "ip": "10.70.33.128"
+    },
+    {
+      "host": "collinsbecker_mail",
+      "ip": "10.70.34.215"
+    },
+    {
+      "host": "smith_mail",
+      "ip": "10.70.32.243"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-30T22:20:47+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.38.243.24",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T22:25:26+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T22:25:27+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.34.215",
+      "sensor_host": "collinsbecker_mail",
+      "host": "collinsbecker_mail",
+      "host_ip": "10.70.34.215",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T22:25:36+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.32.243",
+      "sensor_host": "smith_mail",
+      "host": "smith_mail",
+      "host_ip": "10.70.32.243",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 4,
+    "detector_counts": {
+      "aminer": 1,
+      "wazuh": 3
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "webserver",
+        "count": 1
+      },
+      {
+        "host": "butcherrowe_mail",
+        "count": 1
+      },
+      {
+        "host": "collinsbecker_mail",
+        "count": 1
+      },
+      {
+        "host": "smith_mail",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 4,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

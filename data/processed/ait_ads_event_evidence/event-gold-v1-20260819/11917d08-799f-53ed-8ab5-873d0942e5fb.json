@@ -1,0 +1,430 @@
+{
+  "case_id": "11917d08-799f-53ed-8ab5-873d0942e5fb",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-02-07T11:29:49+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: CPU value deviates from average in monitoring logs.",
+    "rule_short": "A-Mon-Avg",
+    "sensor_ip": "172.26.242.35",
+    "sensor_host": "monitoring"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-02-07T11:29:49+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value deviates from average in monitoring logs.",
+      "rule_short": "A-Mon-Avg",
+      "sensor_ip": "172.26.242.35",
+      "sensor_host": "monitoring"
+    },
+    {
+      "timestamp": "2022-02-07T11:24:02+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-02-07T11:24:02+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-02-07T11:24:02+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-02-07T11:24:04+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.226.198",
+      "sensor_host": "lane_mail"
+    },
+    {
+      "timestamp": "2022-02-07T11:24:05+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.182.193.181",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-02-07T11:24:46+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.224.185",
+      "sensor_host": "wilsonahmed_mail"
+    },
+    {
+      "timestamp": "2022-02-07T11:25:22+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.224.185",
+      "sensor_host": "wilsonahmed_mail"
+    },
+    {
+      "timestamp": "2022-02-07T11:25:26+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-02-07T11:25:54+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.226.198",
+      "sensor_host": "lane_mail"
+    },
+    {
+      "timestamp": "2022-02-07T11:28:13+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-02-07T11:30:11+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: CMS (WordPress or Joomla) login attempt.",
+      "rule_short": "W-Acc-Cms",
+      "sensor_ip": "172.26.243.167",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-02-07T11:30:46+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-02-07T11:34:49+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.182.193.181",
+      "sensor_host": "mail"
+    }
+  ],
+  "primary_host": "monitoring",
+  "primary_host_ip": "172.26.242.35",
+  "endpoint_targets": [
+    {
+      "host": "monitoring",
+      "ip": "172.26.242.35"
+    },
+    {
+      "host": "webserver",
+      "ip": "10.182.194.5"
+    },
+    {
+      "host": "lane_mail",
+      "ip": "192.168.226.198"
+    },
+    {
+      "host": "mail",
+      "ip": "10.182.193.181"
+    },
+    {
+      "host": "wilsonahmed_mail",
+      "ip": "192.168.224.185"
+    },
+    {
+      "host": "intranet_server",
+      "ip": "172.26.243.167"
+    }
+  ],
+  "network_targets": [
+    "10.182.194.5"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-02-07T11:24:02+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.182.194.5",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:24:04+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.226.198",
+      "sensor_host": "lane_mail",
+      "host": "lane_mail",
+      "host_ip": "192.168.226.198",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:24:05+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.182.193.181",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.182.193.181",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:24:46+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.224.185",
+      "sensor_host": "wilsonahmed_mail",
+      "host": "wilsonahmed_mail",
+      "host_ip": "192.168.224.185",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:25:22+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.224.185",
+      "sensor_host": "wilsonahmed_mail",
+      "host": "wilsonahmed_mail",
+      "host_ip": "192.168.224.185",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:25:26+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.182.194.5",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:25:54+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.226.198",
+      "sensor_host": "lane_mail",
+      "host": "lane_mail",
+      "host_ip": "192.168.226.198",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:28:13+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.182.194.5",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:29:49+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value deviates from average in monitoring logs.",
+      "rule_short": "A-Mon-Avg",
+      "sensor_ip": "172.26.242.35",
+      "sensor_host": "monitoring",
+      "host": "monitoring",
+      "host_ip": "172.26.242.35",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:30:11+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: CMS (WordPress or Joomla) login attempt.",
+      "rule_short": "W-Acc-Cms",
+      "sensor_ip": "172.26.243.167",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "172.26.243.167",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:30:46+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.182.194.5",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:34:49+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.182.193.181",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.182.193.181",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-02-07T11:24:02+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver",
+      "src_ip": "10.182.194.5",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-02-07T11:24:02+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver",
+      "src_ip": "10.182.194.5",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 586,
+    "detector_counts": {
+      "wazuh": 393,
+      "suricata": 192,
+      "aminer": 1
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 195
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 187
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+        "count": 96
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 96
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 5
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+        "count": 3
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: CPU value deviates from average in monitoring logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "Wazuh: CMS (WordPress or Joomla) login attempt.",
+        "count": 1
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "webserver",
+        "count": 384
+      },
+      {
+        "host": "mail",
+        "count": 108
+      },
+      {
+        "host": "wilsonahmed_mail",
+        "count": 61
+      },
+      {
+        "host": "lane_mail",
+        "count": 31
+      },
+      {
+        "host": "monitoring",
+        "count": 1
+      },
+      {
+        "host": "intranet_server",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 12,
+    "network_alerts": 2,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

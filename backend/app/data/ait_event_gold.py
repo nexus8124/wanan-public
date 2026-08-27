@@ -589,7 +589,11 @@ def build_formal_suite(
         split_spec = SPLIT_SPECS[split]
         document = {
             "metadata": {
-                "name": f"AIT-ADS event-gold {split}",
+                "name": {
+                    "development": "AIT-ADS 正式开发集",
+                    "validation": "AIT-ADS 正式验证集",
+                    "test_frozen": "AIT-ADS 正式冻结测试集",
+                }[split],
                 "source": "AIT Alert Data Set + official event labels",
                 "source_dataset": "https://zenodo.org/records/8263181",
                 "event_label_source": "https://github.com/ait-aecid/alert-data-set",

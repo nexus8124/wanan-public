@@ -1,0 +1,222 @@
+{
+  "case_id": "8465bc85-12f9-578c-973d-6d769b29aebb",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-21T07:36:42+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: New request method in Apache Access log.",
+    "rule_short": "A-Acc-Val1",
+    "sensor_ip": "172.19.130.106",
+    "sensor_host": "cloud_share"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-21T07:36:42+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T07:36:42+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T07:37:41+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.231.56",
+      "sensor_host": "davey_mail"
+    },
+    {
+      "timestamp": "2022-01-21T07:39:27+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-21T07:39:27+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-21T07:39:27+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    }
+  ],
+  "primary_host": "cloud_share",
+  "primary_host_ip": "172.19.130.106",
+  "endpoint_targets": [
+    {
+      "host": "cloud_share",
+      "ip": "172.19.130.106"
+    },
+    {
+      "host": "davey_mail",
+      "ip": "192.168.231.56"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "172.19.128.1"
+    }
+  ],
+  "network_targets": [
+    "172.19.128.1"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-21T07:36:42+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T07:36:42+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T07:37:41+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.231.56",
+      "sensor_host": "davey_mail",
+      "host": "davey_mail",
+      "host_ip": "192.168.231.56",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T07:39:27+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.19.128.1",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-21T07:39:27+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.19.128.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-21T07:39:27+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.19.128.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 43,
+    "detector_counts": {
+      "aminer": 3,
+      "wazuh": 32,
+      "suricata": 8
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 24
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 8
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 4
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: New request method in Apache Access log.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New status code in Apache Access log.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "davey_mail",
+        "count": 24
+      },
+      {
+        "host": "inet-firewall",
+        "count": 16
+      },
+      {
+        "host": "cloud_share",
+        "count": 3
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 4,
+    "network_alerts": 2,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

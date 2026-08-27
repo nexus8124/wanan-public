@@ -1,0 +1,885 @@
+{
+  "case_id": "f11ce2a2-ba50-58a0-81d3-cfd1797c3c53",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-30T07:56:15+00:00",
+    "detector": "wazuh",
+    "source": "edr",
+    "rule_name": "Wazuh: Apache: Attempt to access forbidden file or directory.",
+    "rule_short": "W-Err-Fbd2",
+    "sensor_ip": "192.168.2.114",
+    "sensor_host": "intranet_server"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-30T07:56:15+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Apache: Attempt to access forbidden file or directory.",
+      "rule_short": "W-Err-Fbd2",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:00+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 400 error code.",
+      "rule_short": "W-Acc-400",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:00+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple web server 400 error codes from same source ip.",
+      "rule_short": "W-All-Mul3",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:02+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Common web attack.",
+      "rule_short": "W-Acc-Att",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:04+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Suspicious URL access.",
+      "rule_short": "W-Acc-Sus",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:07+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Apache: Attempt to access forbidden directory index.",
+      "rule_short": "W-Err-Fbd1",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:07+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Apache: Attempt to access forbidden file or directory.",
+      "rule_short": "W-Err-Fbd2",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:02+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:53:41+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:00+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:00+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:00+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:00+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: First time this IDS alert is generated.",
+      "rule_short": "W-All-Ids",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:01+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: First time this IDS alert is generated.",
+      "rule_short": "W-All-Ids",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:12+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 500 error code (Internal Error).",
+      "rule_short": "W-Acc-500",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:21+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:37+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: CMS (WordPress or Joomla) login attempt.",
+      "rule_short": "W-Acc-Cms",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:37+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: CMS (WordPress or Joomla) brute force attempt.",
+      "rule_short": "W-Acc-Brt",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:48+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:48+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:07+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:52+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-30T07:57:49+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.27.183.191",
+      "sensor_host": "fischer_mail"
+    },
+    {
+      "timestamp": "2022-01-30T07:57:58+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-30T07:57:18+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.38.242.230",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-30T08:00:21+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-30T08:00:21+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+      "rule_short": "A-Dns-Clc2",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns"
+    }
+  ],
+  "primary_host": "intranet_server",
+  "primary_host_ip": "192.168.2.114",
+  "endpoint_targets": [
+    {
+      "host": "intranet_server",
+      "ip": "192.168.2.114"
+    },
+    {
+      "host": "mail",
+      "ip": "10.38.242.195"
+    },
+    {
+      "host": "vpn",
+      "ip": "10.38.243.125"
+    },
+    {
+      "host": "webserver",
+      "ip": "10.38.243.24"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "172.27.180.4"
+    },
+    {
+      "host": "fischer_mail",
+      "ip": "172.27.183.191"
+    },
+    {
+      "host": "cloud_share",
+      "ip": "10.38.242.230"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "172.27.183.254"
+    }
+  ],
+  "network_targets": [
+    "10.38.243.125",
+    "10.38.243.24",
+    "172.27.180.4"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-30T07:51:00+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 400 error code.",
+      "rule_short": "W-Acc-400",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:00+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple web server 400 error codes from same source ip.",
+      "rule_short": "W-All-Mul3",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:02+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Common web attack.",
+      "rule_short": "W-Acc-Att",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:04+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Suspicious URL access.",
+      "rule_short": "W-Acc-Sus",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:07+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Apache: Attempt to access forbidden directory index.",
+      "rule_short": "W-Err-Fbd1",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:07+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Apache: Attempt to access forbidden file or directory.",
+      "rule_short": "W-Err-Fbd2",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.38.242.195",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "10.38.243.125",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.38.243.24",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:02+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:00+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:00+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: First time this IDS alert is generated.",
+      "rule_short": "W-All-Ids",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.38.243.24",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:01+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: First time this IDS alert is generated.",
+      "rule_short": "W-All-Ids",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:12+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 500 error code (Internal Error).",
+      "rule_short": "W-Acc-500",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:21+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.38.243.24",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:37+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: CMS (WordPress or Joomla) login attempt.",
+      "rule_short": "W-Acc-Cms",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:37+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: CMS (WordPress or Joomla) brute force attempt.",
+      "rule_short": "W-Acc-Brt",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:07+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:52+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "192.168.2.114",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.2.114",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:57:49+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.27.183.191",
+      "sensor_host": "fischer_mail",
+      "host": "fischer_mail",
+      "host_ip": "172.27.183.191",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:57:58+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.38.243.24",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:57:18+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.38.242.230",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.38.242.230",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-30T08:00:21+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+      "rule_short": "A-Dns-Clc2",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.27.183.254",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn",
+      "src_ip": "10.38.243.125",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "src_ip": "10.38.243.24",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:51:39+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "src_ip": "10.38.243.24",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:53:41+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "src_ip": "10.38.243.24",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:00+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.27.180.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:00+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "src_ip": "10.38.243.24",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:48+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.27.180.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-30T07:56:48+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.27.180.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-30T08:00:21+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.27.180.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 142869,
+    "detector_counts": {
+      "wazuh": 134842,
+      "suricata": 79,
+      "aminer": 7948
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Web server 400 error code.",
+        "count": 124528
+      },
+      {
+        "rule_name": "Wazuh: Multiple web server 400 error codes from same source ip.",
+        "count": 9785
+      },
+      {
+        "rule_name": "AMiner: New request method in Apache Access log.",
+        "count": 6629
+      },
+      {
+        "rule_name": "AMiner: New characters in Apache Access request.",
+        "count": 732
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 373
+      },
+      {
+        "rule_name": "AMiner: New status code in Apache Access log.",
+        "count": 210
+      },
+      {
+        "rule_name": "Wazuh: Apache: Attempt to access forbidden file or directory.",
+        "count": 165
+      },
+      {
+        "rule_name": "Wazuh: Suspicious URL access.",
+        "count": 137
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 75
+      },
+      {
+        "rule_name": "Wazuh: Common web attack.",
+        "count": 55
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 54
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 30
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "intranet_server",
+        "count": 142655
+      },
+      {
+        "host": "webserver",
+        "count": 126
+      },
+      {
+        "host": "fischer_mail",
+        "count": 33
+      },
+      {
+        "host": "inet-firewall",
+        "count": 28
+      },
+      {
+        "host": "mail",
+        "count": 21
+      },
+      {
+        "host": "vpn",
+        "count": 4
+      },
+      {
+        "host": "cloud_share",
+        "count": 1
+      },
+      {
+        "host": "inet-dns",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 25,
+    "network_alerts": 9,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

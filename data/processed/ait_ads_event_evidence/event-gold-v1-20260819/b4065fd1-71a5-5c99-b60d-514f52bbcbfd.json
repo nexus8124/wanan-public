@@ -1,0 +1,331 @@
+{
+  "case_id": "b4065fd1-71a5-5c99-b60d-514f52bbcbfd",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-26T05:02:35+00:00",
+    "detector": "suricata",
+    "source": "ids",
+    "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+    "rule_short": "S-Flw-Apt",
+    "sensor_ip": "172.27.180.4",
+    "sensor_host": "inet-firewall"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-26T05:02:35+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-26T05:00:03+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.34.215",
+      "sensor_host": "collinsbecker_mail"
+    },
+    {
+      "timestamp": "2022-01-26T05:02:35+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-26T05:02:35+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-26T05:02:35+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-26T05:02:35+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-26T05:02:55+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-26T05:03:43+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-26T05:03:33+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+      "rule_short": "A-Dns-Clc2",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-26T05:06:32+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    }
+  ],
+  "primary_host": "inet-firewall",
+  "primary_host_ip": "172.27.180.4",
+  "endpoint_targets": [
+    {
+      "host": "inet-firewall",
+      "ip": "172.27.180.4"
+    },
+    {
+      "host": "collinsbecker_mail",
+      "ip": "10.70.34.215"
+    },
+    {
+      "host": "intranet_server",
+      "ip": "192.168.188.179"
+    },
+    {
+      "host": "mail",
+      "ip": "10.38.242.195"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "172.27.183.254"
+    },
+    {
+      "host": "butcherrowe_mail",
+      "ip": "10.70.33.128"
+    }
+  ],
+  "network_targets": [
+    "192.168.188.179",
+    "172.27.180.4"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-26T05:00:03+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.34.215",
+      "sensor_host": "collinsbecker_mail",
+      "host": "collinsbecker_mail",
+      "host_ip": "10.70.34.215",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-26T05:02:35+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-26T05:02:35+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-26T05:02:35+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-26T05:02:55+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-26T05:03:43+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.38.242.195",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-26T05:03:33+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+      "rule_short": "A-Dns-Clc2",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.27.183.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-26T05:06:32+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-26T05:02:35+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "src_ip": "192.168.188.179",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-26T05:02:35+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.27.180.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 49,
+    "detector_counts": {
+      "wazuh": 28,
+      "suricata": 20,
+      "aminer": 1
+    },
+    "top_rules": [
+      {
+        "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+        "count": 20
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 18
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 8
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+        "count": 1
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "intranet_server",
+        "count": 20
+      },
+      {
+        "host": "inet-firewall",
+        "count": 20
+      },
+      {
+        "host": "mail",
+        "count": 6
+      },
+      {
+        "host": "collinsbecker_mail",
+        "count": 1
+      },
+      {
+        "host": "inet-dns",
+        "count": 1
+      },
+      {
+        "host": "butcherrowe_mail",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 8,
+    "network_alerts": 2,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

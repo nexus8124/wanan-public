@@ -1,0 +1,401 @@
+{
+  "case_id": "63b09615-3ba0-5dad-b91f-de3090b9090a",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-19T05:55:00+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: High entropy in DNS domain.",
+    "rule_short": "A-Dns-Ent",
+    "sensor_ip": "10.132.56.1",
+    "sensor_host": "inet-firewall"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-19T05:55:00+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-19T05:50:50+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of query records in DNS logs.",
+      "rule_short": "A-Dns-Frq",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-19T05:51:50+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T05:52:36+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-19T05:54:55+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-19T05:55:00+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-19T05:58:06+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "172.21.241.88",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:19+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:03+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:05+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query records.",
+      "rule_short": "A-Dns-Clc3",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:12+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:12+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:27+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail"
+    }
+  ],
+  "primary_host": "inet-firewall",
+  "primary_host_ip": "10.132.56.1",
+  "endpoint_targets": [
+    {
+      "host": "inet-firewall",
+      "ip": "10.132.56.1"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "192.168.127.254"
+    },
+    {
+      "host": "mail",
+      "ip": "10.132.56.171"
+    },
+    {
+      "host": "webserver",
+      "ip": "10.132.57.136"
+    },
+    {
+      "host": "intranet_server",
+      "ip": "172.21.241.88"
+    },
+    {
+      "host": "watkins_mail",
+      "ip": "192.168.96.99"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-19T05:50:50+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of query records in DNS logs.",
+      "rule_short": "A-Dns-Frq",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.127.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T05:51:50+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.132.56.171",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T05:52:36+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.132.57.136",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T05:54:55+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.132.56.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T05:55:00+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.127.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T05:55:00+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.132.56.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T05:58:06+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "172.21.241.88",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "172.21.241.88",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:19+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail",
+      "host": "watkins_mail",
+      "host_ip": "192.168.96.99",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:03+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.127.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:05+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query records.",
+      "rule_short": "A-Dns-Clc3",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.127.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:12+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.132.57.136",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:12+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.132.57.136",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:00:27+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail",
+      "host": "watkins_mail",
+      "host_ip": "192.168.96.99",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 52,
+    "detector_counts": {
+      "aminer": 25,
+      "wazuh": 27
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 27
+      },
+      {
+        "rule_name": "AMiner: High entropy in DNS domain.",
+        "count": 12
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of query records in DNS logs.",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: New characters in Apache Access referer.",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: New ip address in DNS logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New characters in Apache Access request.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of DNS query records.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 24
+      },
+      {
+        "host": "inet-dns",
+        "count": 11
+      },
+      {
+        "host": "inet-firewall",
+        "count": 7
+      },
+      {
+        "host": "webserver",
+        "count": 5
+      },
+      {
+        "host": "watkins_mail",
+        "count": 4
+      },
+      {
+        "host": "intranet_server",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 13,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

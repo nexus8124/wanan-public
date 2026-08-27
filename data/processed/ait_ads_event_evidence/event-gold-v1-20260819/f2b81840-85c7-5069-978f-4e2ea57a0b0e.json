@@ -1,0 +1,264 @@
+{
+  "case_id": "f2b81840-85c7-5069-978f-4e2ea57a0b0e",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-23T19:59:39+00:00",
+    "detector": "suricata",
+    "source": "ids",
+    "rule_name": "Suricata: Alert - ET INFO DNS Query for Suspicious .ga Domain",
+    "rule_short": "S-Dns-Qry2",
+    "sensor_ip": "10.132.56.1",
+    "sensor_host": "inet-firewall"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-23T19:59:39+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO DNS Query for Suspicious .ga Domain",
+      "rule_short": "S-Dns-Qry2",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-23T19:56:05+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-23T19:56:05+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-23T19:56:05+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-23T19:56:43+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-23T19:58:18+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail"
+    },
+    {
+      "timestamp": "2022-01-23T19:59:39+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Suspicious Domain (*.ga) in TLS SNI",
+      "rule_short": "S-Dns-Dom",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-23T20:00:13+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+      "rule_short": "A-Dns-Clc2",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    }
+  ],
+  "primary_host": "inet-firewall",
+  "primary_host_ip": "10.132.56.1",
+  "endpoint_targets": [
+    {
+      "host": "inet-firewall",
+      "ip": "10.132.56.1"
+    },
+    {
+      "host": "watkins_mail",
+      "ip": "192.168.96.99"
+    }
+  ],
+  "network_targets": [
+    "10.132.56.1"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-23T19:56:05+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.132.56.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T19:56:43+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.132.56.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T19:58:18+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail",
+      "host": "watkins_mail",
+      "host_ip": "192.168.96.99",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T20:00:13+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+      "rule_short": "A-Dns-Clc2",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.132.56.1",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-23T19:56:05+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.132.56.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-23T19:56:05+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.132.56.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-23T19:59:39+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO DNS Query for Suspicious .ga Domain",
+      "rule_short": "S-Dns-Qry2",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.132.56.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-23T19:59:39+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Suspicious Domain (*.ga) in TLS SNI",
+      "rule_short": "S-Dns-Dom",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.132.56.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 277,
+    "detector_counts": {
+      "suricata": 126,
+      "wazuh": 150,
+      "aminer": 1
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 123
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+        "count": 62
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 62
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 24
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+        "count": 3
+      },
+      {
+        "rule_name": "Suricata: Alert - ET INFO DNS Query for Suspicious .ga Domain",
+        "count": 1
+      },
+      {
+        "rule_name": "Suricata: Alert - ET INFO Suspicious Domain (*.ga) in TLS SNI",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "inet-firewall",
+        "count": 253
+      },
+      {
+        "host": "watkins_mail",
+        "count": 24
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 4,
+    "network_alerts": 4,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

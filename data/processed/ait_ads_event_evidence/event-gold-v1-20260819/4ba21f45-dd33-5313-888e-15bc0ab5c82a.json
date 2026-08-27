@@ -1,0 +1,755 @@
+{
+  "case_id": "4ba21f45-dd33-5313-888e-15bc0ab5c82a",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-15T06:20:14+00:00",
+    "detector": "aminer",
+    "source": "edr",
+    "rule_name": "AMiner: High entropy in Apache Access user agent.",
+    "rule_short": "A-Acc-Ent3",
+    "sensor_ip": "10.35.35.206",
+    "sensor_host": "intranet_server"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: High entropy in Apache Access user agent.",
+      "rule_short": "A-Acc-Ent3",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:32+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:32+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:32+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:32+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:33+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:34+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.17.130.37",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:34+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.17.130.37",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:34+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:12+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.17.130.37",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:32+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:39+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "10.35.35.204",
+      "sensor_host": "monitoring"
+    },
+    {
+      "timestamp": "2022-01-15T06:17:21+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.255.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:06+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:06+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access referer.",
+      "rule_short": "A-Acc-Ent1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of query records in DNS logs.",
+      "rule_short": "A-Dns-Frq",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:19+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:20+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "192.168.255.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:20+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:20+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:58+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.255.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-15T06:24:58+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Auditd: SELinux permission check.",
+      "rule_short": "W-Aud-Sel",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-15T06:25:05+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail"
+    }
+  ],
+  "primary_host": "intranet_server",
+  "primary_host_ip": "10.35.35.206",
+  "endpoint_targets": [
+    {
+      "host": "intranet_server",
+      "ip": "10.35.35.206"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "10.35.32.1"
+    },
+    {
+      "host": "webserver",
+      "ip": "172.17.130.37"
+    },
+    {
+      "host": "monitoring",
+      "ip": "10.35.35.204"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "192.168.255.254"
+    },
+    {
+      "host": "mail",
+      "ip": "172.17.131.81"
+    }
+  ],
+  "network_targets": [
+    "10.35.35.206",
+    "10.35.32.1",
+    "172.17.130.37"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-15T06:15:32+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:32+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.35.32.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:33+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:34+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.17.130.37",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.17.130.37",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:34+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.35.32.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:12+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.17.130.37",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.17.130.37",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:32+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.35.32.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:39+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "10.35.35.204",
+      "sensor_host": "monitoring",
+      "host": "monitoring",
+      "host_ip": "10.35.35.204",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:17:21+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.255.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.255.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.35.32.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access referer.",
+      "rule_short": "A-Acc-Ent1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: High entropy in Apache Access user agent.",
+      "rule_short": "A-Acc-Ent3",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of query records in DNS logs.",
+      "rule_short": "A-Dns-Frq",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.35.32.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:19+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:20+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "192.168.255.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.255.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:20+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:20+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.35.32.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:58+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.255.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.255.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:24:58+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Auditd: SELinux permission check.",
+      "rule_short": "W-Aud-Sel",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.35.35.206",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:25:05+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.17.131.81",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-15T06:15:32+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "10.35.35.206",
+      "sensor_host": "intranet_server",
+      "src_ip": "10.35.35.206",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:32+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.35.32.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:15:34+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.17.130.37",
+      "sensor_host": "webserver",
+      "src_ip": "172.17.130.37",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:06+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.35.32.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-15T06:20:06+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.35.32.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.35.32.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 138,
+    "detector_counts": {
+      "wazuh": 28,
+      "suricata": 24,
+      "aminer": 86
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: High entropy in DNS domain.",
+        "count": 45
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 22
+      },
+      {
+        "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+        "count": 20
+      },
+      {
+        "rule_name": "AMiner: New ip address in DNS logs.",
+        "count": 7
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 7
+      },
+      {
+        "rule_name": "AMiner: New characters in Apache Access request.",
+        "count": 7
+      },
+      {
+        "rule_name": "AMiner: New characters in Apache Access referer.",
+        "count": 4
+      },
+      {
+        "rule_name": "Wazuh: Auditd: SELinux permission check.",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: New request method in Apache Access log.",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: High entropy in Apache Access request.",
+        "count": 3
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 2
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "inet-firewall",
+        "count": 48
+      },
+      {
+        "host": "intranet_server",
+        "count": 38
+      },
+      {
+        "host": "inet-dns",
+        "count": 35
+      },
+      {
+        "host": "webserver",
+        "count": 11
+      },
+      {
+        "host": "monitoring",
+        "count": 3
+      },
+      {
+        "host": "mail",
+        "count": 3
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 24,
+    "network_alerts": 5,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

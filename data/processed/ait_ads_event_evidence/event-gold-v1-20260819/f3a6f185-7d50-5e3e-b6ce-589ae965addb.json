@@ -1,0 +1,197 @@
+{
+  "case_id": "f3a6f185-7d50-5e3e-b6ce-589ae965addb",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-19T08:46:38+00:00",
+    "detector": "wazuh",
+    "source": "edr",
+    "rule_name": "Wazuh: Dovecot Authentication Success.",
+    "rule_short": "W-Sys-Dov",
+    "sensor_ip": "172.17.131.81",
+    "sensor_host": "mail"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-19T08:46:38+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T08:41:10+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.131.228",
+      "sensor_host": "whittaker_mail"
+    },
+    {
+      "timestamp": "2022-01-19T08:42:27+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.129.212",
+      "sensor_host": "miller_mail"
+    },
+    {
+      "timestamp": "2022-01-19T08:44:47+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T08:48:47+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.128.170",
+      "sensor_host": "jonesmorgan_mail"
+    },
+    {
+      "timestamp": "2022-01-19T08:50:07+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail"
+    }
+  ],
+  "primary_host": "mail",
+  "primary_host_ip": "172.17.131.81",
+  "endpoint_targets": [
+    {
+      "host": "mail",
+      "ip": "172.17.131.81"
+    },
+    {
+      "host": "whittaker_mail",
+      "ip": "192.168.131.228"
+    },
+    {
+      "host": "miller_mail",
+      "ip": "192.168.129.212"
+    },
+    {
+      "host": "jonesmorgan_mail",
+      "ip": "192.168.128.170"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-19T08:41:10+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.131.228",
+      "sensor_host": "whittaker_mail",
+      "host": "whittaker_mail",
+      "host_ip": "192.168.131.228",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T08:42:27+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.129.212",
+      "sensor_host": "miller_mail",
+      "host": "miller_mail",
+      "host_ip": "192.168.129.212",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T08:44:47+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.17.131.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T08:48:47+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.128.170",
+      "sensor_host": "jonesmorgan_mail",
+      "host": "jonesmorgan_mail",
+      "host_ip": "192.168.128.170",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T08:50:07+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.17.131.81",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 117,
+    "detector_counts": {
+      "wazuh": 117
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 111
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 6
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "miller_mail",
+        "count": 51
+      },
+      {
+        "host": "whittaker_mail",
+        "count": 27
+      },
+      {
+        "host": "mail",
+        "count": 27
+      },
+      {
+        "host": "jonesmorgan_mail",
+        "count": 12
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 5,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

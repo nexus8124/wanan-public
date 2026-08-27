@@ -1,0 +1,101 @@
+{
+  "case_id": "e70959de-b324-5fc9-9e4a-bec2a20ae120",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-20T22:12:28+00:00",
+    "detector": "aminer",
+    "source": "edr",
+    "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+    "rule_short": "A-Aud-Com4",
+    "sensor_ip": "172.21.240.214",
+    "sensor_host": "internal_share"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-20T22:12:28+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-20T22:12:28+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share"
+    }
+  ],
+  "primary_host": "internal_share",
+  "primary_host_ip": "172.21.240.214",
+  "endpoint_targets": [
+    {
+      "host": "internal_share",
+      "ip": "172.21.240.214"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-20T22:12:28+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "172.21.240.214",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-20T22:12:28+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "172.21.240.214",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 2,
+    "detector_counts": {
+      "aminer": 2
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "internal_share",
+        "count": 2
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 2,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

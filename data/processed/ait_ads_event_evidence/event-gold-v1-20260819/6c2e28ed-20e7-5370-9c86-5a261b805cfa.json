@@ -1,0 +1,615 @@
+{
+  "case_id": "6c2e28ed-20e7-5370-9c86-5a261b805cfa",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-28T13:38:01+00:00",
+    "detector": "wazuh",
+    "source": "siem",
+    "rule_name": "Wazuh: Web server 400 error code.",
+    "rule_short": "W-Acc-400",
+    "sensor_ip": "10.38.242.230",
+    "sensor_host": "cloud_share"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-28T13:38:01+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 400 error code.",
+      "rule_short": "W-Acc-400",
+      "sensor_ip": "10.38.242.230",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-28T13:33:32+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.27.182.4",
+      "sensor_host": "williams_mail"
+    },
+    {
+      "timestamp": "2022-01-28T13:33:32+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-28T13:33:32+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-28T13:33:36+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-28T13:33:36+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-28T13:33:36+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:00+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.27.181.253",
+      "sensor_host": "khanwood_mail"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:01+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:01+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:01+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:01+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:05+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:15+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.27.183.191",
+      "sensor_host": "fischer_mail"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:28+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:28+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:28+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:28+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:41+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.27.181.174",
+      "sensor_host": "sanchez_mail"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:56+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-28T13:37:58+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-28T13:38:01+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 400 error code.",
+      "rule_short": "W-Acc-400",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    }
+  ],
+  "primary_host": "cloud_share",
+  "primary_host_ip": "10.38.242.230",
+  "endpoint_targets": [
+    {
+      "host": "cloud_share",
+      "ip": "10.38.242.230"
+    },
+    {
+      "host": "williams_mail",
+      "ip": "172.27.182.4"
+    },
+    {
+      "host": "vpn",
+      "ip": "10.38.243.125"
+    },
+    {
+      "host": "mail",
+      "ip": "10.38.242.195"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "172.27.180.4"
+    },
+    {
+      "host": "khanwood_mail",
+      "ip": "172.27.181.253"
+    },
+    {
+      "host": "fischer_mail",
+      "ip": "172.27.183.191"
+    },
+    {
+      "host": "webserver",
+      "ip": "10.38.243.24"
+    },
+    {
+      "host": "sanchez_mail",
+      "ip": "172.27.181.174"
+    }
+  ],
+  "network_targets": [
+    "10.38.243.125",
+    "172.27.180.4",
+    "10.38.243.24"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-28T13:33:32+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.27.182.4",
+      "sensor_host": "williams_mail",
+      "host": "williams_mail",
+      "host_ip": "172.27.182.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:33:32+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "10.38.243.125",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:33:36+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.38.242.195",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:33:36+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:00+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.27.181.253",
+      "sensor_host": "khanwood_mail",
+      "host": "khanwood_mail",
+      "host_ip": "172.27.181.253",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:05+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:15+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.27.183.191",
+      "sensor_host": "fischer_mail",
+      "host": "fischer_mail",
+      "host_ip": "172.27.183.191",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:28+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.38.243.24",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:28+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.38.243.24",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:41+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.27.181.174",
+      "sensor_host": "sanchez_mail",
+      "host": "sanchez_mail",
+      "host_ip": "172.27.181.174",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:56+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.38.243.24",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:38:01+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 400 error code.",
+      "rule_short": "W-Acc-400",
+      "sensor_ip": "10.38.242.230",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.38.242.230",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:38:01+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 400 error code.",
+      "rule_short": "W-Acc-400",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.38.243.24",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-28T13:33:32+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn",
+      "src_ip": "10.38.243.125",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:33:36+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.27.180.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:01+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.27.180.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:01+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.27.180.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:01+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn",
+      "src_ip": "10.38.243.125",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:34:01+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.38.243.125",
+      "sensor_host": "vpn",
+      "src_ip": "10.38.243.125",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:28+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "src_ip": "10.38.243.24",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:35:28+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "src_ip": "10.38.243.24",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-28T13:37:58+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "src_ip": "10.38.243.24",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 699,
+    "detector_counts": {
+      "wazuh": 442,
+      "suricata": 257
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 251
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 183
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 110
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+        "count": 110
+      },
+      {
+        "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+        "count": 37
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+        "count": 4
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: Web server 400 error code.",
+        "count": 2
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "webserver",
+        "count": 221
+      },
+      {
+        "host": "vpn",
+        "count": 166
+      },
+      {
+        "host": "inet-firewall",
+        "count": 128
+      },
+      {
+        "host": "mail",
+        "count": 72
+      },
+      {
+        "host": "fischer_mail",
+        "count": 39
+      },
+      {
+        "host": "khanwood_mail",
+        "count": 30
+      },
+      {
+        "host": "williams_mail",
+        "count": 21
+      },
+      {
+        "host": "sanchez_mail",
+        "count": 21
+      },
+      {
+        "host": "cloud_share",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 13,
+    "network_alerts": 9,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

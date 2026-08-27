@@ -46,7 +46,16 @@ coverage.xml
 
 # Data artifacts锛堝悜閲忓簱銆佽繍琛岀紦瀛?鈥斺€?涓嶅叆搴擄級
 data/chroma_db/
-data/processed/
+# Generated datasets stay local by default.  The versioned AIT-ADS event-gold
+# suite is the exception: deployments need both its split files and per-case
+# evidence store for the formal evaluator to appear and work in the UI.
+data/processed/*
+!data/processed/ait_ads_event_gold/
+!data/processed/ait_ads_event_gold/*.json
+!data/processed/ait_ads_event_evidence/
+data/processed/ait_ads_event_evidence/*
+!data/processed/ait_ads_event_evidence/event-gold-v1-20260819/
+!data/processed/ait_ads_event_evidence/event-gold-v1-20260819/*.json
 data/knowledge/
 data/raw/
 data/uploaded/

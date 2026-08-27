@@ -1,0 +1,748 @@
+{
+  "case_id": "59767b2f-886b-59f9-8a99-250ffed6c75e",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-02-03T00:00:01+00:00",
+    "detector": "aminer",
+    "source": "edr",
+    "rule_name": "AMiner: New login parameter combination in Audit logs.",
+    "rule_short": "A-Aud-Com3",
+    "sensor_ip": "10.182.194.196",
+    "sensor_host": "cloud_share"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New login parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com3",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_refr parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_login parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_disp parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_end parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_cmd parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com1",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:04+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:04+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:04+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New query record in DNS logs.",
+      "rule_short": "A-Dns-Val2",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:04+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:04+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "10.182.192.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access referer.",
+      "rule_short": "A-Acc-Ent1",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:11+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: High entropy in Apache Access user agent.",
+      "rule_short": "A-Acc-Ent3",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:20+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in DNS domain.",
+      "rule_short": "A-Dns-Chr",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:34+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.26.242.35",
+      "sensor_host": "monitoring"
+    },
+    {
+      "timestamp": "2022-02-03T00:01:19+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "172.26.242.35",
+      "sensor_host": "monitoring"
+    },
+    {
+      "timestamp": "2022-02-03T00:02:39+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.182.193.78",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-02-03T00:04:16+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver"
+    }
+  ],
+  "primary_host": "cloud_share",
+  "primary_host_ip": "10.182.194.196",
+  "endpoint_targets": [
+    {
+      "host": "cloud_share",
+      "ip": "10.182.194.196"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "192.168.239.254"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "10.182.192.1"
+    },
+    {
+      "host": "monitoring",
+      "ip": "172.26.242.35"
+    },
+    {
+      "host": "vpn",
+      "ip": "10.182.193.78"
+    },
+    {
+      "host": "webserver",
+      "ip": "10.182.194.5"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New login parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com3",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_refr parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_login parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_disp parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_end parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_cmd parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com1",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:04+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.239.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:04+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.239.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:04+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New query record in DNS logs.",
+      "rule_short": "A-Dns-Val2",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.239.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:04+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.239.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:04+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "10.182.192.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.182.192.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access referer.",
+      "rule_short": "A-Acc-Ent1",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:11+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: High entropy in Apache Access user agent.",
+      "rule_short": "A-Acc-Ent3",
+      "sensor_ip": "10.182.194.196",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.182.194.196",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:20+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in DNS domain.",
+      "rule_short": "A-Dns-Chr",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.239.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:00:34+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.26.242.35",
+      "sensor_host": "monitoring",
+      "host": "monitoring",
+      "host_ip": "172.26.242.35",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:01:19+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "172.26.242.35",
+      "sensor_host": "monitoring",
+      "host": "monitoring",
+      "host_ip": "172.26.242.35",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:02:39+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.182.193.78",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "10.182.193.78",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-03T00:04:16+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "10.182.194.5",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.182.194.5",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 60,
+    "detector_counts": {
+      "aminer": 60
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 26
+      },
+      {
+        "rule_name": "AMiner: New ip address in DNS logs.",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: New login parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New cred_disp parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New user_end parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New cred_refr parameter combination in Audit logs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "cloud_share",
+        "count": 34
+      },
+      {
+        "host": "vpn",
+        "count": 12
+      },
+      {
+        "host": "inet-dns",
+        "count": 8
+      },
+      {
+        "host": "monitoring",
+        "count": 3
+      },
+      {
+        "host": "inet-firewall",
+        "count": 2
+      },
+      {
+        "host": "webserver",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 29,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

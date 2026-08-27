@@ -1,0 +1,418 @@
+{
+  "case_id": "68464b38-24ca-5c25-8d12-ef4ad15045c2",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-19T06:29:01+00:00",
+    "detector": "aminer",
+    "source": "edr",
+    "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+    "rule_short": "A-Aud-Com1",
+    "sensor_ip": "172.21.240.214",
+    "sensor_host": "internal_share"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-19T06:29:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com1",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-19T06:24:07+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T06:25:05+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T06:28:43+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-19T06:29:01+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Auditd: SELinux permission check.",
+      "rule_short": "W-Aud-Sel",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-19T06:29:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New syscall parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com5",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-19T06:30:38+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T06:30:38+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T06:31:24+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-19T06:31:24+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-19T06:31:24+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: High entropy in Apache Access user agent.",
+      "rule_short": "A-Acc-Ent3",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-19T06:32:31+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-19T06:32:31+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-19T06:33:49+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "172.21.240.106",
+      "sensor_host": "monitoring"
+    }
+  ],
+  "primary_host": "internal_share",
+  "primary_host_ip": "172.21.240.214",
+  "endpoint_targets": [
+    {
+      "host": "internal_share",
+      "ip": "172.21.240.214"
+    },
+    {
+      "host": "mail",
+      "ip": "10.132.56.171"
+    },
+    {
+      "host": "webserver",
+      "ip": "10.132.57.136"
+    },
+    {
+      "host": "monitoring",
+      "ip": "172.21.240.106"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-19T06:24:07+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.132.56.171",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:25:05+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.132.56.171",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:28:43+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "172.21.240.214",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:29:01+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Auditd: SELinux permission check.",
+      "rule_short": "W-Aud-Sel",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "172.21.240.214",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:29:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com1",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "172.21.240.214",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:29:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New syscall parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com5",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "172.21.240.214",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:30:38+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.132.56.171",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:30:38+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.132.56.171",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:31:24+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.132.57.136",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:31:24+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.132.57.136",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:31:24+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: High entropy in Apache Access user agent.",
+      "rule_short": "A-Acc-Ent3",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.132.57.136",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:32:31+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "172.21.240.214",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:32:31+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.21.240.214",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "172.21.240.214",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:33:49+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "172.21.240.106",
+      "sensor_host": "monitoring",
+      "host": "monitoring",
+      "host_ip": "172.21.240.106",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 104,
+    "detector_counts": {
+      "wazuh": 73,
+      "aminer": 31
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 69
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 8
+      },
+      {
+        "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+        "count": 8
+      },
+      {
+        "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+        "count": 8
+      },
+      {
+        "rule_name": "Wazuh: Auditd: SELinux permission check.",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New syscall parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New status code in Apache Access log.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: High entropy in Apache Access user agent.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 72
+      },
+      {
+        "host": "internal_share",
+        "count": 28
+      },
+      {
+        "host": "webserver",
+        "count": 3
+      },
+      {
+        "host": "monitoring",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 14,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

@@ -1,0 +1,265 @@
+{
+  "case_id": "93040a70-7951-5886-928c-97c1923af452",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-14T03:58:36+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: High entropy in DNS domain.",
+    "rule_short": "A-Dns-Ent",
+    "sensor_ip": "10.229.0.4",
+    "sensor_host": "inet-firewall"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-14T03:58:36+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-14T03:53:05+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-14T03:53:05+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-14T03:53:05+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-14T03:53:05+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-14T03:53:41+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-14T03:59:30+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "10.229.255.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-14T04:00:08+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share"
+    }
+  ],
+  "primary_host": "inet-firewall",
+  "primary_host_ip": "10.229.0.4",
+  "endpoint_targets": [
+    {
+      "host": "inet-firewall",
+      "ip": "10.229.0.4"
+    },
+    {
+      "host": "internal_share",
+      "ip": "192.168.104.218"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "10.229.255.254"
+    }
+  ],
+  "network_targets": [
+    "192.168.104.218",
+    "10.229.0.4"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-14T03:53:05+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "192.168.104.218",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T03:53:05+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.229.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T03:53:41+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "192.168.104.218",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T03:58:36+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in DNS domain.",
+      "rule_short": "A-Dns-Ent",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.229.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T03:59:30+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "10.229.255.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "10.229.255.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-14T04:00:08+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "192.168.104.218",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-14T03:53:05+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "192.168.104.218",
+      "sensor_host": "internal_share",
+      "src_ip": "192.168.104.218",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-14T03:53:05+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+      "rule_short": "S-Dns-Qry3",
+      "sensor_ip": "10.229.0.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.229.0.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 171,
+    "detector_counts": {
+      "wazuh": 84,
+      "suricata": 84,
+      "aminer": 3
+    },
+    "top_rules": [
+      {
+        "rule_name": "Suricata: Alert - ET INFO Observed DNS Query to .biz TLD",
+        "count": 84
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 79
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: New ip address in DNS logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: High entropy in DNS domain.",
+        "count": 1
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "inet-firewall",
+        "count": 85
+      },
+      {
+        "host": "internal_share",
+        "count": 84
+      },
+      {
+        "host": "inet-dns",
+        "count": 2
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 6,
+    "network_alerts": 2,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

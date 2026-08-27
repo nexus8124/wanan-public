@@ -1,0 +1,193 @@
+{
+  "case_id": "3a036a1d-f008-57c1-8b77-4ab985139c24",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-18T08:40:20+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+    "rule_short": "A-Dns-Clc1",
+    "sensor_ip": "192.168.255.254",
+    "sensor_host": "inet-dns"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-18T08:40:20+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+      "rule_short": "A-Dns-Clc1",
+      "sensor_ip": "192.168.255.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-18T08:36:09+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.128.195",
+      "sensor_host": "taylorcruz_mail"
+    },
+    {
+      "timestamp": "2022-01-18T08:36:51+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.131.228",
+      "sensor_host": "whittaker_mail"
+    },
+    {
+      "timestamp": "2022-01-18T08:37:53+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-18T08:42:02+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail"
+    }
+  ],
+  "primary_host": "inet-dns",
+  "primary_host_ip": "192.168.255.254",
+  "endpoint_targets": [
+    {
+      "host": "inet-dns",
+      "ip": "192.168.255.254"
+    },
+    {
+      "host": "taylorcruz_mail",
+      "ip": "192.168.128.195"
+    },
+    {
+      "host": "whittaker_mail",
+      "ip": "192.168.131.228"
+    },
+    {
+      "host": "mail",
+      "ip": "172.17.131.81"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-18T08:36:09+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.128.195",
+      "sensor_host": "taylorcruz_mail",
+      "host": "taylorcruz_mail",
+      "host_ip": "192.168.128.195",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T08:36:51+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.131.228",
+      "sensor_host": "whittaker_mail",
+      "host": "whittaker_mail",
+      "host_ip": "192.168.131.228",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T08:37:53+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.17.131.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T08:40:20+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+      "rule_short": "A-Dns-Clc1",
+      "sensor_ip": "192.168.255.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.255.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-18T08:42:02+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.17.131.81",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.17.131.81",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 76,
+    "detector_counts": {
+      "wazuh": 75,
+      "aminer": 1
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 69
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 6
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 48
+      },
+      {
+        "host": "whittaker_mail",
+        "count": 21
+      },
+      {
+        "host": "taylorcruz_mail",
+        "count": 6
+      },
+      {
+        "host": "inet-dns",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 5,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

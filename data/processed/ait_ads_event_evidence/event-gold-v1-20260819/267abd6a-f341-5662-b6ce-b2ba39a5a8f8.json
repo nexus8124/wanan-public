@@ -1,0 +1,326 @@
+{
+  "case_id": "267abd6a-f341-5662-b6ce-b2ba39a5a8f8",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-27T15:14:59+00:00",
+    "detector": "wazuh",
+    "source": "edr",
+    "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+    "rule_short": "W-Mai-Inv",
+    "sensor_ip": "10.70.33.128",
+    "sensor_host": "butcherrowe_mail"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-27T15:14:59+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+      "rule_short": "W-Mai-Inv",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-27T15:09:00+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: User login failed.",
+      "rule_short": "W-Aut-Pam2",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-27T15:09:04+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+      "rule_short": "W-Mai-Inv",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-27T15:09:54+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-27T15:10:20+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-27T15:10:52+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Multiple failed logins in a small period of time.",
+      "rule_short": "W-Aut-Pam3",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail"
+    },
+    {
+      "timestamp": "2022-01-27T15:15:14+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-27T15:17:10+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-27T15:17:10+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-27T15:17:10+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: First time this IDS alert is generated.",
+      "rule_short": "W-All-Ids",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-27T15:17:10+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    }
+  ],
+  "primary_host": "butcherrowe_mail",
+  "primary_host_ip": "10.70.33.128",
+  "endpoint_targets": [
+    {
+      "host": "butcherrowe_mail",
+      "ip": "10.70.33.128"
+    },
+    {
+      "host": "mail",
+      "ip": "10.38.242.195"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "172.27.180.4"
+    }
+  ],
+  "network_targets": [
+    "172.27.180.4"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-27T15:09:00+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: User login failed.",
+      "rule_short": "W-Aut-Pam2",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:09:04+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+      "rule_short": "W-Mai-Inv",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:09:54+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.38.242.195",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:10:20+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:10:52+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Multiple failed logins in a small period of time.",
+      "rule_short": "W-Aut-Pam3",
+      "sensor_ip": "10.70.33.128",
+      "sensor_host": "butcherrowe_mail",
+      "host": "butcherrowe_mail",
+      "host_ip": "10.70.33.128",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:15:14+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.38.242.195",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:17:10+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: First time this IDS alert is generated.",
+      "rule_short": "W-All-Ids",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:17:10+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-27T15:17:10+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.27.180.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-27T15:17:10+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.27.180.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 137,
+    "detector_counts": {
+      "wazuh": 129,
+      "suricata": 8
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 90
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+        "count": 12
+      },
+      {
+        "rule_name": "Wazuh: PAM: User login failed.",
+        "count": 11
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 7
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 6
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 4
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+        "count": 4
+      },
+      {
+        "rule_name": "Wazuh: PAM: Multiple failed logins in a small period of time.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: First time this IDS alert is generated.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 66
+      },
+      {
+        "host": "butcherrowe_mail",
+        "count": 55
+      },
+      {
+        "host": "inet-firewall",
+        "count": 16
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 8,
+    "network_alerts": 2,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

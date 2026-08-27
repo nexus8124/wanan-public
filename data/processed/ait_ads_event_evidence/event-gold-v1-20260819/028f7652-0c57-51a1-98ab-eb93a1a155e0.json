@@ -1,0 +1,393 @@
+{
+  "case_id": "028f7652-0c57-51a1-98ab-eb93a1a155e0",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-25T00:23:26+00:00",
+    "detector": "aminer",
+    "source": "edr",
+    "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+    "rule_short": "A-Aud-Com4",
+    "sensor_ip": "192.168.188.179",
+    "sensor_host": "intranet_server"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-25T00:23:26+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-25T00:18:52+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-25T00:19:25+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-25T00:19:25+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+      "rule_short": "A-Dns-Clc1",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:02+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:02+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:02+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New query record in DNS logs.",
+      "rule_short": "A-Dns-Val2",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:02+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in DNS domain.",
+      "rule_short": "A-Dns-Chr",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:02+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:55+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:55+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-25T00:23:08+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "192.168.1.116",
+      "sensor_host": "monitoring"
+    },
+    {
+      "timestamp": "2022-01-25T00:23:26+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    }
+  ],
+  "primary_host": "intranet_server",
+  "primary_host_ip": "192.168.188.179",
+  "endpoint_targets": [
+    {
+      "host": "intranet_server",
+      "ip": "192.168.188.179"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "172.27.180.4"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "172.27.183.254"
+    },
+    {
+      "host": "monitoring",
+      "ip": "192.168.1.116"
+    }
+  ],
+  "network_targets": [
+    "172.27.180.4"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-25T00:18:52+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T00:19:25+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.27.183.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T00:19:25+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+      "rule_short": "A-Dns-Clc1",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.27.183.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:02+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:02+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New query record in DNS logs.",
+      "rule_short": "A-Dns-Val2",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.27.183.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:02+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in DNS domain.",
+      "rule_short": "A-Dns-Chr",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.27.183.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:02+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:55+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T00:20:55+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T00:23:08+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "192.168.1.116",
+      "sensor_host": "monitoring",
+      "host": "monitoring",
+      "host_ip": "192.168.1.116",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T00:23:26+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T00:23:26+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-25T00:20:02+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "src_ip": "172.27.180.4",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 36,
+    "detector_counts": {
+      "aminer": 20,
+      "suricata": 8,
+      "wazuh": 8
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: New ip address in DNS logs.",
+        "count": 9
+      },
+      {
+        "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+        "count": 8
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 8
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New characters in DNS domain.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New query record in DNS logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "inet-firewall",
+        "count": 25
+      },
+      {
+        "host": "inet-dns",
+        "count": 8
+      },
+      {
+        "host": "intranet_server",
+        "count": 2
+      },
+      {
+        "host": "monitoring",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 12,
+    "network_alerts": 1,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

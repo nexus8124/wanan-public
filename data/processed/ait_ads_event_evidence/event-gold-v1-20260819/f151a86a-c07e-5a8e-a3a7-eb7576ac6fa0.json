@@ -1,0 +1,196 @@
+{
+  "case_id": "f151a86a-c07e-5a8e-a3a7-eb7576ac6fa0",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-02-08T18:55:09+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: New request method in Apache Access log.",
+    "rule_short": "A-Acc-Val1",
+    "sensor_ip": "10.237.0.4",
+    "sensor_host": "cloud_share"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-02-08T18:55:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-02-08T18:55:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "10.237.0.166",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-02-08T18:59:46+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value deviates from average in monitoring logs.",
+      "rule_short": "A-Mon-Avg",
+      "sensor_ip": "192.168.130.229",
+      "sensor_host": "monitoring"
+    },
+    {
+      "timestamp": "2022-02-08T19:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+      "rule_short": "A-Dns-Clc1",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-02-08T19:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+      "rule_short": "A-Dns-Clc2",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall"
+    }
+  ],
+  "primary_host": "cloud_share",
+  "primary_host_ip": "10.237.0.4",
+  "endpoint_targets": [
+    {
+      "host": "cloud_share",
+      "ip": "10.237.0.4"
+    },
+    {
+      "host": "webserver",
+      "ip": "10.237.0.166"
+    },
+    {
+      "host": "monitoring",
+      "ip": "192.168.130.229"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "192.168.128.1"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-02-08T18:55:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "10.237.0.4",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.237.0.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-08T18:55:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "10.237.0.166",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.237.0.166",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-08T18:59:46+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value deviates from average in monitoring logs.",
+      "rule_short": "A-Mon-Avg",
+      "sensor_ip": "192.168.130.229",
+      "sensor_host": "monitoring",
+      "host": "monitoring",
+      "host_ip": "192.168.130.229",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-08T19:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+      "rule_short": "A-Dns-Clc1",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "192.168.128.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-08T19:00:11+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+      "rule_short": "A-Dns-Clc2",
+      "sensor_ip": "192.168.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "192.168.128.1",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 7,
+    "detector_counts": {
+      "aminer": 7
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: New request method in Apache Access log.",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: CPU value deviates from average in monitoring logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of DNS query IPs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "cloud_share",
+        "count": 2
+      },
+      {
+        "host": "webserver",
+        "count": 2
+      },
+      {
+        "host": "inet-firewall",
+        "count": 2
+      },
+      {
+        "host": "monitoring",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 5,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

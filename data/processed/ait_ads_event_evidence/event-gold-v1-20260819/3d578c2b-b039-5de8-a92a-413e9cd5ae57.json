@@ -1,0 +1,330 @@
+{
+  "case_id": "3d578c2b-b039-5de8-a92a-413e9cd5ae57",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-21T06:08:38+00:00",
+    "detector": "aminer",
+    "source": "edr",
+    "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+    "rule_short": "A-Aud-Com1",
+    "sensor_ip": "172.19.130.106",
+    "sensor_host": "cloud_share"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-21T06:08:38+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com1",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T06:03:52+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.231.56",
+      "sensor_host": "davey_mail"
+    },
+    {
+      "timestamp": "2022-01-21T06:04:28+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-21T06:08:38+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Auditd: SELinux permission check.",
+      "rule_short": "W-Aud-Sel",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T06:08:23+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T06:08:38+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New syscall parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com5",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T06:09:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-21T06:10:03+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T06:10:03+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-21T06:10:33+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    }
+  ],
+  "primary_host": "cloud_share",
+  "primary_host_ip": "172.19.130.106",
+  "endpoint_targets": [
+    {
+      "host": "cloud_share",
+      "ip": "172.19.130.106"
+    },
+    {
+      "host": "davey_mail",
+      "ip": "192.168.231.56"
+    },
+    {
+      "host": "mail",
+      "ip": "172.19.130.4"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "172.19.128.1"
+    },
+    {
+      "host": "intranet_server",
+      "ip": "10.143.2.4"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-21T06:03:52+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.231.56",
+      "sensor_host": "davey_mail",
+      "host": "davey_mail",
+      "host_ip": "192.168.231.56",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:04:28+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.19.130.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:08:38+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Auditd: SELinux permission check.",
+      "rule_short": "W-Aud-Sel",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:08:23+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:08:38+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com1",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:08:38+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New syscall parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com5",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:09:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.19.128.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:10:03+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:10:03+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-21T06:10:33+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 58,
+    "detector_counts": {
+      "wazuh": 11,
+      "aminer": 47
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 20
+      },
+      {
+        "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+        "count": 11
+      },
+      {
+        "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+        "count": 11
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 7
+      },
+      {
+        "rule_name": "Wazuh: Auditd: SELinux permission check.",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: New ip address in DNS logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New apparmor parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New syscall parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "cloud_share",
+        "count": 48
+      },
+      {
+        "host": "mail",
+        "count": 6
+      },
+      {
+        "host": "inet-firewall",
+        "count": 2
+      },
+      {
+        "host": "davey_mail",
+        "count": 1
+      },
+      {
+        "host": "intranet_server",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 10,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

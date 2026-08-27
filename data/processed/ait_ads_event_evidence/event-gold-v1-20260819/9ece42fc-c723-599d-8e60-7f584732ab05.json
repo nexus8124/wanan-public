@@ -1,0 +1,230 @@
+{
+  "case_id": "9ece42fc-c723-599d-8e60-7f584732ab05",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-19T10:31:13+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: New event type.",
+    "rule_short": "A-All-Evt",
+    "sensor_ip": "10.132.56.81",
+    "sensor_host": "vpn"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-19T10:31:13+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-19T10:27:04+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-19T10:27:04+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-19T10:27:04+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-19T10:35:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: CMS (WordPress or Joomla) login attempt.",
+      "rule_short": "W-Acc-Cms",
+      "sensor_ip": "172.21.241.88",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-19T10:35:58+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail"
+    }
+  ],
+  "primary_host": "vpn",
+  "primary_host_ip": "10.132.56.81",
+  "endpoint_targets": [
+    {
+      "host": "vpn",
+      "ip": "10.132.56.81"
+    },
+    {
+      "host": "webserver",
+      "ip": "10.132.57.136"
+    },
+    {
+      "host": "intranet_server",
+      "ip": "172.21.241.88"
+    },
+    {
+      "host": "mail",
+      "ip": "10.132.56.171"
+    }
+  ],
+  "network_targets": [
+    "10.132.57.136"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-19T10:27:04+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.132.57.136",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T10:31:13+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "10.132.56.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T10:35:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: CMS (WordPress or Joomla) login attempt.",
+      "rule_short": "W-Acc-Cms",
+      "sensor_ip": "172.21.241.88",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "172.21.241.88",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T10:35:58+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.132.56.171",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-19T10:27:04+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver",
+      "src_ip": "10.132.57.136",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-19T10:27:04+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.132.57.136",
+      "sensor_host": "webserver",
+      "src_ip": "10.132.57.136",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 31,
+    "detector_counts": {
+      "wazuh": 21,
+      "suricata": 8,
+      "aminer": 2
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 12
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 8
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+        "count": 4
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: CMS (WordPress or Joomla) login attempt.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "webserver",
+        "count": 16
+      },
+      {
+        "host": "mail",
+        "count": 12
+      },
+      {
+        "host": "vpn",
+        "count": 2
+      },
+      {
+        "host": "intranet_server",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 4,
+    "network_alerts": 2,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

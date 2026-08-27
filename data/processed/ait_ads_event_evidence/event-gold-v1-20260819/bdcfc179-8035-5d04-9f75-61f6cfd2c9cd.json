@@ -1,0 +1,193 @@
+{
+  "case_id": "bdcfc179-8035-5d04-9f75-61f6cfd2c9cd",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-22T06:25:12+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: New event type.",
+    "rule_short": "A-All-Evt",
+    "sensor_ip": "172.19.130.68",
+    "sensor_host": "webserver"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-22T06:25:12+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-22T06:20:17+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-22T06:22:43+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.231.164",
+      "sensor_host": "morris_mail"
+    },
+    {
+      "timestamp": "2022-01-22T06:25:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.231.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-22T06:25:03+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail"
+    }
+  ],
+  "primary_host": "webserver",
+  "primary_host_ip": "172.19.130.68",
+  "endpoint_targets": [
+    {
+      "host": "webserver",
+      "ip": "172.19.130.68"
+    },
+    {
+      "host": "mail",
+      "ip": "172.19.130.4"
+    },
+    {
+      "host": "morris_mail",
+      "ip": "192.168.231.164"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "192.168.231.254"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-22T06:20:17+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.19.130.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-22T06:22:43+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "192.168.231.164",
+      "sensor_host": "morris_mail",
+      "host": "morris_mail",
+      "host_ip": "192.168.231.164",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-22T06:25:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.231.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.231.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-22T06:25:03+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.19.130.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-22T06:25:12+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.19.130.68",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 35,
+    "detector_counts": {
+      "wazuh": 31,
+      "aminer": 4
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 30
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 4
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 31
+      },
+      {
+        "host": "webserver",
+        "count": 2
+      },
+      {
+        "host": "morris_mail",
+        "count": 1
+      },
+      {
+        "host": "inet-dns",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 5,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

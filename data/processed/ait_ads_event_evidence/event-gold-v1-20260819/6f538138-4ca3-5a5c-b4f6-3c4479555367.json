@@ -1,0 +1,201 @@
+{
+  "case_id": "6f538138-4ca3-5a5c-b4f6-3c4479555367",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-19T06:14:06+00:00",
+    "detector": "aminer",
+    "source": "edr",
+    "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+    "rule_short": "A-Aud-Com4",
+    "sensor_ip": "10.132.56.204",
+    "sensor_host": "cloud_share"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-19T06:14:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.132.56.204",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-19T06:09:22+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-19T06:13:00+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.21.241.88",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-19T06:14:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.132.56.204",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-19T06:15:46+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns"
+    }
+  ],
+  "primary_host": "cloud_share",
+  "primary_host_ip": "10.132.56.204",
+  "endpoint_targets": [
+    {
+      "host": "cloud_share",
+      "ip": "10.132.56.204"
+    },
+    {
+      "host": "mail",
+      "ip": "10.132.56.171"
+    },
+    {
+      "host": "intranet_server",
+      "ip": "172.21.241.88"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "192.168.127.254"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-19T06:09:22+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.132.56.171",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:13:00+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.21.241.88",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "172.21.241.88",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:14:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.132.56.204",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.132.56.204",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:14:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.132.56.204",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "10.132.56.204",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-19T06:15:46+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "192.168.127.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.127.254",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 22,
+    "detector_counts": {
+      "wazuh": 15,
+      "aminer": 7
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 15
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New ip address in DNS logs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "mail",
+        "count": 15
+      },
+      {
+        "host": "cloud_share",
+        "count": 4
+      },
+      {
+        "host": "intranet_server",
+        "count": 2
+      },
+      {
+        "host": "inet-dns",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 5,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

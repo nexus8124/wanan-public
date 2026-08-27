@@ -1,0 +1,518 @@
+{
+  "case_id": "d2dabb8e-d33e-5871-a89b-c4b35decaed8",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-29T14:38:53+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: New status code in Apache Access log.",
+    "rule_short": "A-Acc-Val2",
+    "sensor_ip": "192.168.188.179",
+    "sensor_host": "intranet_server"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-29T14:38:53+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:33:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-29T14:37:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in DNS domain.",
+      "rule_short": "A-Dns-Chr",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:38+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: sshd: insecure connection attempt (scan).",
+      "rule_short": "W-Aut-Ssh2",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:52+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 400 error code.",
+      "rule_short": "W-Acc-400",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:53+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Apache: Attempt to access forbidden directory index.",
+      "rule_short": "W-Err-Fbd1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:56+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 500 error code (Internal Error).",
+      "rule_short": "W-Acc-500",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:58+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple web server 400 error codes from same source ip.",
+      "rule_short": "W-All-Mul3",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:59+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Suspicious URL access.",
+      "rule_short": "W-Acc-Sus",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:38+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:52+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:53+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:59+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:39:14+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Common web attack.",
+      "rule_short": "W-Acc-Att",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:39:14+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Apache: Attempt to access forbidden file or directory.",
+      "rule_short": "W-Err-Fbd2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:39:56+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-29T14:40:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-29T14:41:53+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "192.168.1.116",
+      "sensor_host": "monitoring"
+    }
+  ],
+  "primary_host": "intranet_server",
+  "primary_host_ip": "192.168.188.179",
+  "endpoint_targets": [
+    {
+      "host": "intranet_server",
+      "ip": "192.168.188.179"
+    },
+    {
+      "host": "mail",
+      "ip": "10.38.242.195"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "172.27.180.4"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "172.27.183.254"
+    },
+    {
+      "host": "webserver",
+      "ip": "10.38.243.24"
+    },
+    {
+      "host": "monitoring",
+      "ip": "192.168.1.116"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-29T14:33:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.38.242.195",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.38.242.195",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:37:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in DNS domain.",
+      "rule_short": "A-Dns-Chr",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:38+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: sshd: insecure connection attempt (scan).",
+      "rule_short": "W-Aut-Ssh2",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.27.183.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:52+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 400 error code.",
+      "rule_short": "W-Acc-400",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:53+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Apache: Attempt to access forbidden directory index.",
+      "rule_short": "W-Err-Fbd1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:56+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Web server 500 error code (Internal Error).",
+      "rule_short": "W-Acc-500",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:58+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple web server 400 error codes from same source ip.",
+      "rule_short": "W-All-Mul3",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:59+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Suspicious URL access.",
+      "rule_short": "W-Acc-Sus",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:38+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.27.183.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:52+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:53+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:53+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:38:59+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:39:14+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Common web attack.",
+      "rule_short": "W-Acc-Att",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:39:14+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Apache: Attempt to access forbidden file or directory.",
+      "rule_short": "W-Err-Fbd2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:39:56+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:40:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.38.243.24",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "10.38.243.24",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-29T14:41:53+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value out of expected range in monitoring logs.",
+      "rule_short": "A-Mon-Rng",
+      "sensor_ip": "192.168.1.116",
+      "sensor_host": "monitoring",
+      "host": "monitoring",
+      "host_ip": "192.168.1.116",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 6044,
+    "detector_counts": {
+      "wazuh": 5216,
+      "aminer": 828
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: Web server 400 error code.",
+        "count": 4796
+      },
+      {
+        "rule_name": "AMiner: New request method in Apache Access log.",
+        "count": 731
+      },
+      {
+        "rule_name": "Wazuh: Multiple web server 400 error codes from same source ip.",
+        "count": 368
+      },
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 35
+      },
+      {
+        "rule_name": "AMiner: New characters in Apache Access request.",
+        "count": 31
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 27
+      },
+      {
+        "rule_name": "AMiner: New status code in Apache Access log.",
+        "count": 17
+      },
+      {
+        "rule_name": "Wazuh: Suspicious URL access.",
+        "count": 12
+      },
+      {
+        "rule_name": "AMiner: New characters in DNS domain.",
+        "count": 9
+      },
+      {
+        "rule_name": "Wazuh: Apache: Attempt to access forbidden file or directory.",
+        "count": 7
+      },
+      {
+        "rule_name": "AMiner: High entropy in Apache Access request.",
+        "count": 3
+      },
+      {
+        "rule_name": "Wazuh: Web server 500 error code (Internal Error).",
+        "count": 2
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "intranet_server",
+        "count": 6003
+      },
+      {
+        "host": "mail",
+        "count": 27
+      },
+      {
+        "host": "inet-firewall",
+        "count": 9
+      },
+      {
+        "host": "inet-dns",
+        "count": 3
+      },
+      {
+        "host": "webserver",
+        "count": 1
+      },
+      {
+        "host": "monitoring",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 18,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

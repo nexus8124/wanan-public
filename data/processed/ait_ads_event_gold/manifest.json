@@ -1,0 +1,134 @@
+{
+  "name": "AIT-ADS formal event-gold evaluation suite",
+  "version": 1,
+  "seed": 20260819,
+  "event_label_revision": "ce927ddaeaa674f6909e1de676fa7dc293e393bd",
+  "event_label_archive_sha256": "2bf1a81527a3fe15d92079a7834c9d77c5305546e15569657d2097d6294825c3",
+  "files": {
+    "development": {
+      "path": "C:\\Users\\11349\\Documents\\Codex\\2026-08-19\\https-github-com-nexus8124-wanan-public\\work\\wanan-public\\data\\processed\\ait_ads_event_gold\\ait_ads_event_gold_development.json",
+      "samples": 600,
+      "sha256": "ff58ea6a0a5b6a6d31d6a8a1a2088d27d4b53e68f56089fff33caeef98c6b416",
+      "scenarios": [
+        "fox",
+        "shaw",
+        "wardbeck"
+      ],
+      "frozen": false
+    },
+    "validation": {
+      "path": "C:\\Users\\11349\\Documents\\Codex\\2026-08-19\\https-github-com-nexus8124-wanan-public\\work\\wanan-public\\data\\processed\\ait_ads_event_gold\\ait_ads_event_gold_validation.json",
+      "samples": 200,
+      "sha256": "b48ad00214d6c04e99a01b17acdd1120dd5f198dbf0c4d685f31d91051a3a32d",
+      "scenarios": [
+        "santos",
+        "wheeler"
+      ],
+      "frozen": false
+    },
+    "test_frozen": {
+      "path": "C:\\Users\\11349\\Documents\\Codex\\2026-08-19\\https-github-com-nexus8124-wanan-public\\work\\wanan-public\\data\\processed\\ait_ads_event_gold\\ait_ads_event_gold_test_frozen.json",
+      "samples": 1000,
+      "sha256": "50468c51e4c6aae178d5c154362d809d634ea39a1974a05efced66b2c35887b7",
+      "scenarios": [
+        "harrison",
+        "russellmitchell",
+        "wilson"
+      ],
+      "frozen": true
+    }
+  },
+  "evidence_store": "C:\\Users\\11349\\Documents\\Codex\\2026-08-19\\https-github-com-nexus8124-wanan-public\\work\\wanan-public\\data\\processed\\ait_ads_event_evidence\\event-gold-v1-20260819",
+  "audit": {
+    "rows_total": 2655821,
+    "scenario_rows": {
+      "fox": 473104,
+      "shaw": 70782,
+      "wardbeck": 91257,
+      "santos": 130779,
+      "wheeler": 616161,
+      "harrison": 593948,
+      "russellmitchell": 45544,
+      "wilson": 634246
+    },
+    "detectors": {
+      "wazuh": 2293628,
+      "suricata": 306635,
+      "aminer": 55558
+    },
+    "eligible_before_case_dedup": {
+      "fox:假阳": 51447,
+      "fox:真阳": 419914,
+      "shaw:假阳": 63847,
+      "shaw:真阳": 6061,
+      "wardbeck:假阳": 84215,
+      "wardbeck:真阳": 6097,
+      "santos:假阳": 92066,
+      "santos:真阳": 11165,
+      "wheeler:假阳": 183822,
+      "wheeler:真阳": 430548,
+      "harrison:假阳": 115974,
+      "harrison:真阳": 425580,
+      "russellmitchell:假阳": 33525,
+      "russellmitchell:真阳": 10958,
+      "wilson:假阳": 194132,
+      "wilson:真阳": 434715
+    },
+    "eligible_after_case_dedup": {
+      "fox:假阳": 7926,
+      "fox:真阳": 223,
+      "shaw:假阳": 8535,
+      "shaw:真阳": 44,
+      "wardbeck:假阳": 10532,
+      "wardbeck:真阳": 46,
+      "santos:假阳": 17547,
+      "santos:真阳": 45,
+      "wheeler:假阳": 26772,
+      "wheeler:真阳": 201,
+      "harrison:假阳": 25772,
+      "harrison:真阳": 487,
+      "russellmitchell:假阳": 5562,
+      "russellmitchell:真阳": 55,
+      "wilson:假阳": 25959,
+      "wilson:真阳": 231
+    },
+    "excluded_conflicts": {
+      "attack_time_without_event": 19543,
+      "event_outside_attack_time": 72212
+    },
+    "time_event_pairs": {
+      "dirb|dirb": 1688945,
+      "false_positive|-": 819028,
+      "false_positive|dnsteal": 72212,
+      "wpscan|wpscan": 54779,
+      "dnsteal|-": 8630,
+      "cracking|-": 5072,
+      "service_scans|-": 2000,
+      "dirb|-": 1939,
+      "network_scans|-": 1490,
+      "cracking|dnsteal": 300,
+      "service_scans|service_scan": 258,
+      "dirb|dnsteal": 206,
+      "privilege_escalation|escalated_sudo_command": 183,
+      "wpscan|-": 144,
+      "webshell|-": 105,
+      "privilege_escalation|attacker_change_user": 100,
+      "service_scans|dnsteal": 96,
+      "privilege_escalation|-": 82,
+      "network_scans|dnsteal": 80,
+      "reverse_shell|-": 78,
+      "service_stop|dnsteal": 18,
+      "cracking|webshell_cmd": 13,
+      "webshell|webshell_cmd": 12,
+      "cracking|crack_passwords": 11,
+      "network_scans|dns_scan": 9,
+      "wpscan|dnsteal": 8,
+      "cracking|online_cracking": 6,
+      "privilege_escalation|dnsteal": 6,
+      "webshell|dnsteal": 4,
+      "reverse_shell|dnsteal": 4,
+      "service_stop|-": 3
+    },
+    "case_dedup_removed": 2434129
+  }
+}

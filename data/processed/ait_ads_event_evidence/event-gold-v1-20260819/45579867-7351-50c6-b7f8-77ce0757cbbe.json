@@ -1,0 +1,456 @@
+{
+  "case_id": "45579867-7351-50c6-b7f8-77ce0757cbbe",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-23T17:47:34+00:00",
+    "detector": "suricata",
+    "source": "ids",
+    "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+    "rule_short": "S-Tls-Rec",
+    "sensor_ip": "10.132.56.81",
+    "sensor_host": "vpn"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-23T17:47:34+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-23T17:42:43+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-23T17:42:43+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-23T17:42:43+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-23T17:43:43+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: User login failed.",
+      "rule_short": "W-Aut-Pam2",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail"
+    },
+    {
+      "timestamp": "2022-01-23T17:43:47+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: syslog: User authentication failure.",
+      "rule_short": "W-Sys-Fai",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail"
+    },
+    {
+      "timestamp": "2022-01-23T17:43:47+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+      "rule_short": "W-Mai-Inv",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail"
+    },
+    {
+      "timestamp": "2022-01-23T17:43:58+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail"
+    },
+    {
+      "timestamp": "2022-01-23T17:46:42+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-23T17:47:34+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-23T17:47:34+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-23T17:47:35+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-23T17:47:35+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-23T17:49:49+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-23T17:49:58+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-23T17:49:59+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn"
+    }
+  ],
+  "primary_host": "vpn",
+  "primary_host_ip": "10.132.56.81",
+  "endpoint_targets": [
+    {
+      "host": "vpn",
+      "ip": "10.132.56.81"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "10.132.56.1"
+    },
+    {
+      "host": "watkins_mail",
+      "ip": "192.168.96.99"
+    },
+    {
+      "host": "mail",
+      "ip": "10.132.56.171"
+    }
+  ],
+  "network_targets": [
+    "10.132.56.1",
+    "10.132.56.81"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-23T17:42:43+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.132.56.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:43:43+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: User login failed.",
+      "rule_short": "W-Aut-Pam2",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail",
+      "host": "watkins_mail",
+      "host_ip": "192.168.96.99",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:43:47+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: syslog: User authentication failure.",
+      "rule_short": "W-Sys-Fai",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail",
+      "host": "watkins_mail",
+      "host_ip": "192.168.96.99",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:43:47+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+      "rule_short": "W-Mai-Inv",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail",
+      "host": "watkins_mail",
+      "host_ip": "192.168.96.99",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:43:58+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "192.168.96.99",
+      "sensor_host": "watkins_mail",
+      "host": "watkins_mail",
+      "host_ip": "192.168.96.99",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:46:42+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Dovecot Authentication Success.",
+      "rule_short": "W-Sys-Dov",
+      "sensor_ip": "10.132.56.171",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "10.132.56.171",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:47:34+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "10.132.56.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:47:35+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "10.132.56.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:47:35+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.132.56.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:49:49+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "10.132.56.81",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:49:58+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+      "rule_short": "W-All-Mul2",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.132.56.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:49:59+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "10.132.56.81",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-01-23T17:42:43+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.132.56.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:42:43+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.132.56.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.132.56.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:47:34+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+      "rule_short": "S-Tls-Hnd",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn",
+      "src_ip": "10.132.56.81",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-01-23T17:47:34+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+      "rule_short": "S-Tls-Rec",
+      "sensor_ip": "10.132.56.81",
+      "sensor_host": "vpn",
+      "src_ip": "10.132.56.81",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 418,
+    "detector_counts": {
+      "suricata": 176,
+      "wazuh": 242
+    },
+    "top_rules": [
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 171
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid record/traffic",
+        "count": 88
+      },
+      {
+        "rule_name": "Suricata: Alert - SURICATA TLS invalid handshake message",
+        "count": 88
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Authentication Success.",
+        "count": 60
+      },
+      {
+        "rule_name": "Wazuh: Dovecot Invalid User Login Attempt.",
+        "count": 3
+      },
+      {
+        "rule_name": "Wazuh: syslog: User authentication failure.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS events from same source ip.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: PAM: User login failed.",
+        "count": 1
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id (ignoring now this id).",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "inet-firewall",
+        "count": 200
+      },
+      {
+        "host": "vpn",
+        "count": 152
+      },
+      {
+        "host": "watkins_mail",
+        "count": 45
+      },
+      {
+        "host": "mail",
+        "count": 21
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 12,
+    "network_alerts": 4,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

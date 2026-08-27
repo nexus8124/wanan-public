@@ -160,16 +160,21 @@ uv run python -m app.eval.run \
 
 ## 八、数据文件为什么没有直接提交到 Git
 
-原始数据和生成后的评测 JSON 体积较大，并受到各自数据集使用条款约束，因此继续由 `.gitignore` 排除，不写入 Git 历史。
+AIT-ADS 原始归档仍由 `.gitignore` 排除；为了保证克隆或部署仓库后前端可以直接发现正式评测集，仓库现在随附已经构造完成的三个 AIT-ADS 分片及其 1,800 份案例证据：
 
-仓库提交的是：
+- `data/processed/ait_ads_event_gold/ait_ads_event_gold_development.json`（600 条）
+- `data/processed/ait_ads_event_gold/ait_ads_event_gold_validation.json`（200 条）
+- `data/processed/ait_ads_event_gold/ait_ads_event_gold_test_frozen.json`（1,000 条）
+- `data/processed/ait_ads_event_evidence/event-gold-v1-20260819/`（案例证据）
+
+仓库同时提交：
 
 - 可复现的数据下载与完整性验证信息。
 - 确定性数据构造代码。
 - 固定拆分、去重和标签隔离规则。
 - 测试与正式评测协议。
 
-使用前述两个 `prepare-*` 命令即可在本地重新生成完全相同的评测结构。
+使用前述 `prepare-*` 命令仍可在本地从官方原始数据重新生成相同的评测结构。ToN_IoT 外部验证集可继续按需构造；已部署环境中已有的 ToN_IoT 文件不会被覆盖。
 
 ## 九、当前可以和不可以宣称的结果
 

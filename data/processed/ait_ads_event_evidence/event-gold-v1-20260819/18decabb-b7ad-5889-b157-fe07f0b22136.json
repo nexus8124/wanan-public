@@ -1,0 +1,76 @@
+{
+  "case_id": "18decabb-b7ad-5889-b157-fe07f0b22136",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-21T02:29:37+00:00",
+    "detector": "aminer",
+    "source": "siem",
+    "rule_name": "AMiner: CPU value deviates from average in monitoring logs.",
+    "rule_short": "A-Mon-Avg",
+    "sensor_ip": "10.143.0.35",
+    "sensor_host": "monitoring"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-21T02:29:37+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value deviates from average in monitoring logs.",
+      "rule_short": "A-Mon-Avg",
+      "sensor_ip": "10.143.0.35",
+      "sensor_host": "monitoring"
+    }
+  ],
+  "primary_host": "monitoring",
+  "primary_host_ip": "10.143.0.35",
+  "endpoint_targets": [
+    {
+      "host": "monitoring",
+      "ip": "10.143.0.35"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-21T02:29:37+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: CPU value deviates from average in monitoring logs.",
+      "rule_short": "A-Mon-Avg",
+      "sensor_ip": "10.143.0.35",
+      "sensor_host": "monitoring",
+      "host": "monitoring",
+      "host_ip": "10.143.0.35",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 1,
+    "detector_counts": {
+      "aminer": 1
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: CPU value deviates from average in monitoring logs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "monitoring",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 1,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

@@ -1,0 +1,351 @@
+{
+  "case_id": "f31fc5f4-ba3b-54cd-8f25-f71f23667624",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-24T00:00:01+00:00",
+    "detector": "aminer",
+    "source": "edr",
+    "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+    "rule_short": "A-Aud-Com4",
+    "sensor_ip": "10.143.0.103",
+    "sensor_host": "internal_share"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-24T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.143.0.103",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.143.0.103",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:12+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:12+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:18+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:18+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:33+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:33+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver"
+    },
+    {
+      "timestamp": "2022-01-24T00:01:17+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-24T00:01:17+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share"
+    },
+    {
+      "timestamp": "2022-01-24T00:01:18+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.131.174",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-24T00:01:18+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.131.174",
+      "sensor_host": "vpn"
+    }
+  ],
+  "primary_host": "internal_share",
+  "primary_host_ip": "10.143.0.103",
+  "endpoint_targets": [
+    {
+      "host": "internal_share",
+      "ip": "10.143.0.103"
+    },
+    {
+      "host": "intranet_server",
+      "ip": "10.143.2.4"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "172.19.128.1"
+    },
+    {
+      "host": "webserver",
+      "ip": "172.19.130.68"
+    },
+    {
+      "host": "cloud_share",
+      "ip": "172.19.130.106"
+    },
+    {
+      "host": "vpn",
+      "ip": "172.19.131.174"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-24T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.143.0.103",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "10.143.0.103",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:01+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.143.0.103",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "10.143.0.103",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:12+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:12+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:18+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.19.128.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:18+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.128.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.19.128.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:33+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.19.130.68",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T00:00:33+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.68",
+      "sensor_host": "webserver",
+      "host": "webserver",
+      "host_ip": "172.19.130.68",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T00:01:17+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T00:01:17+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.130.106",
+      "sensor_host": "cloud_share",
+      "host": "cloud_share",
+      "host_ip": "172.19.130.106",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T00:01:18+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.131.174",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "172.19.131.174",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T00:01:18+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com4",
+      "sensor_ip": "172.19.131.174",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "172.19.131.174",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 12,
+    "detector_counts": {
+      "aminer": 12
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: New service_start parameter combination in Audit logs.",
+        "count": 6
+      },
+      {
+        "rule_name": "AMiner: New service_stop parameter combination in Audit logs.",
+        "count": 6
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "internal_share",
+        "count": 2
+      },
+      {
+        "host": "intranet_server",
+        "count": 2
+      },
+      {
+        "host": "inet-firewall",
+        "count": 2
+      },
+      {
+        "host": "webserver",
+        "count": 2
+      },
+      {
+        "host": "cloud_share",
+        "count": 2
+      },
+      {
+        "host": "vpn",
+        "count": 2
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 12,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

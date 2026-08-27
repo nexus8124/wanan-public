@@ -1,0 +1,215 @@
+{
+  "case_id": "156498bc-f56e-5eec-a05c-1b9c894aed64",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-02-07T01:17:23+00:00",
+    "detector": "suricata",
+    "source": "ids",
+    "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+    "rule_short": "S-Flw-Apt",
+    "sensor_ip": "172.26.240.200",
+    "sensor_host": "internal_share"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-02-07T01:17:23+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.26.240.200",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-02-07T01:14:43+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+      "rule_short": "A-Dns-Clc1",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-02-07T01:17:23+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.26.240.200",
+      "sensor_host": "internal_share"
+    },
+    {
+      "timestamp": "2022-02-07T01:17:23+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.182.192.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-02-07T01:17:23+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "10.182.192.1",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-02-07T01:17:23+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "172.26.240.200",
+      "sensor_host": "internal_share"
+    }
+  ],
+  "primary_host": "internal_share",
+  "primary_host_ip": "172.26.240.200",
+  "endpoint_targets": [
+    {
+      "host": "internal_share",
+      "ip": "172.26.240.200"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "192.168.239.254"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "10.182.192.1"
+    }
+  ],
+  "network_targets": [
+    "172.26.240.200",
+    "10.182.192.1"
+  ],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-02-07T01:14:43+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+      "rule_short": "A-Dns-Clc1",
+      "sensor_ip": "192.168.239.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "192.168.239.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T01:17:23+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "172.26.240.200",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "172.26.240.200",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T01:17:23+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: IDS event.",
+      "rule_short": "W-All-Evt",
+      "sensor_ip": "10.182.192.1",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "10.182.192.1",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-02-07T01:17:23+00:00",
+      "detector": "wazuh",
+      "source": "siem",
+      "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+      "rule_short": "W-All-Mul1",
+      "sensor_ip": "172.26.240.200",
+      "sensor_host": "internal_share",
+      "host": "internal_share",
+      "host_ip": "172.26.240.200",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [
+    {
+      "timestamp": "2022-02-07T01:17:23+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "172.26.240.200",
+      "sensor_host": "internal_share",
+      "src_ip": "172.26.240.200",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    },
+    {
+      "timestamp": "2022-02-07T01:17:23+00:00",
+      "detector": "suricata",
+      "source": "ids",
+      "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+      "rule_short": "S-Flw-Apt",
+      "sensor_ip": "10.182.192.1",
+      "sensor_host": "inet-firewall",
+      "src_ip": "10.182.192.1",
+      "dst_ip": null,
+      "record_kind": "suricata_alert"
+    }
+  ],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 25,
+    "detector_counts": {
+      "aminer": 1,
+      "suricata": 12,
+      "wazuh": 12
+    },
+    "top_rules": [
+      {
+        "rule_name": "Suricata: Alert - ET POLICY GNU/Linux APT User-Agent Outbound likely related to package management",
+        "count": 12
+      },
+      {
+        "rule_name": "Wazuh: IDS event.",
+        "count": 11
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of DNS log events.",
+        "count": 1
+      },
+      {
+        "rule_name": "Wazuh: Multiple IDS alerts for same id.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "internal_share",
+        "count": 12
+      },
+      {
+        "host": "inet-firewall",
+        "count": 12
+      },
+      {
+        "host": "inet-dns",
+        "count": 1
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 4,
+    "network_alerts": 2,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

@@ -1,0 +1,422 @@
+{
+  "case_id": "c388ffd2-9025-524e-b663-7b8e7f586551",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-25T05:25:48+00:00",
+    "detector": "aminer",
+    "source": "edr",
+    "rule_name": "AMiner: High entropy in Apache Access user agent.",
+    "rule_short": "A-Acc-Ent3",
+    "sensor_ip": "192.168.188.179",
+    "sensor_host": "intranet_server"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-25T05:25:48+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: High entropy in Apache Access user agent.",
+      "rule_short": "A-Acc-Ent3",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.24.249.224",
+      "sensor_host": "vpn"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access referer.",
+      "rule_short": "A-Acc-Ent1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: High entropy in Apache Access user agent.",
+      "rule_short": "A-Acc-Ent3",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-25T05:27:38+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of query records in DNS logs.",
+      "rule_short": "A-Dns-Frq",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall"
+    },
+    {
+      "timestamp": "2022-01-25T05:29:03+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns"
+    },
+    {
+      "timestamp": "2022-01-25T05:29:03+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in DNS domain.",
+      "rule_short": "A-Dns-Chr",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns"
+    }
+  ],
+  "primary_host": "intranet_server",
+  "primary_host_ip": "192.168.188.179",
+  "endpoint_targets": [
+    {
+      "host": "intranet_server",
+      "ip": "192.168.188.179"
+    },
+    {
+      "host": "vpn",
+      "ip": "172.24.249.224"
+    },
+    {
+      "host": "inet-firewall",
+      "ip": "172.27.180.4"
+    },
+    {
+      "host": "inet-dns",
+      "ip": "172.27.183.254"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-25T05:20:01+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.24.249.224",
+      "sensor_host": "vpn",
+      "host": "vpn",
+      "host_ip": "172.24.249.224",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:09+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New status code in Apache Access log.",
+      "rule_short": "A-Acc-Val2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New request method in Apache Access log.",
+      "rule_short": "A-Acc-Val1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access referer.",
+      "rule_short": "A-Acc-Ent1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: High entropy in Apache Access user agent.",
+      "rule_short": "A-Acc-Ent3",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access request.",
+      "rule_short": "A-Acc-Chr2",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:20:14+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in Apache Access referer.",
+      "rule_short": "A-Acc-Chr1",
+      "sensor_ip": "192.168.188.179",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "192.168.188.179",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:27:38+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of query records in DNS logs.",
+      "rule_short": "A-Dns-Frq",
+      "sensor_ip": "172.27.180.4",
+      "sensor_host": "inet-firewall",
+      "host": "inet-firewall",
+      "host_ip": "172.27.180.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:29:03+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New ip address in DNS logs.",
+      "rule_short": "A-Dns-Val1",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.27.183.254",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-25T05:29:03+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New characters in DNS domain.",
+      "rule_short": "A-Dns-Chr",
+      "sensor_ip": "172.27.183.254",
+      "sensor_host": "inet-dns",
+      "host": "inet-dns",
+      "host_ip": "172.27.183.254",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 43,
+    "detector_counts": {
+      "aminer": 43
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 12
+      },
+      {
+        "rule_name": "AMiner: New characters in Apache Access request.",
+        "count": 9
+      },
+      {
+        "rule_name": "AMiner: New characters in Apache Access referer.",
+        "count": 4
+      },
+      {
+        "rule_name": "AMiner: New request method in Apache Access log.",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: High entropy in Apache Access request.",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: New characters in DNS domain.",
+        "count": 3
+      },
+      {
+        "rule_name": "AMiner: New ip address in DNS logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New status code in Apache Access log.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: High entropy in Apache Access referer.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: High entropy in Apache Access user agent.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of query records in DNS logs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "intranet_server",
+        "count": 28
+      },
+      {
+        "host": "vpn",
+        "count": 8
+      },
+      {
+        "host": "inet-dns",
+        "count": 4
+      },
+      {
+        "host": "inet-firewall",
+        "count": 3
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 14,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}

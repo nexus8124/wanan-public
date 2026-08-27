@@ -1,0 +1,465 @@
+{
+  "case_id": "2c94e2ba-7678-5e6c-8e6e-e6182d9250f0",
+  "case_type": "deduplicated_alert_case",
+  "dataset": "AIT-ADS-EVENT-GOLD",
+  "detector_event": {
+    "timestamp": "2022-01-24T04:37:40+00:00",
+    "detector": "wazuh",
+    "source": "edr",
+    "rule_name": "Wazuh: PAM: Login session opened.",
+    "rule_short": "W-Aut-Pam1",
+    "sensor_ip": "10.143.2.4",
+    "sensor_host": "intranet_server"
+  },
+  "detector_events": [
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Login session opened.",
+      "rule_short": "W-Aut-Pam1",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:32:29+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: User successfully changed UID.",
+      "rule_short": "W-Aut-Uid",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:58+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Successful sudo to ROOT executed.",
+      "rule_short": "W-Aut-Sud",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:25+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:25+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:25+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access logs.",
+      "rule_short": "A-Acc-Frq",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:38:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Login session closed.",
+      "rule_short": "W-Aut-Pam1",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:38:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_cmd parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:38:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_refr parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:38:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_end parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    },
+    {
+      "timestamp": "2022-01-24T04:38:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_disp parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server"
+    }
+  ],
+  "primary_host": "intranet_server",
+  "primary_host_ip": "10.143.2.4",
+  "endpoint_targets": [
+    {
+      "host": "intranet_server",
+      "ip": "10.143.2.4"
+    },
+    {
+      "host": "mail",
+      "ip": "172.19.130.4"
+    }
+  ],
+  "network_targets": [],
+  "endpoint_logs": [
+    {
+      "timestamp": "2022-01-24T04:32:29+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: ClamAV database update",
+      "rule_short": "W-Sys-Cav",
+      "sensor_ip": "172.19.130.4",
+      "sensor_host": "mail",
+      "host": "mail",
+      "host_ip": "172.19.130.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: User successfully changed UID.",
+      "rule_short": "W-Aut-Uid",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Login session opened.",
+      "rule_short": "W-Aut-Pam1",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:58+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: Successful sudo to ROOT executed.",
+      "rule_short": "W-Aut-Sud",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:25+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: High entropy in Apache Access request.",
+      "rule_short": "A-Acc-Ent2",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:25+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+      "rule_short": "A-Acc-Clc",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:25+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access logs.",
+      "rule_short": "A-Acc-Frq",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "aminer",
+      "source": "siem",
+      "rule_name": "AMiner: New event type.",
+      "rule_short": "A-All-Evt",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:37:40+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:38:06+00:00",
+      "detector": "wazuh",
+      "source": "edr",
+      "rule_name": "Wazuh: PAM: Login session closed.",
+      "rule_short": "W-Aut-Pam1",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:38:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_cmd parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:38:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_refr parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:38:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New user_end parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com6",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    },
+    {
+      "timestamp": "2022-01-24T04:38:06+00:00",
+      "detector": "aminer",
+      "source": "edr",
+      "rule_name": "AMiner: New cred_disp parameter combination in Audit logs.",
+      "rule_short": "A-Aud-Com2",
+      "sensor_ip": "10.143.2.4",
+      "sensor_host": "intranet_server",
+      "host": "intranet_server",
+      "host_ip": "10.143.2.4",
+      "record_kind": "host_detector_alert"
+    }
+  ],
+  "network_alerts": [],
+  "temporal_context": {
+    "window_seconds_before_after": 300,
+    "detector_event_count": 33,
+    "detector_counts": {
+      "wazuh": 12,
+      "aminer": 21
+    },
+    "top_rules": [
+      {
+        "rule_name": "AMiner: New event type.",
+        "count": 9
+      },
+      {
+        "rule_name": "Wazuh: ClamAV database update",
+        "count": 6
+      },
+      {
+        "rule_name": "Wazuh: PAM: Login session opened.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: Successful sudo to ROOT executed.",
+        "count": 2
+      },
+      {
+        "rule_name": "AMiner: New user_start parameter combination in Audit logs.",
+        "count": 2
+      },
+      {
+        "rule_name": "Wazuh: User successfully changed UID.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: High entropy in Apache Access request.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access request methods.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: Unusual occurrence frequencies of Apache Access logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New user_auth parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New user_acct parameter combination in Audit logs.",
+        "count": 1
+      },
+      {
+        "rule_name": "AMiner: New cred_acq parameter combination in Audit logs.",
+        "count": 1
+      }
+    ],
+    "top_hosts": [
+      {
+        "host": "intranet_server",
+        "count": 27
+      },
+      {
+        "host": "mail",
+        "count": 6
+      }
+    ],
+    "note": "Only label-free official detector rows were aggregated."
+  },
+  "coverage": {
+    "endpoint_records": 17,
+    "network_alerts": 0,
+    "network_kind": "suricata_alerts_not_netflow",
+    "netflow_available": false,
+    "contains_ground_truth": false
+  }
+}
