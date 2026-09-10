@@ -32,7 +32,7 @@ from app.eval.dataset import (
     select_eval_dataset,
 )
 from app.models.llm import get_model_catalog
-from app.operations import get_operations_snapshot
+from app.operations import get_operations_snapshot, get_response_audit
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +53,12 @@ class DatasetSelection(BaseModel):
 def get_stats() -> dict:
     """Return the latest deduplicated operational judgment statistics."""
     return get_operations_snapshot()
+
+
+@router.get("/response/audit")
+def response_audit(limit: int = 100) -> dict:
+    """Return the persisted execute/verify/retry/rollback audit trail."""
+    return get_response_audit(limit=limit)
 
 
 async def _stream_stats(request: Request) -> AsyncGenerator[dict, None]:

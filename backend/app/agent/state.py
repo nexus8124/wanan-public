@@ -87,3 +87,8 @@ class AgentState(TypedDict, total=False):
     multi_agent_steps: list[dict]
     planner_trace: list[dict]
     replan_count: int
+
+    # ----- 自主响应执行闭环 -----
+    response_plan: list[dict]
+    response_execution: dict
+    response_trace: list[dict]

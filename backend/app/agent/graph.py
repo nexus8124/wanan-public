@@ -12,7 +12,8 @@
     多智能体：judge → autonomous_plan → specialist_tool → observe/replan
                          ↑                              │
                          └──────── 新计划 ──────────────┘
-                    → verifier → disposition → output
+                    → verifier → disposition → response_execute
+                    → response_observe ↺ retry / rollback → output
 
 赛题对齐：
   - 基础任务（70分）：preprocess + judge + output
@@ -48,6 +49,11 @@ from app.agent.multi_agent import (
     should_enter_multi_agent,
 )
 from app.agent.state import AgentState
+from app.agent.response import (
+    make_response_nodes,
+    response_after_execute,
+    response_after_observe,
+)
 from app.models.llm import get_llm, provider_is_configured
 
 # 触发 ReAct 的置信度阈值（低于此值进入循环）
@@ -145,6 +151,9 @@ def build_graph(
         llm = get_llm()
     judge_node = make_judge_node(llm)
     react_decide_node = make_react_decide_node(llm)
+    response_execute_node, response_observe_node, response_rollback_node = (
+        make_response_nodes()
+    )
 
     graph = StateGraph(AgentState)
     graph.add_node("preprocess", preprocess_node)
@@ -166,6 +175,9 @@ def build_graph(
             )
         graph.add_node("multi_agent_verify", make_multi_agent_verify_node(llm))
     graph.add_node("disposition", disposition_node)
+    graph.add_node("response_execute", response_execute_node)
+    graph.add_node("response_observe", response_observe_node)
+    graph.add_node("response_rollback", response_rollback_node)
     graph.add_node("output", output_node)
 
     graph.add_edge(START, "preprocess")
@@ -235,8 +247,24 @@ def build_graph(
     # tool_executor 回到 react_decide（形成循环）
     graph.add_edge("tool_executor", "react_decide")
 
-    # 处置后输出
-    graph.add_edge("disposition", "output")
+    # 处置计划进入受控执行闭环：执行后独立观测；失败时有限重试，
+    # 原子处置仍不完整则回滚并升级人工。
+    graph.add_edge("disposition", "response_execute")
+    graph.add_conditional_edges(
+        "response_execute",
+        response_after_execute,
+        {"observe": "response_observe", "output": "output"},
+    )
+    graph.add_conditional_edges(
+        "response_observe",
+        response_after_observe,
+        {
+            "retry": "response_execute",
+            "rollback": "response_rollback",
+            "output": "output",
+        },
+    )
+    graph.add_edge("response_rollback", "output")
     graph.add_edge("output", END)
 
     return graph.compile()
@@ -285,6 +313,9 @@ def judge_alert(
         "multi_agent_replan": "multi_agent_replanned",
         "multi_agent_verify": "multi_agent_verified",
         "disposition": "disposition_completed",
+        "response_execute": "response_action_executed",
+        "response_observe": "response_action_observed",
+        "response_rollback": "response_action_rolled_back",
         "output": "sample_completed",
     }
     for update in graph.stream(

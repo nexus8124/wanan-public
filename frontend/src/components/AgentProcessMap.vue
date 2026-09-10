@@ -28,11 +28,12 @@ const flowNodes = computed<FlowNode[]>(() => [
     title: props.multiAgentEnabled ? '协同调查' : '自主调查',
     subtitle: props.multiAgentEnabled ? 'MULTI-AGENT' : 'REACT',
     aliases: props.multiAgentEnabled
-      ? ['multi_agent_plan', 'multi_agent_worker', 'multi_agent_verify']
+      ? ['multi_agent_plan', 'multi_agent_worker', 'multi_agent_replan', 'multi_agent_verify']
       : ['react_decide', 'tool_executor'],
   },
   { key: 'disposition', code: '05', title: '处置决策', subtitle: 'DISPOSITION', aliases: ['disposition'] },
-  { key: 'output', code: '06', title: '结果输出', subtitle: 'OUTPUT', aliases: ['output'] },
+  { key: 'response', code: '06', title: '执行与验证', subtitle: 'RESPONSE', aliases: ['response_execute', 'response_observe', 'response_rollback'] },
+  { key: 'output', code: '07', title: '结果输出', subtitle: 'OUTPUT', aliases: ['output'] },
 ])
 
 function nodeState(node: FlowNode): 'pending' | 'active' | 'complete' | 'skipped' {

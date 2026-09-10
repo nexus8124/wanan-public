@@ -1,7 +1,7 @@
 """SSE 流式研判接口。
 
 把 LangGraph 的 graph.stream(stream_mode="updates") 转成 Server-Sent Events，
-让前端能实时看到 Agent 每一步（judge → react_decide → tool_executor → disposition）。
+让前端能实时看到 Agent 每一步（调查 → 处置执行 → 效果验证 → 输出）。
 
 赛题贴合：挑战任务"展示完整的思维链推理过程"——评委看到 Agent 实时思考过程。
 """
@@ -130,6 +130,9 @@ async def judge_stream(
         event: judge       data: {...}
         event: react_decide data: {...}    （可能多次）
         event: tool_executor data: {...}   （可能多次）
+        event: response_execute data: {...}
+        event: response_observe data: {...}
+        event: response_rollback data: {...} （失败时）
         event: disposition data: {...}
         event: output      data: {...}
         event: done        data: {total_steps}

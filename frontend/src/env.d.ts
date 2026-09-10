@@ -28,6 +28,10 @@ export interface AgentResult {
   replan_count?: number
   tools_called: string[]
   disposition: Disposition | null
+  response_used?: boolean
+  response_execution?: Record<string, any>
+  response_trace?: Array<Record<string, any>>
+  containment_verified?: boolean
   evidence?: Array<Record<string, any>>
   cited_evidence?: string[]
   evidence_grounded?: boolean

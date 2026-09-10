@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -137,6 +138,41 @@ class Settings(BaseSettings):
     )
     react_max_no_evidence: int = Field(
         default=2, ge=1, le=10, alias="REACT_MAX_NO_EVIDENCE"
+    )
+
+    # ----- 自动响应闭环 -----
+    # simulate 可安全演示真实的执行/验证/重试/回滚状态机；webhook 只有在
+    # RESPONSE_LIVE_ENABLED=true 时才可能访问外部防火墙或 EDR 网关。
+    response_execution_mode: Literal["disabled", "simulate", "webhook"] = Field(
+        default="simulate", alias="RESPONSE_EXECUTION_MODE"
+    )
+    response_auto_execute: bool = Field(
+        default=True, alias="RESPONSE_AUTO_EXECUTE"
+    )
+    response_min_confidence: float = Field(
+        default=0.85, ge=0.0, le=1.0, alias="RESPONSE_MIN_CONFIDENCE"
+    )
+    response_max_retries: int = Field(
+        default=1, ge=0, le=3, alias="RESPONSE_MAX_RETRIES"
+    )
+    response_atomic: bool = Field(default=True, alias="RESPONSE_ATOMIC")
+    response_live_enabled: bool = Field(
+        default=False, alias="RESPONSE_LIVE_ENABLED"
+    )
+    response_live_require_evidence: bool = Field(
+        default=True, alias="RESPONSE_LIVE_REQUIRE_EVIDENCE"
+    )
+    response_firewall_webhook: str = Field(
+        default="", alias="RESPONSE_FIREWALL_WEBHOOK"
+    )
+    response_edr_webhook: str = Field(
+        default="", alias="RESPONSE_EDR_WEBHOOK"
+    )
+    response_webhook_token: str = Field(
+        default="", alias="RESPONSE_WEBHOOK_TOKEN"
+    )
+    response_timeout_s: float = Field(
+        default=10.0, gt=0, le=120, alias="RESPONSE_TIMEOUT_S"
     )
 
     @property

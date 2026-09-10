@@ -11,7 +11,7 @@
 | ------------------------------ | ---------------------------------------- | ----- |
 | 🥉 基础（70 分）告警研判 Agent | preprocess → judge → output            | ✅    |
 | 🥈 进阶（20 分）RAG 知识增强   | judge → selective RAG → guarded refine | ✅ v2 |
-| 🥇 挑战（10 分）ReAct 自主闭环 | react_loop → disposition                | ✅    |
+| 🥇 挑战（10 分）SuperAgent 自主闭环 | plan → investigate → replan → execute → verify | ✅ v2 |
 
 ---
 
@@ -40,8 +40,15 @@
   - 8 个工具（6 数据查询 Mock + 2 处置建议）
   - `react_decide` 节点：LLM 自主决定调哪个工具（Prompt 驱动，绕开 function_calling 不稳定）
   - `tool_executor` 节点：执行工具、收集证据
-  - `disposition` 节点：真阳→封禁+隔离工单，假阳→加白，待查→升级人工
+  - `disposition` 节点：真阳→生成封禁+隔离计划，假阳→加白，待查→升级人工
   - 循环终止三重保护：业务停止 / 置信度阈值 / 步数硬上限
+- **第五阶段自主响应闭环**：
+  - 真阳且达到阈值后，自动提交防火墙封禁与 EDR 隔离动作
+  - `response_execute → response_observe` 独立验证动作是否真正生效
+  - 失败后按有界策略自动重试；原子处置仍不完整时执行补偿回滚并升级人工
+  - 默认使用确定性模拟安全平台，演示完整闭环但不触碰真实设备
+  - 可切换受控 webhook 连接器；真实执行须显式开启、引用有效事件证据，且正式评测数据被硬性禁止
+  - 最终执行状态、回执、验证和回滚轨迹随研判结果持久化，前端逐动作展示
 - **第三阶段选择性 RAG v2**：
   - SQLite FTS5 + 本地稠密向量的混合检索，离线可运行
   - 内置 20 条高频 ATT&CK 技术与 19 条 SOC 研判手册，覆盖 17 类当前数据集行为域
@@ -247,7 +254,7 @@ XH-202614-security-agent/
 | -------------------------------------------- | ------------------------------------------------------------------------------------- |
 | "基于深信服 AI 安全平台的智能体"             | `models/llm.py` LLM 抽象工厂 + `sangfor` 适配接口                                 |
 | "开发解决……的智能体（Agent）"              | `agent/graph.py` LangGraph 状态机                                                   |
-| "调用各类安全工具（如防火墙封禁、EDR 隔离）" | Week 5 工具集`agent/tools.py`（含 `suggest_block_ip` / `suggest_isolate_host`） |
+| "调用各类安全工具（如防火墙封禁、EDR 隔离）" | `agent/response.py` 自动执行、效果验证、失败重试与补偿回滚 |
 | "展示完整的思维链推理过程"                   | Week 2 CoT Prompt + Week 5 前端 CoTViewer                                             |
 | "利用 RAG 技术，解决幻觉问题"                | Week 4`rag/` 模块                                                                   |
 

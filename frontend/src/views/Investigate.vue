@@ -161,6 +161,7 @@ const trace = reactive({
   knowledgeHits: [] as any[],
   citedKnowledge: [] as string[],
   disposition: null as any,
+  responseExecution: {} as Record<string, any>,
   evidence: [] as any[],
   citedEvidence: [] as string[],
   visitedNodes: [] as string[],
@@ -186,6 +187,7 @@ function resetTrace() {
   trace.knowledgeHits = []
   trace.citedKnowledge = []
   trace.disposition = null
+  trace.responseExecution = {}
   trace.evidence = []
   trace.citedEvidence = []
   trace.visitedNodes = []
@@ -213,6 +215,7 @@ function handleEvent(ev: StreamEvent) {
   if (u.task_ledger !== undefined) trace.taskLedger = u.task_ledger
   if (u.progress_ledger !== undefined) trace.progressLedger = u.progress_ledger
   if (u.disposition !== undefined) trace.disposition = u.disposition
+  if (u.response_execution !== undefined) trace.responseExecution = u.response_execution
   if (u.evidence !== undefined) trace.evidence = u.evidence
   if (u.cited_evidence !== undefined) trace.citedEvidence = u.cited_evidence
 }
@@ -491,7 +494,10 @@ function stopStream() {
 
       <section v-if="trace.disposition">
         <div class="section-title mb-3">03 · 处置闭环</div>
-        <DispositionCard :disposition="trace.disposition" />
+        <DispositionCard
+          :disposition="trace.disposition"
+          :response-execution="trace.responseExecution"
+        />
       </section>
     </section>
     </div>

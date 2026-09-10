@@ -64,6 +64,9 @@ const eventLabels: Record<string, string> = {
   multi_agent_replanned: '协调器根据新证据重新规划',
   multi_agent_verified: '验证智能体完成融合',
   disposition_completed: '处置建议生成',
+  response_action_executed: '防火墙/EDR 执行动作',
+  response_action_observed: '观测处置是否生效',
+  response_action_rolled_back: '处置失败后补偿回滚',
   sample_completed: '样本流程完成',
 }
 
@@ -1058,7 +1061,10 @@ const progressPercent = computed(() => {
 
           <section v-if="selectedDetail.agent_result.disposition">
             <div class="section-title mb-3">03 · 处置闭环</div>
-            <DispositionCard :disposition="selectedDetail.agent_result.disposition" />
+            <DispositionCard
+              :disposition="selectedDetail.agent_result.disposition"
+              :response-execution="selectedDetail.agent_result.response_execution"
+            />
           </section>
 
           <details class="card p-4">
