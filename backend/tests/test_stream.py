@@ -5,7 +5,7 @@ import asyncio
 from app.api import stream as stream_api
 
 
-def test_stream_graph_enables_multi_agent_as_independent_strategy(monkeypatch):
+def test_stream_graph_enables_multi_agent_react_loop(monkeypatch):
     captured: dict = {}
 
     class FakeGraph:
@@ -42,7 +42,7 @@ def test_stream_graph_enables_multi_agent_as_independent_strategy(monkeypatch):
 
     events = asyncio.run(collect_events())
 
-    assert captured["enable_react"] is False
+    assert captured["enable_react"] is True
     assert captured["enable_multi_agent"] is True
     assert captured["force_multi_agent"] is True
     assert captured["enable_rag"] is True

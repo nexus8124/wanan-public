@@ -874,6 +874,8 @@ def output_node(state: AgentState) -> AgentState:
         "multi_agent_steps": state.get("multi_agent_steps", []),
         "task_ledger": state.get("task_ledger", {}),
         "progress_ledger": state.get("progress_ledger", {}),
+        "planner_trace": state.get("planner_trace", []),
+        "replan_count": state.get("replan_count", 0),
         "tools_called": state.get("tools_called", []),
         "disposition": state.get("disposition"),
         "evidence": state.get("evidence", []),

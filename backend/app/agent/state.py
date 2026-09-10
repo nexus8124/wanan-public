@@ -85,3 +85,5 @@ class AgentState(TypedDict, total=False):
     progress_ledger: dict
     agent_queue: list[dict]
     multi_agent_steps: list[dict]
+    planner_trace: list[dict]
+    replan_count: int

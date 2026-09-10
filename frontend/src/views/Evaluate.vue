@@ -61,6 +61,7 @@ const eventLabels: Record<string, string> = {
   tool_completed: '工具返回证据',
   multi_agent_plan_created: '协调器生成调查计划',
   multi_agent_worker_completed: '专业智能体完成调查',
+  multi_agent_replanned: '协调器根据新证据重新规划',
   multi_agent_verified: '验证智能体完成融合',
   disposition_completed: '处置建议生成',
   sample_completed: '样本流程完成',
@@ -69,7 +70,7 @@ const eventLabels: Record<string, string> = {
 const strategyLabels: Record<string, string> = {
   judge_only: 'Judge-only 无工具基线',
   react: '完整 ReAct',
-  multi_agent: '多智能体协同',
+  multi_agent: '多智能体 ReAct 协同',
 }
 
 function strategyLabel(strategy: string | undefined): string {
@@ -570,7 +571,7 @@ const progressPercent = computed(() => {
           >
             <option value="judge_only">Judge-only（无工具基线）</option>
             <option value="react">完整 ReAct（多轮调用）</option>
-            <option value="multi_agent">多智能体协同（按数据源调查）</option>
+            <option value="multi_agent">多智能体 ReAct（自主规划与反馈）</option>
           </select>
         </label>
 
@@ -601,7 +602,7 @@ const progressPercent = computed(() => {
           </span>
         </div>
         <div class="min-w-0 break-words sm:col-span-2 xl:col-span-6 text-[10px] text-text-mute">
-          三种策略均可独立组合 RAG。多智能体仅对待查、低置信或具备真实多源证据的样本启动，标签不会传给任何 Agent。
+          三种策略均可独立组合 RAG。多智能体策略会自主规划任务，并在每次工具观测后动态重规划；标签不会传给任何 Agent。
         </div>
       </div>
     </div>

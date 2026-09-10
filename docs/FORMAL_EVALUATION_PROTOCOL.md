@@ -122,7 +122,7 @@ UNSW 官方说明允许永久免费的学术研究使用；商业使用需要联
 - 网络样本：`inspect_alert_context` + `fetch_network_flows`，返回该条真实 Zeek/Argus 特征记录。
 - Modbus 样本：`inspect_alert_context` + `fetch_endpoint_logs`，返回该条真实设备遥测，并明确它不是独立 EDR 日志。
 - ToN_IoT 正式样本不会回退到演示 Mock 威胁情报或 Mock 历史告警。
-- 多智能体协调器根据 `evidence_capabilities` 只派发本模态可用的专业任务。
+- 多智能体协调器根据告警和 `evidence_capabilities` 自主生成计划；每次工具观测后动态重规划，且只执行通过能力、权限、目标、去重和预算校验的任务。
 
 构造和运行：
 

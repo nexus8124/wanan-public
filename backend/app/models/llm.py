@@ -249,6 +249,70 @@ class FakeJudgeLLM(BaseChatModel):
                     "next_action": None,
                     "reasoning": "mock ReAct：当前证据已足够，停止工具调用。",
                 }
+            elif schema.__name__ == "MultiAgentPlan":
+                import re
+
+                ips = list(dict.fromkeys(re.findall(
+                    r"\b(?:\d{1,3}\.){3}\d{1,3}\b", text
+                )))
+                target = ips[0] if ips else ""
+                tasks = [{
+                    "agent": "context_agent",
+                    "tool": "inspect_alert_context",
+                    "args": {},
+                    "purpose": "先核验告警上下文和真实可用的数据源",
+                    "success_criteria": "取得检测器上下文或证据源说明",
+                }]
+                if target and "endpoint_logs" in text:
+                    tasks.append({
+                        "agent": "endpoint_agent",
+                        "tool": "fetch_endpoint_logs",
+                        "args": {"host_ip": target},
+                        "purpose": "核验告警主机上的进程和认证行为",
+                        "success_criteria": "取得与主机和时间一致的端点记录",
+                    })
+                if target and any(
+                    capability in text
+                    for capability in ("network_alerts", "network_flows", "netflow")
+                ):
+                    tasks.append({
+                        "agent": "network_agent",
+                        "tool": "fetch_network_flows",
+                        "args": {"host_ip": target, "window_min": 30},
+                        "purpose": "核验同一目标的网络连接和流量证据",
+                        "success_criteria": "取得与告警时间一致的网络记录",
+                    })
+                data = {
+                    "objective": "用最少的跨源查询验证当前告警判断",
+                    "rationale": "mock 协调器根据证据能力和真实目标自主生成调查顺序。",
+                    "tasks": tasks[:3],
+                }
+            elif schema.__name__ == "MultiAgentReplan":
+                import json
+
+                remaining: list[dict[str, Any]] = []
+                marker = "【尚未执行的候选任务】"
+                if marker in text:
+                    tail = text.split(marker, 1)[1]
+                    start = tail.find("[")
+                    if start >= 0:
+                        try:
+                            parsed, _ = json.JSONDecoder().raw_decode(tail[start:])
+                            if isinstance(parsed, list):
+                                remaining = [
+                                    item for item in parsed if isinstance(item, dict)
+                                ]
+                        except ValueError:
+                            remaining = []
+                data = {
+                    "observation": "mock 重规划器已读取最新工具观测。",
+                    "decision": "continue" if remaining else "verify",
+                    "rationale": (
+                        "仍有未核验的真实证据源，继续执行价值最高的下一项。"
+                        if remaining else "计划中的证据源已经核验，进入最终验证。"
+                    ),
+                    "tasks": remaining[:3],
+                }
             elif schema.__name__ == "MultiAgentVerdict":
                 import re
 

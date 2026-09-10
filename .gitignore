@@ -68,6 +68,7 @@ data/active_eval_dataset.json
 
 # Frontend锛圵eek 5 鎵嶅垱寤猴級
 frontend/node_modules/
+frontend/.npm-cache/
 frontend/.next/
 frontend/out/
 # dist 鏄瀯寤轰骇鐗╋紝涓嶅叆搴擄紙璇勫鏈湴 npm run build 鎴栨垜浠氦浠樻椂鎵撳寘锛?frontend/dist/

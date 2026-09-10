@@ -52,8 +52,10 @@
   - 知识库版本不一致时自动补建，并提供不含标签的离线检索覆盖审计
   - 页面支持三种策略分别组合 No-RAG / RAG 的六组实验
 - **第四阶段多智能体协同**：
-  - 新增独立 `multi_agent` 评测策略，与 `judge_only`、`react` 保持同口径对照
-  - 协调器维护任务账本与进度账本，按数据源选择上下文、端点和网络智能体
+  - `multi_agent` 评测策略已与 ReAct 合并为一条执行链，与 `judge_only`、单智能体 `react` 保持同口径对照
+  - 协调器由模型根据告警、当前假设和真实数据能力自主制定首轮调查计划，不再使用固定派工顺序
+  - 每次专业智能体返回工具观测后，协调器都会结合新证据、未完成任务和剩余预算重新规划，决定继续、换路或进入验证
+  - 模型提出的任务必须通过工具所有权、数据能力、查询目标、重复调用和步数预算校验后才能执行
   - 工具按智能体最小权限固定归属，验证智能体只融合已取得的 `EV-*` 证据
   - 三种策略均可分别组合 No-RAG / 选择性 RAG，并记录同轮修正与退化
 
@@ -182,7 +184,7 @@ uv run python -m app.rag.cli status
 uv run python -m app.rag.cli audit
 uv run python -m app.eval.run --strategy judge_only --rag --limit 50
 
-# 三种独立策略；每种都可追加 --rag
+# 三种可对照评测策略；每种都可追加 --rag
 uv run python -m app.eval.run --strategy judge_only --limit 50
 uv run python -m app.eval.run --strategy react --limit 50
 uv run python -m app.eval.run --strategy multi_agent --limit 50

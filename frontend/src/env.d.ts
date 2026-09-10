@@ -24,6 +24,8 @@ export interface AgentResult {
   multi_agent_steps?: MultiAgentStep[]
   task_ledger?: Record<string, any>
   progress_ledger?: Record<string, any>
+  planner_trace?: Array<Record<string, any>>
+  replan_count?: number
   tools_called: string[]
   disposition: Disposition | null
   evidence?: Array<Record<string, any>>

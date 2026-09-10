@@ -71,7 +71,9 @@ def judge(
         result = judge_alert(
             alert_dict,
             llm=llm,
-            enable_react=not multi_agent,
+            # 多智能体模式不是 ReAct 的替代项：协调器会在每次专业
+            # 智能体返回观测后，根据证据和剩余预算重新规划。
+            enable_react=True,
             enable_multi_agent=multi_agent,
             force_multi_agent=multi_agent,
             enable_rag=settings.rag_enabled if rag is None else rag,

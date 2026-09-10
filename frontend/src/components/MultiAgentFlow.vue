@@ -119,8 +119,8 @@ const totalEvidence = computed(() => {
 const selections = computed<FlowSelection[]>(() => {
   const items: FlowSelection[] = [{
     key: 'orchestrator', eyebrow: 'SOC ORCHESTRATOR', title: '任务编排与权限分配',
-    detail: `协调器将本轮调查拆分为 ${props.steps.length} 条受控任务，并为每个专业智能体分配唯一工具权限。`,
-    meta: [`计划：${plannedAgents.value.join(' → ') || '无额外任务'}`, `状态：${props.ledger?.status || 'completed'}`], tone: 'blue',
+    detail: `协调器先自主规划调查任务；每次专业智能体返回观测后，再根据新证据和剩余预算决定继续、换路或进入验证。`,
+    meta: [`计划：${plannedAgents.value.join(' → ') || '无额外任务'}`, `重规划：${props.ledger?.replan_count || 0} 次`, `状态：${props.ledger?.status || 'completed'}`], tone: 'blue',
   }]
 
   agentBranches.value.forEach((branch) => {
@@ -210,6 +210,7 @@ watch(() => props.steps.length, () => {
         <span><i>{{ plannedAgents.length }}</i> 计划智能体</span>
         <span><i>{{ agentBranches.length }}</i> 参与智能体</span>
         <span><i>{{ steps.length }}</i> 工具调用</span>
+        <span><i>{{ ledger?.replan_count || 0 }}</i> 自主重规划</span>
         <span><i>{{ totalEvidence }}</i> 证据对象</span>
       </div>
     </header>
@@ -226,7 +227,7 @@ watch(() => props.steps.length, () => {
         <span class="node-state"><i></i>{{ ledger?.status || 'completed' }}</span>
       </button>
 
-      <div class="down-route"><i></i><span>任务拆分与最小权限分配</span></div>
+      <div class="down-route"><i></i><span>自主规划 → 观察反馈 → 动态重规划</span></div>
 
       <div class="branch-grid" :class="branchLayoutClass">
         <article

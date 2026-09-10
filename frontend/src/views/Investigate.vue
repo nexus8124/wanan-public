@@ -337,7 +337,7 @@ function stopStream() {
         <label class="mt-2 flex items-center justify-between rounded-lg border border-border bg-bg px-3 py-2 text-xs">
           <span>
             <b class="text-text">多智能体研判</b>
-            <span class="block text-[10px] text-text-mute">按上下文、端点和网络证据源协同调查</span>
+            <span class="block text-[10px] text-text-mute">自主规划并按新证据动态重规划</span>
           </span>
           <input
             v-model="multiAgentEnabled"
@@ -348,7 +348,7 @@ function stopStream() {
         </label>
 
         <div v-if="multiAgentEnabled" class="mt-2 rounded-md border border-purple/30 bg-purple/5 px-3 py-2 text-[10px] text-text-mute">
-          多智能体与单智能体 ReAct 为独立策略；开启后由协调器分配专业智能体，可与 RAG 同时使用。
+          开启后进入多智能体 ReAct 闭环：协调器自主制定计划，专业智能体取证，每次观测后重新决定下一步；可与 RAG 同时使用。
         </div>
 
         <button

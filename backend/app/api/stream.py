@@ -47,7 +47,7 @@ async def _stream_graph(
 
     graph = build_graph(
         llm=get_llm(provider=provider, model=model, mock=use_mock),
-        enable_react=not enable_multi_agent,
+        enable_react=True,
         enable_multi_agent=enable_multi_agent,
         force_multi_agent=enable_multi_agent,
         enable_rag=enable_rag,

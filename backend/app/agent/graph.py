@@ -1,13 +1,18 @@
-"""LangGraph 主图（带 ReAct 循环版）。
+"""LangGraph 主图（带单智能体与多智能体 ReAct 循环）。
 
 链路：
     START → preprocess → judge → selective_rag（可选）─┬─ 高置信 → disposition → output → END
                                                         │
-                                                        └─ 低置信 → react_decide ─┐
+                                                        ├─ 单智能体 → react_decide ─┐
                                            ↑               ↓
                                            └─ tool_executor ┘
                                            ↓ (证据够 / 步数满)
                                         disposition → output → END
+
+    多智能体：judge → autonomous_plan → specialist_tool → observe/replan
+                         ↑                              │
+                         └──────── 新计划 ──────────────┘
+                    → verifier → disposition → output
 
 赛题对齐：
   - 基础任务（70分）：preprocess + judge + output
@@ -33,7 +38,10 @@ from app.agent.nodes import (
     tool_executor_node,
 )
 from app.agent.multi_agent import (
+    make_multi_agent_plan_node,
+    make_multi_agent_replan_node,
     make_multi_agent_verify_node,
+    multi_agent_after_worker,
     multi_agent_has_tasks,
     multi_agent_plan_node,
     multi_agent_worker_node,
@@ -135,9 +143,6 @@ def build_graph(
     """
     if llm is None:
         llm = get_llm()
-    if enable_react and enable_multi_agent:
-        raise ValueError("ReAct and multi_agent are independent strategies")
-
     judge_node = make_judge_node(llm)
     react_decide_node = make_react_decide_node(llm)
 
@@ -150,8 +155,15 @@ def build_graph(
     graph.add_node("react_decide", react_decide_node)
     graph.add_node("tool_executor", tool_executor_node)
     if enable_multi_agent:
-        graph.add_node("multi_agent_plan", multi_agent_plan_node)
+        graph.add_node(
+            "multi_agent_plan",
+            make_multi_agent_plan_node(llm) if enable_react else multi_agent_plan_node,
+        )
         graph.add_node("multi_agent_worker", multi_agent_worker_node)
+        if enable_react:
+            graph.add_node(
+                "multi_agent_replan", make_multi_agent_replan_node(llm)
+            )
         graph.add_node("multi_agent_verify", make_multi_agent_verify_node(llm))
     graph.add_node("disposition", disposition_node)
     graph.add_node("output", output_node)
@@ -185,11 +197,23 @@ def build_graph(
             multi_agent_has_tasks,
             {"worker": "multi_agent_worker", "verify": "multi_agent_verify"},
         )
-        graph.add_conditional_edges(
-            "multi_agent_worker",
-            multi_agent_has_tasks,
-            {"worker": "multi_agent_worker", "verify": "multi_agent_verify"},
-        )
+        if enable_react:
+            graph.add_conditional_edges(
+                "multi_agent_worker",
+                multi_agent_after_worker,
+                {"replan": "multi_agent_replan", "verify": "multi_agent_verify"},
+            )
+            graph.add_conditional_edges(
+                "multi_agent_replan",
+                multi_agent_has_tasks,
+                {"worker": "multi_agent_worker", "verify": "multi_agent_verify"},
+            )
+        else:
+            graph.add_conditional_edges(
+                "multi_agent_worker",
+                multi_agent_has_tasks,
+                {"worker": "multi_agent_worker", "verify": "multi_agent_verify"},
+            )
         graph.add_edge("multi_agent_verify", "disposition")
     elif enable_react:
         graph.add_conditional_edges(
@@ -258,6 +282,7 @@ def judge_alert(
         "tool_executor": "tool_completed",
         "multi_agent_plan": "multi_agent_plan_created",
         "multi_agent_worker": "multi_agent_worker_completed",
+        "multi_agent_replan": "multi_agent_replanned",
         "multi_agent_verify": "multi_agent_verified",
         "disposition": "disposition_completed",
         "output": "sample_completed",
