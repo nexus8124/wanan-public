@@ -24,6 +24,8 @@ ENV/
 .env.local
 .env.*.local
 *.key
+# 模型配置页持久化文件（含明文 API Key，仅本机）
+data/model_config.json
 
 # IDE
 .vscode/
@@ -31,6 +33,10 @@ ENV/
 *.swp
 *.swo
 .DS_Store
+
+# 本地 AI 助手工作目录（会话计划/技能，不属于项目代码）
+.zcode/
+.agents/
 
 # Logs
 *.log

@@ -67,6 +67,8 @@ class Settings(BaseSettings):
     app_env: str = Field(default="dev", alias="APP_ENV")
     app_port: int = Field(default=8000, alias="APP_PORT")
     eval_dataset_path: str = Field(default="", alias="EVAL_DATASET_PATH")
+    # 模型配置页的持久化文件；留空用 data/model_config.json（测试用它指向临时目录）
+    model_config_path_value: str = Field(default="", alias="MODEL_CONFIG_PATH")
 
     # ----- RAG 知识增强（第三阶段）-----
     # 默认关闭，便于用同一份代码做 No-RAG / RAG 对照实验。
@@ -179,6 +181,13 @@ class Settings(BaseSettings):
     def data_dir(self) -> Path:
         """数据根目录（datasets、chroma_db 等）"""
         return PROJECT_ROOT / "data"
+
+    @property
+    def model_config_path(self) -> Path:
+        """模型配置页的持久化文件路径。"""
+        if self.model_config_path_value.strip():
+            return Path(self.model_config_path_value).expanduser()
+        return self.data_dir / "model_config.json"
 
     @property
     def rag_db_path(self) -> Path:

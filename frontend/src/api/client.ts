@@ -77,6 +77,107 @@ export async function listModels(): Promise<{ providers: ModelProfile[] }> {
   return res.json()
 }
 
+// ---------- 模型配置（配置页读写，保存后立即生效） ----------
+
+export interface ModelConfigModelEntry {
+  id: string
+  label: string
+}
+
+export interface ModelConfigProvider {
+  id: string
+  display_name: string
+  base_url: string
+  enabled: boolean
+  builtin: boolean
+  api_key_set?: boolean
+  api_key_preview?: string
+  api_key_source?: 'file' | 'env' | 'none'
+  models: ModelConfigModelEntry[]
+}
+
+export interface ModelConfig {
+  config_file: string
+  from_file: boolean
+  defaults: { provider: string; model: string; temperature: number }
+  providers: ModelConfigProvider[]
+}
+
+export interface ModelConfigSaveProvider {
+  id: string
+  display_name: string
+  base_url: string
+  enabled: boolean
+  /** null = 沿用已保存的 key；'' = 清除；非空 = 覆盖 */
+  api_key?: string | null
+  models: ModelConfigModelEntry[]
+}
+
+export interface ModelConfigSavePayload {
+  default_provider: string
+  default_model: string
+  temperature: number
+  providers: ModelConfigSaveProvider[]
+}
+
+export interface ModelProviderTestResult {
+  ok: boolean
+  verified?: boolean
+  message: string
+}
+
+export async function getModelConfig(): Promise<ModelConfig> {
+  const res = await fetch(`${API_BASE}/config/models`, { cache: 'no-store' })
+  if (!res.ok) throw new Error(`load model config failed: ${res.status} ${await res.text()}`)
+  return res.json()
+}
+
+export async function saveModelConfig(payload: ModelConfigSavePayload): Promise<ModelConfig> {
+  const res = await fetch(`${API_BASE}/config/models`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    let detail = text || `保存失败（HTTP ${res.status}）`
+    try {
+      const body = JSON.parse(text)
+      if (body?.detail) detail = body.detail
+    } catch { /* 保留原始文本 */ }
+    throw new Error(detail)
+  }
+  return res.json()
+}
+
+export async function resetModelConfig(): Promise<ModelConfig> {
+  const res = await fetch(`${API_BASE}/config/models`, { method: 'DELETE' })
+  if (!res.ok) throw new Error(`reset model config failed: ${res.status} ${await res.text()}`)
+  return res.json()
+}
+
+export async function testModelProvider(body: {
+  provider: string
+  base_url?: string
+  api_key?: string
+}): Promise<ModelProviderTestResult> {
+  const res = await fetch(`${API_BASE}/config/models/test`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    let detail = text || `测试失败（HTTP ${res.status}）`
+    try {
+      const payload = JSON.parse(text)
+      if (payload?.detail) detail = payload.detail
+    } catch { /* 保留原始文本 */ }
+    throw new Error(detail)
+  }
+  return res.json()
+}
+
 export interface EvalStreamCallbacks {
   onStart?: (data: any) => void
   onAgentEvent?: (data: any) => void

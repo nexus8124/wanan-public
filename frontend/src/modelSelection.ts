@@ -91,3 +91,10 @@ export async function loadModelSelection(): Promise<void> {
   })
   return loadingPromise
 }
+
+/** 配置页保存后调用：丢弃缓存的厂商目录，重新拉取并校正当前选择。 */
+export async function reloadModelSelection(): Promise<void> {
+  modelProfiles.value = []
+  loadingPromise = null
+  await loadModelSelection()
+}
