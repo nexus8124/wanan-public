@@ -204,14 +204,33 @@ class TestEndToEnd:
         assert result["multi_agent_steps"]
         assert result["progress_ledger"]["status"] == "completed"
 
-    def test_multi_agent_and_react_cannot_be_enabled_together(self, tp_alert):
-        with pytest.raises(ValueError, match="independent strategies"):
-            judge_alert(
-                tp_alert,
-                llm=get_llm(mock=True),
-                enable_react=True,
-                enable_multi_agent=True,
-            )
+    def test_multi_agent_and_react_form_one_autonomous_loop(self, tp_alert):
+        events = []
+        tp_alert["raw_payload"] = {
+            "evidence_capabilities": ["endpoint_logs"],
+            "query_targets": {"endpoint": [{"ip": tp_alert["src_ip"]}]},
+        }
+        result = judge_alert(
+            tp_alert,
+            llm=get_llm(mock=True),
+            enable_react=True,
+            enable_multi_agent=True,
+            force_multi_agent=True,
+            event_callback=events.append,
+        )
+        assert result["multi_agent_used"] is True
+        assert result["react_used"] is True
+        assert result["multi_agent_verified"] is True
+        assert result["replan_count"] >= 1
+        assert result["planner_trace"][0]["mode"] == "llm_autonomous_react"
+        assert any(event["type"] == "multi_agent_replanned" for event in events)
+        assert len(result["react_steps"]) == len([
+            step for step in result["multi_agent_steps"]
+            if step["tool"] != "rag_retrieve"
+        ])
+        assert not ({"suggest_block_ip", "suggest_isolate_host"} & set(
+            result["tools_called"]
+        ))
 
 
 # ============================================================

@@ -243,3 +243,46 @@ def get_operations_snapshot(db_path: Path = DEFAULT_DB_PATH) -> dict[str, Any]:
         "trend": trend,
         "recent_events": recent,
     }
+
+
+def get_response_audit(
+    limit: int = 100,
+    db_path: Path = DEFAULT_DB_PATH,
+) -> dict[str, Any]:
+    """Return persisted containment receipts without exposing API credentials."""
+    init_operations_db(db_path)
+    safe_limit = max(1, min(500, int(limit)))
+    with _connect(db_path) as conn:
+        rows = conn.execute(
+            """
+            SELECT alert_id, judgment, confidence, result_json, created_at
+            FROM alert_judgments
+            ORDER BY created_at DESC, rowid DESC
+            LIMIT ?
+            """,
+            (safe_limit,),
+        ).fetchall()
+
+    records: list[dict[str, Any]] = []
+    for row in rows:
+        try:
+            result = json.loads(row["result_json"] or "{}")
+        except json.JSONDecodeError:
+            continue
+        execution = result.get("response_execution")
+        if not isinstance(execution, dict) or not execution.get("status"):
+            continue
+        records.append({
+            "alert_id": row["alert_id"],
+            "judgment": row["judgment"],
+            "confidence": float(row["confidence"] or 0),
+            "created_at": row["created_at"],
+            "run_id": execution.get("run_id"),
+            "mode": execution.get("mode"),
+            "status": execution.get("status"),
+            "attempt": execution.get("attempt", 0),
+            "reason": execution.get("reason", ""),
+            "actions": execution.get("actions", []),
+            "trace": result.get("response_trace", []),
+        })
+    return {"records": records, "count": len(records)}

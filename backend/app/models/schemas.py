@@ -154,6 +154,50 @@ class ReactDecision(BaseModel):
     )
 
 
+class InvestigationTask(BaseModel):
+    """协调智能体提出、框架校验后才能执行的单项调查任务。"""
+
+    agent: Literal[
+        "context_agent",
+        "endpoint_agent",
+        "network_agent",
+        "intel_agent",
+        "history_agent",
+        "knowledge_agent",
+    ]
+    tool: Literal[
+        "inspect_alert_context",
+        "fetch_endpoint_logs",
+        "fetch_network_flows",
+        "check_threat_intel",
+        "query_similar_alerts",
+        "search_attck_technique",
+        "search_sigma_rule",
+        "search_playbook",
+        "lookup_cve",
+    ]
+    args: dict[str, Any] = Field(default_factory=dict)
+    purpose: str = Field(..., min_length=1, max_length=300)
+    success_criteria: str = Field(default="取得可归因的相关证据", max_length=300)
+
+
+class MultiAgentPlan(BaseModel):
+    """SuperAgent 协调器首次生成的结构化调查计划。"""
+
+    objective: str = Field(..., min_length=1, max_length=300)
+    rationale: str = Field(..., min_length=1, max_length=500)
+    tasks: list[InvestigationTask] = Field(..., min_length=1, max_length=3)
+
+
+class MultiAgentReplan(BaseModel):
+    """每次取得新观测后，由协调器给出的 ReAct 重规划结果。"""
+
+    observation: str = Field(..., min_length=1, max_length=500)
+    decision: Literal["continue", "verify"]
+    rationale: str = Field(..., min_length=1, max_length=500)
+    tasks: list[InvestigationTask] = Field(default_factory=list, max_length=3)
+
+
 class MultiAgentVerdict(BaseModel):
     """多智能体证据融合后的最终裁决。"""
 

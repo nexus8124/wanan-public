@@ -1,12 +1,14 @@
 """LLM 抽象工厂。
 
 赛题贴合（合规性硬指标）：
-- "基于深信服 AI 安全平台" → 三 provider 工厂，预留 `sangfor` 适配接口
-- "集成 DeepSeek、Qwen 及深信服自研安全 GPT" → 三者皆支持切换
+- "基于深信服 AI 安全平台" → 多 provider 工厂，预留 `sangfor` 适配接口
+- "集成 DeepSeek、Qwen 及深信服自研安全 GPT" → 皆支持切换
 
 设计要点：
-1. DeepSeek / Qwen 都兼容 OpenAI 接口，统一用 `ChatOpenAI`
-2. 深信服安全 GPT（运营 GPT / 检测 GPT）暂未拿到权限，留 NotImplementedError 但接口已对齐
+1. 厂商/模型目录来自 app.core.model_config：内置目录 + 配置页写入的
+   data/model_config.json（运行时生效，无需重启），全部走 OpenAI 兼容接口
+2. 深信服安全 GPT 未配置 base_url/key 时抛 NotImplementedError，接口已对齐；
+   在配置页填入后即可通过通用路径调用
 3. `mock=True` 返回 FakeJudgeLLM，让无 key / CI 环境也能跑通测试，不耗 token
 """
 
@@ -20,88 +22,40 @@ from langchain_openai import ChatOpenAI
 
 from app.core.config import Settings, get_settings
 from app.core.logging import get_logger
+from app.core.model_config import (
+    env_key_hint,
+    get_effective_config,
+)
 
 logger = get_logger(__name__)
 
-# 各 provider 的默认配置
-# 注：DeepSeek、Qwen 均 OpenAI 兼容，base_url 不同
-_PROVIDER_DEFAULTS: dict[str, dict[str, Any]] = {
-    "deepseek": {
-        # V4 Pro is the default; V4 Flash remains available for fast comparisons.
-        "model": "deepseek-v4-pro",
-        "base_url": "https://api.deepseek.com",
-    },
-    "qwen": {
-        "model": "qwen3.7-flash",
-        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-    },
-    "siliconflow": {
-        "model": "Qwen/Qwen3.5-9B",
-        "base_url": "https://api.siliconflow.cn/v1",
-    },
-    "openai_relay": {
-        "model": "gpt-5.4",
-        "base_url": "https://www.cctq.ai/v1",
-    },
-    "sangfor": {
-        # 深信服安全 GPT：base_url 待平台权限下发后填入 .env
-        "model": "sangfor-security-gpt",
-        "base_url": "",  # 占位，从 settings.sangfor_base_url 读
-    },
-}
-
-_PROVIDER_DISPLAY_NAMES: dict[str, str] = {
-    "deepseek": "DeepSeek",
-    "siliconflow": "SiliconFlow",
-    "openai_relay": "OpenAI 中转",
-    "qwen": "阿里云百炼",
-}
-
-# Models exposed by the comparison UI. Users can still override any model
-# through LLM_MODEL or the per-run API/CLI argument.
-_MODEL_CATALOG: dict[str, list[dict[str, str]]] = {
-    "deepseek": [
-        {"id": "deepseek-v4-pro", "label": "DeepSeek V4 Pro"},
-        {"id": "deepseek-v4-flash", "label": "DeepSeek V4 Flash"},
-    ],
-    "siliconflow": [
-        {"id": "Qwen/Qwen3.5-9B", "label": "Qwen3.5 9B (SiliconFlow)"},
-        {"id": "Qwen/Qwen3-8B", "label": "Qwen3 8B (SiliconFlow)"},
-    ],
-    "openai_relay": [
-        {"id": "gpt-5.4", "label": "GPT-5.4 (relay)"},
-    ],
-    "qwen": [
-        {"id": "qwen3.7-flash", "label": "Qwen3.7 Flash"},
-    ],
-}
+# 厂商默认配置已迁移到 app.core.model_config：
+# 内置目录 + 配置页写入的 data/model_config.json 共同决定生效的 provider/model。
 
 
 def provider_is_configured(settings: Settings, provider: str | None = None) -> bool:
     """Return whether the selected provider has a usable API key."""
+    config = get_effective_config(settings)
     name = (provider or settings.llm_provider).lower()
-    key_fields = {
-        "deepseek": settings.deepseek_api_key,
-        "qwen": settings.qwen_api_key,
-        "siliconflow": settings.siliconflow_api_key,
-        "openai_relay": settings.openai_relay_api_key,
-        "sangfor": settings.sangfor_api_key,
-    }
-    return bool(key_fields.get(name, "").strip())
+    entry = config.provider_map.get(name)
+    return bool(entry and entry.resolved_api_key(settings))
 
 
 def get_model_catalog(settings: Settings | None = None) -> list[dict[str, Any]]:
     """Return safe provider/model metadata without exposing API keys."""
     s = settings or get_settings()
+    config = get_effective_config(s)
     return [
         {
-            "provider": provider,
-            "display_name": _PROVIDER_DISPLAY_NAMES[provider],
-            "models": models,
-            "configured": provider_is_configured(s, provider),
-            "default_model": _PROVIDER_DEFAULTS[provider]["model"],
+            "provider": provider.id,
+            "display_name": provider.display_name,
+            "models": [
+                {"id": m.id, "label": m.label} for m in provider.models
+            ],
+            "configured": bool(provider.resolved_api_key(s)),
+            "default_model": config.default_model_for(provider.id),
         }
-        for provider, models in _MODEL_CATALOG.items()
+        for provider in config.providers
     ]
 
 
@@ -113,11 +67,13 @@ def validate_model_selection(
 ) -> tuple[str, str]:
     """Resolve and validate a provider/model pair exposed by the public API."""
     s = settings or get_settings()
+    config = get_effective_config(s)
     provider_name = (provider or s.llm_provider).lower()
-    if provider_name not in _PROVIDER_DEFAULTS:
+    entry = config.provider_map.get(provider_name)
+    if entry is None:
         raise ValueError(
             f"Unknown LLM provider: {provider_name!r}. "
-            f"Expected one of {list(_MODEL_CATALOG)}"
+            f"Expected one of {list(config.provider_map)}"
         )
 
     configured_model = (
@@ -125,10 +81,15 @@ def validate_model_selection(
         if provider is None or provider_name == s.llm_provider.lower()
         else ""
     )
-    model_name = model or configured_model or _PROVIDER_DEFAULTS[provider_name]["model"]
-    allowed_models = {
-        item["id"] for item in _MODEL_CATALOG.get(provider_name, [])
-    } or {_PROVIDER_DEFAULTS[provider_name]["model"]}
+    model_name = (
+        model or configured_model or config.default_model_for(provider_name)
+    )
+    allowed_models = {m.id for m in entry.models}
+    if not allowed_models:
+        raise ValueError(
+            f"Provider {provider_name!r} has no models configured. "
+            "Add one on the model settings page."
+        )
     if model_name not in allowed_models:
         raise ValueError(
             f"Model {model_name!r} does not belong to provider {provider_name!r}. "
@@ -249,6 +210,70 @@ class FakeJudgeLLM(BaseChatModel):
                     "next_action": None,
                     "reasoning": "mock ReAct：当前证据已足够，停止工具调用。",
                 }
+            elif schema.__name__ == "MultiAgentPlan":
+                import re
+
+                ips = list(dict.fromkeys(re.findall(
+                    r"\b(?:\d{1,3}\.){3}\d{1,3}\b", text
+                )))
+                target = ips[0] if ips else ""
+                tasks = [{
+                    "agent": "context_agent",
+                    "tool": "inspect_alert_context",
+                    "args": {},
+                    "purpose": "先核验告警上下文和真实可用的数据源",
+                    "success_criteria": "取得检测器上下文或证据源说明",
+                }]
+                if target and "endpoint_logs" in text:
+                    tasks.append({
+                        "agent": "endpoint_agent",
+                        "tool": "fetch_endpoint_logs",
+                        "args": {"host_ip": target},
+                        "purpose": "核验告警主机上的进程和认证行为",
+                        "success_criteria": "取得与主机和时间一致的端点记录",
+                    })
+                if target and any(
+                    capability in text
+                    for capability in ("network_alerts", "network_flows", "netflow")
+                ):
+                    tasks.append({
+                        "agent": "network_agent",
+                        "tool": "fetch_network_flows",
+                        "args": {"host_ip": target, "window_min": 30},
+                        "purpose": "核验同一目标的网络连接和流量证据",
+                        "success_criteria": "取得与告警时间一致的网络记录",
+                    })
+                data = {
+                    "objective": "用最少的跨源查询验证当前告警判断",
+                    "rationale": "mock 协调器根据证据能力和真实目标自主生成调查顺序。",
+                    "tasks": tasks[:3],
+                }
+            elif schema.__name__ == "MultiAgentReplan":
+                import json
+
+                remaining: list[dict[str, Any]] = []
+                marker = "【尚未执行的候选任务】"
+                if marker in text:
+                    tail = text.split(marker, 1)[1]
+                    start = tail.find("[")
+                    if start >= 0:
+                        try:
+                            parsed, _ = json.JSONDecoder().raw_decode(tail[start:])
+                            if isinstance(parsed, list):
+                                remaining = [
+                                    item for item in parsed if isinstance(item, dict)
+                                ]
+                        except ValueError:
+                            remaining = []
+                data = {
+                    "observation": "mock 重规划器已读取最新工具观测。",
+                    "decision": "continue" if remaining else "verify",
+                    "rationale": (
+                        "仍有未核验的真实证据源，继续执行价值最高的下一项。"
+                        if remaining else "计划中的证据源已经核验，进入最终验证。"
+                    ),
+                    "tasks": remaining[:3],
+                }
             elif schema.__name__ == "MultiAgentVerdict":
                 import re
 
@@ -315,9 +340,9 @@ def get_llm(
     """LLM 工厂入口。
 
     参数：
-        provider: "deepseek" | "qwen" | "sangfor"；None 则读 settings.llm_provider
+        provider: 内置厂商或配置页添加的自定义厂商；None 则读默认配置
         model:    模型名；None 则用 provider 默认值
-        temperature: 温度；None 则读 settings.llm_temperature
+        temperature: 温度；None 则依次读配置文件、settings.llm_temperature
         mock:     True 时返回不耗 token 的假模型（测试 / 无 key 环境用）
         settings: 注入配置（测试用），None 则读全局单例
 
@@ -335,96 +360,58 @@ def get_llm(
         logger.info("LLM factory: returning mock LLM (no token cost)")
         return _make_mock_llm()
 
-    defaults = _PROVIDER_DEFAULTS[provider]
-    temp = temperature if temperature is not None else s.llm_temperature
-
-    if provider == "deepseek":
-        if not s.deepseek_api_key:
-            raise RuntimeError(
-                "DEEPSEEK_API_KEY not set. Fill it in .env "
-                "(see .env.example), or use get_llm(mock=True) for testing."
-            )
-        # DeepSeek V4 默认开启 thinking 模式（思考链）。
-        # 我们的研判 Prompt 已在内容层强制 5 步 CoT，不需要模型内部再 think，
-        # 而且 thinking 模式与 tool_choice/function_calling 有兼容问题
-        # （会报 "Thinking mode does not support this tool_choice"）。
-        # 所以默认关闭 thinking，需要时单独开启。
-        # return ChatOpenAI(
-        #     model=model_name,
-        #     api_key=s.deepseek_api_key,
-        #     base_url=defaults["base_url"],
-        #     temperature=temp,
-        #     extra_body={"thinking": {"type": "disabled"}},
-        # )
-        deepseek_kwargs: dict[str, Any] = {
-            "model": model_name,
-            "api_key": s.deepseek_api_key,
-            "base_url": s.deepseek_base_url.rstrip("/"),
-            "temperature": temp,
-            # Node calls pass the remaining global budget dynamically; this is
-            # the client-level fallback for direct/non-graph invocations.
-            "timeout": s.react_global_timeout_s,
-            "default_headers": {
-                "User-Agent": "Mozilla/5.0",
-            },
-        }
-
-        if s.deepseek_send_thinking:
-            deepseek_kwargs["extra_body"] = {
-                "thinking": {"type": "disabled"}
-            }
-
-        return ChatOpenAI(**deepseek_kwargs)
-        
-
-    if provider == "qwen":
-        if not s.qwen_api_key:
-            raise RuntimeError(
-                "QWEN_API_KEY not set. Fill it in .env or use mock=True."
-            )
-        return ChatOpenAI(
-            model=model_name,
-            api_key=s.qwen_api_key,
-            base_url=s.qwen_base_url or defaults["base_url"],
-            temperature=temp,
-            timeout=s.react_global_timeout_s,
+    config = get_effective_config(s)
+    entry = config.provider_map[provider]
+    api_key = entry.resolved_api_key(s)
+    base_url = entry.resolved_base_url(s)
+    temp = (
+        temperature
+        if temperature is not None
+        else (
+            config.temperature
+            if config.temperature is not None
+            else s.llm_temperature
         )
+    )
 
-    if provider == "siliconflow":
-        if not s.siliconflow_api_key:
-            raise RuntimeError(
-                "SILICONFLOW_API_KEY not set. Fill it in .env or use mock=True."
-            )
-        return ChatOpenAI(
-            model=model_name,
-            api_key=s.siliconflow_api_key,
-            base_url=s.siliconflow_base_url.rstrip("/"),
-            temperature=temp,
-            timeout=s.react_global_timeout_s,
-        )
-
-    if provider == "openai_relay":
-        if not s.openai_relay_api_key:
-            raise RuntimeError(
-                "OPENAI_RELAY_API_KEY not set. Fill it in .env or use mock=True."
-            )
-        return ChatOpenAI(
-            model=model_name,
-            api_key=s.openai_relay_api_key,
-            base_url=s.openai_relay_base_url.rstrip("/"),
-            temperature=temp,
-            timeout=s.react_global_timeout_s,
-        )
-
-    if provider == "sangfor":
-        # ⚠️ 深信服安全 GPT 适配点：平台权限下发后在此实现
-        # 当前只对齐接口签名，保证主流程不受影响
+    if provider == "sangfor" and not (api_key and base_url):
+        # ⚠️ 深信服安全 GPT 适配点：平台权限未下发（无 base_url/key）时保持占位。
+        # 在模型配置页填入 base_url 和 API Key 后即可通过通用 OpenAI 兼容路径调用。
         raise NotImplementedError(
             "Sangfor Security GPT adapter not yet implemented. "
-            "Waiting for platform access (contact the project administrator). "
+            "Waiting for platform access (contact the project administrator), "
+            "or configure its base_url and API key on the model settings page. "
             "Interface is reserved for compliance — switch provider to "
             "'deepseek' or 'qwen' for now."
         )
 
-    # 不可达：前面已校验 provider
-    raise AssertionError(f"unhandled provider: {provider}")
+    if not api_key:
+        raise RuntimeError(
+            f"{env_key_hint(provider)} not set. Fill it in .env "
+            "(see .env.example), configure it on the model settings page, "
+            "or use get_llm(mock=True) for testing."
+        )
+    if not base_url:
+        raise RuntimeError(
+            f"Provider {provider!r} has no base_url configured. "
+            "Set one on the model settings page."
+        )
+
+    client_kwargs: dict[str, Any] = {
+        "model": model_name,
+        "api_key": api_key,
+        "base_url": base_url.rstrip("/"),
+        "temperature": temp,
+        # Node calls pass the remaining global budget dynamically; this is
+        # the client-level fallback for direct/non-graph invocations.
+        "timeout": s.react_global_timeout_s,
+    }
+
+    if provider == "deepseek":
+        # DeepSeek V4 默认开启 thinking 模式，与研判 Prompt 的显式 5 步 CoT
+        # 重复，且与 tool_choice/function_calling 有兼容问题，默认关闭。
+        client_kwargs["default_headers"] = {"User-Agent": "Mozilla/5.0"}
+        if s.deepseek_send_thinking:
+            client_kwargs["extra_body"] = {"thinking": {"type": "disabled"}}
+
+    return ChatOpenAI(**client_kwargs)

@@ -256,7 +256,7 @@ def test_run_eval_judge_only_records_reproducible_config():
     assert all(not item["agent_result"]["react_used"] for item in result["details"])
 
 
-def test_run_eval_multi_agent_is_independent_and_supports_rag_flag():
+def test_run_eval_multi_agent_uses_react_and_supports_rag_flag():
     result = run_eval(
         dataset_path=EVAL_DATASET,
         llm=get_llm(mock=True),
@@ -270,6 +270,9 @@ def test_run_eval_multi_agent_is_independent_and_supports_rag_flag():
     assert result["experiment_config"]["multi_agent_enabled"] is True
     assert result["experiment_config"]["rag_enabled"] is True
     assert result["paired_multi_agent"]["n"] == 2
-    assert all(
-        not item["agent_result"]["react_used"] for item in result["details"]
-    )
+    multi_agent_results = [
+        item["agent_result"] for item in result["details"]
+        if item["agent_result"]["multi_agent_used"]
+    ]
+    assert multi_agent_results
+    assert all(item["react_used"] for item in multi_agent_results)

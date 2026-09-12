@@ -874,8 +874,18 @@ def output_node(state: AgentState) -> AgentState:
         "multi_agent_steps": state.get("multi_agent_steps", []),
         "task_ledger": state.get("task_ledger", {}),
         "progress_ledger": state.get("progress_ledger", {}),
+        "planner_trace": state.get("planner_trace", []),
+        "replan_count": state.get("replan_count", 0),
         "tools_called": state.get("tools_called", []),
         "disposition": state.get("disposition"),
+        "response_used": bool(
+            state.get("response_execution", {}).get("automated", False)
+        ),
+        "response_execution": state.get("response_execution", {}),
+        "response_trace": state.get("response_trace", []),
+        "containment_verified": (
+            state.get("response_execution", {}).get("status") == "contained"
+        ),
         "evidence": state.get("evidence", []),
         "cited_evidence": state.get("cited_evidence", []),
         "evidence_grounded": bool(state.get("cited_evidence", [])),
@@ -1212,7 +1222,7 @@ def tool_executor_node(state: AgentState) -> AgentState:
 
 
 def disposition_node(state: AgentState) -> AgentState:
-    """根据最终判定生成处置建议。
+    """根据最终判定生成可由响应执行器消费的处置计划。
 
     赛题贴合："从发现威胁到处置闭环"
     - 真阳 → suggest_block_ip + suggest_isolate_host
@@ -1234,25 +1244,54 @@ def disposition_node(state: AgentState) -> AgentState:
     src_ip = alert.get("src_ip", "")
     dst_ip = alert.get("dst_ip", "")
 
+    def is_private(value: str) -> bool:
+        try:
+            address = ipaddress.ip_address(value)
+            return address.is_private and not address.is_reserved
+        except ValueError:
+            return False
+
+    # 出站 C2：封外部目的并隔离内部源；入站攻击：封外部源并隔离
+    # 内部目的；内网横向：封并隔离发起端。避免固定把 dst 当攻击源。
+    if src_ip and is_private(src_ip) and dst_ip and not is_private(dst_ip):
+        block_target, isolate_target = dst_ip, src_ip
+    elif src_ip and not is_private(src_ip) and dst_ip and is_private(dst_ip):
+        block_target, isolate_target = src_ip, dst_ip
+    elif src_ip and is_private(src_ip):
+        block_target, isolate_target = src_ip, src_ip
+    else:
+        block_target, isolate_target = src_ip or dst_ip, ""
+
     disposition: dict[str, Any]
+    response_plan: list[dict[str, Any]] = []
     if judgment == "真阳":
-        # 真阳：封禁目的 IP（C2/攻击源）+ 隔离源主机（疑似失陷）
+        # 先生成审计工单，再由图中的 response 节点执行并独立验证。
         tickets = []
-        if dst_ip:
+        if block_target:
             t1 = execute_tool(
                 "suggest_block_ip", alert_ctx=alert,
-                args={"ip": dst_ip, "reason": f"判定真阳，置信度 {confidence:.2f}"},
+                args={"ip": block_target, "reason": f"判定真阳，置信度 {confidence:.2f}"},
             )
             tickets.append(ticket_data(t1))
-        if src_ip:
+        if isolate_target:
             t2 = execute_tool(
                 "suggest_isolate_host", alert_ctx=alert,
-                args={"host_ip": src_ip, "reason": f"疑似失陷终端（置信度 {confidence:.2f}）"},
+                args={"host_ip": isolate_target, "reason": f"疑似失陷终端（置信度 {confidence:.2f}）"},
             )
             tickets.append(ticket_data(t2))
+        response_plan = [
+            {
+                "action_id": ticket["ticket_id"],
+                "action": ticket["action"],
+                "target": ticket["target"],
+                "reason": ticket["reason"],
+            }
+            for ticket in tickets
+            if ticket.get("action") in {"block_ip", "isolate_host"}
+        ]
         disposition = {
-            "action": "block_and_isolate" if (src_ip and dst_ip) else "block_ip",
-            "summary": f"判定真阳（置信度 {confidence:.2f}），建议封禁攻击源 {dst_ip} 并隔离失陷主机 {src_ip}",
+            "action": "block_and_isolate" if isolate_target else "block_ip",
+            "summary": f"判定真阳（置信度 {confidence:.2f}），计划封禁 {block_target} 并隔离 {isolate_target or '无'}；后续节点将自动执行并验证",
             "tickets": tickets,
             "severity": "critical" if confidence >= 0.9 else "high",
         }
@@ -1272,4 +1311,4 @@ def disposition_node(state: AgentState) -> AgentState:
         }
 
     logger.info("disposition: %s severity=%s", disposition["action"], disposition["severity"])
-    return {"disposition": disposition}
+    return {"disposition": disposition, "response_plan": response_plan}

@@ -20,6 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api.alerts import router as alerts_router
+from app.api.config import router as config_router
 from app.api.rag import router as rag_router
 from app.api.stats import router as stats_router
 from app.api.stream import router as stream_router
@@ -54,6 +55,7 @@ app.include_router(alerts_router)
 app.include_router(stream_router)
 app.include_router(stats_router)
 app.include_router(rag_router)
+app.include_router(config_router)
 
 
 @app.get("/health")

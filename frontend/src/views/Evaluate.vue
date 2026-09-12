@@ -1,5 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted } from 'vue'
+import {
+  PhArrowsClockwise,
+  PhChartBar,
+  PhCheck,
+  PhClipboardText,
+  PhFolderOpen,
+  PhRocket,
+  PhStop,
+  PhWarning,
+  PhX,
+} from '@phosphor-icons/vue'
 import {
   streamRunEval,
   resumeEvalHistory,
@@ -21,13 +32,13 @@ import {
   selectedProvider,
   selectModelKey,
 } from '../modelSelection'
-import StatCard from '../components/StatCard.vue'
 import JudgmentBadge from '../components/JudgmentBadge.vue'
 import ConfidenceGauge from '../components/ConfidenceGauge.vue'
 import CoTTimeline from '../components/CoTTimeline.vue'
 import ToolCard from '../components/ToolCard.vue'
 import MultiAgentFlow from '../components/MultiAgentFlow.vue'
 import DispositionCard from '../components/DispositionCard.vue'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 const loading = ref(false)
 const errorMsg = ref('')
@@ -61,15 +72,19 @@ const eventLabels: Record<string, string> = {
   tool_completed: '工具返回证据',
   multi_agent_plan_created: '协调器生成调查计划',
   multi_agent_worker_completed: '专业智能体完成调查',
+  multi_agent_replanned: '协调器根据新证据重新规划',
   multi_agent_verified: '验证智能体完成融合',
   disposition_completed: '处置建议生成',
+  response_action_executed: '防火墙/EDR 执行动作',
+  response_action_observed: '观测处置是否生效',
+  response_action_rolled_back: '处置失败后补偿回滚',
   sample_completed: '样本流程完成',
 }
 
 const strategyLabels: Record<string, string> = {
   judge_only: 'Judge-only 无工具基线',
   react: '完整 ReAct',
-  multi_agent: '多智能体协同',
+  multi_agent: '多智能体 ReAct 协同',
 }
 
 function strategyLabel(strategy: string | undefined): string {
@@ -223,7 +238,7 @@ async function handleDatasetUpload(event: Event) {
   }
 }
 
-async function startEval() {
+function startEval() {
   if (!selectedProfile.value?.configured) {
     errorMsg.value = `${selectedProfile.value?.display_name || selectedProvider.value} 尚未配置 API Key。`
     return
@@ -234,9 +249,19 @@ async function startEval() {
   const strategyText = strategyLabel(evalStrategy.value)
   const ragText = ragEnabled.value ? '启用 RAG' : '不启用 RAG'
   const providerName = `${selectedProfile.value?.display_name || selectedProvider.value} / ${selectedModelLabel.value}`
-  if (!confirm(`将以“${providerName} + ${strategyText} + ${ragText}”对 ${sampleCount} 条均衡样本调用真实模型并消耗 Token，确认继续？`)) {
-    return
+  confirmRequest.value = {
+    title: '开始真实评测',
+    body: `将以「${providerName} + ${strategyText} + ${ragText}」对 ${sampleCount} 条均衡样本调用真实模型并消耗 Token。`,
+    confirmLabel: '开始评测',
+    tone: 'accent',
+    action: runEval,
   }
+}
+
+async function runEval() {
+  const datasetCount = activeDataset.value?.count || progress.value.total
+  const requestedLimit = evalLimit.value > 0 ? Math.min(evalLimit.value, datasetCount) : null
+  const sampleCount = requestedLimit || datasetCount
   loading.value = true
   errorMsg.value = ''
   result.value = null
@@ -414,8 +439,17 @@ async function resumeHistory(run: any) {
   }
 }
 
-async function removeHistory(run: any) {
-  if (!confirm(`确认删除这条${strategyLabel(run.strategy)}评测记录？`)) return
+function removeHistory(run: any) {
+  confirmRequest.value = {
+    title: '删除评测记录',
+    body: `将删除「${strategyLabel(run.strategy)} · ${formatTime(run.started_at)}」这条评测记录及全部样本明细，删除后不可恢复。`,
+    confirmLabel: '删除记录',
+    tone: 'danger',
+    action: () => { void doRemoveHistory(run) },
+  }
+}
+
+async function doRemoveHistory(run: any) {
   try {
     await deleteEvalHistory(run.id)
     if (viewingRunId.value === run.id) {
@@ -429,7 +463,14 @@ async function removeHistory(run: any) {
 }
 
 function formatTime(value: string): string {
-  return value ? new Date(value).toLocaleString() : '-'
+  if (!value) return '-'
+  return new Intl.DateTimeFormat('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(value))
 }
 
 const statusText: Record<string, string> = {
@@ -447,8 +488,40 @@ function statusClass(status: string): string {
 }
 
 function openDetail(detail: any, index: number) {
+  detailLastFocus = document.activeElement as HTMLElement | null
   selectedDetail.value = detail
   selectedDetailIndex.value = index
+  document.body.style.overflow = 'hidden'
+  nextTick(() => detailCloseBtn.value?.focus())
+}
+
+function closeDetail() {
+  selectedDetail.value = null
+  if (document.body.style.overflow === 'hidden' && !confirmRequest.value) {
+    document.body.style.overflow = ''
+  }
+  detailLastFocus?.focus?.()
+  detailLastFocus = null
+}
+
+// 详情模态的焦点管理:打开前记住触发元素,关闭后归还
+const detailCloseBtn = ref<HTMLButtonElement | null>(null)
+let detailLastFocus: HTMLElement | null = null
+
+// 站内确认对话框状态:取代原生 confirm()
+interface ConfirmRequest {
+  title: string
+  body: string
+  confirmLabel: string
+  tone: 'accent' | 'danger'
+  action: () => void
+}
+const confirmRequest = ref<ConfirmRequest | null>(null)
+
+function handleConfirm() {
+  const request = confirmRequest.value
+  confirmRequest.value = null
+  request?.action()
 }
 
 const progressPercent = computed(() => {
@@ -458,15 +531,15 @@ const progressPercent = computed(() => {
 </script>
 
 <template>
-  <div class="space-y-5 min-w-0 w-full max-w-full overflow-x-hidden">
+  <div class="space-y-4 min-w-0 w-full max-w-full overflow-x-hidden page-enter">
     <!-- 控制栏 -->
     <div class="card w-full max-w-full p-4 sm:p-5 overflow-hidden">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="min-w-0">
-          <h3 class="font-bold text-sm flex items-center gap-2 mb-1">
-            <span>📊</span> 批量评测
+          <h3 class="font-bold text-base flex items-center gap-2 mb-1">
+            <PhChartBar :size="18" weight="bold" class="text-cyan" aria-hidden="true" /> 批量评测
           </h3>
-          <p class="text-xs text-text-dim">
+          <p class="text-sm text-text-dim">
             在 {{ activeDataset?.count || progress.total }} 条标注样本上运行完整 Agent，输出准确率/精确率/召回率/F1
           </p>
         </div>
@@ -475,31 +548,31 @@ const progressPercent = computed(() => {
             @click="startEval"
             :disabled="loading || datasetBusy || !activeDataset || !selectedProfile?.configured"
             :title="selectedProfile?.configured ? `使用 ${selectedModelLabel}` : '当前模型厂商未配置 API Key'"
-            class="w-full lg:w-auto px-4 py-2 rounded-lg text-sm font-bold transition-all"
+            class="w-full lg:w-auto px-4 py-2 rounded-none text-sm font-bold transition-all inline-flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
             :class="loading
               ? 'bg-bg-2 text-text-mute'
-              : 'bg-gradient-to-r from-cyan to-purple text-bg hover:opacity-90'"
+              : 'bg-cyan text-on-accent border border-cyan hover:bg-text hover:text-bg hover:border-text'"
           >
-            🚀 真实评测（消耗 token）
+            <PhRocket :size="14" weight="fill" aria-hidden="true" /> 真实评测（消耗 token）
           </button>
           <button
             v-if="loading"
             @click="stopEval"
-            class="w-full lg:w-auto px-4 py-2 rounded-lg text-sm font-bold bg-red/10 border border-red/40 text-red hover:bg-red/20"
+            class="w-full lg:w-auto px-4 py-2 rounded-none text-sm font-bold bg-red/10 border border-red/40 text-red hover:bg-red/20 inline-flex items-center justify-center gap-1.5"
           >
-            ⏹ 停止评测
+            <PhStop :size="14" weight="fill" aria-hidden="true" /> 停止评测
           </button>
         </div>
       </div>
 
-      <div class="mt-5 pt-4 border-t border-border grid grid-cols-1 items-end gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(240px,1fr)_auto_160px_180px_190px_190px]">
+      <div class="mt-4 pt-3 border-t border-border grid grid-cols-1 items-end gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(240px,1fr)_auto_160px_180px_190px_190px]">
         <label class="min-w-0 sm:col-span-2 xl:col-span-1">
-          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">评测数据集</span>
+          <span class="block text-[11px] uppercase tracking-wider text-text-mute mb-2">评测数据集</span>
           <select
             :value="selectedDatasetId"
             @change="changeDataset"
             :disabled="loading || datasetBusy"
-            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-none px-3 py-2.5 text-[13px] text-text focus:border-text outline-none disabled:opacity-50"
           >
             <option v-for="item in datasets" :key="item.id" :value="item.id">
               {{ item.name }}（{{ item.count }} 条）
@@ -510,7 +583,7 @@ const progressPercent = computed(() => {
         <button
           @click="openUploadDialog"
           :disabled="loading || datasetBusy"
-          class="w-full px-4 py-2.5 rounded-lg border border-border text-xs text-text-dim hover:border-cyan hover:text-cyan disabled:opacity-50"
+          class="w-full px-4 py-2.5 rounded-none border border-border text-[13px] text-text-dim hover:border-text hover:text-text disabled:opacity-50"
         >
           {{ datasetBusy ? '处理中...' : '上传评测 JSON' }}
         </button>
@@ -523,12 +596,12 @@ const progressPercent = computed(() => {
         />
 
         <label class="min-w-0">
-          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">模型</span>
+          <span class="block text-[11px] uppercase tracking-wider text-text-mute mb-2">模型</span>
           <select
             :value="selectedModelKey"
             @change="changeSelectedModel"
             :disabled="loading || datasetBusy || !modelProfiles.length"
-            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-none px-3 py-2.5 text-[13px] text-text focus:border-text outline-none disabled:opacity-50"
           >
             <optgroup
               v-for="profile in modelProfiles"
@@ -548,11 +621,11 @@ const progressPercent = computed(() => {
         </label>
 
         <label class="min-w-0">
-          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">本次样本预算</span>
+          <span class="block text-[11px] uppercase tracking-wider text-text-mute mb-2">本次样本预算</span>
           <select
             v-model.number="evalLimit"
             :disabled="loading || datasetBusy"
-            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-none px-3 py-2.5 text-[13px] text-text focus:border-text outline-none disabled:opacity-50"
           >
             <option v-for="value in budgetOptions" :key="value" :value="value">
               {{ value }} 条{{ value === 20 ? '（推荐）' : '' }}
@@ -562,31 +635,31 @@ const progressPercent = computed(() => {
         </label>
 
         <label class="min-w-0">
-          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">评测策略</span>
+          <span class="block text-[11px] uppercase tracking-wider text-text-mute mb-2">评测策略</span>
           <select
             v-model="evalStrategy"
             :disabled="loading || datasetBusy"
-            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-none px-3 py-2.5 text-[13px] text-text focus:border-text outline-none disabled:opacity-50"
           >
             <option value="judge_only">Judge-only（无工具基线）</option>
             <option value="react">完整 ReAct（多轮调用）</option>
-            <option value="multi_agent">多智能体协同（按数据源调查）</option>
+            <option value="multi_agent">多智能体 ReAct（自主规划与反馈）</option>
           </select>
         </label>
 
         <label class="min-w-0">
-          <span class="block text-[10px] uppercase tracking-wider text-text-mute mb-2">知识增强</span>
+          <span class="block text-[11px] uppercase tracking-wider text-text-mute mb-2">知识增强</span>
           <select
             v-model="ragEnabled"
             :disabled="loading || datasetBusy"
-            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-xs text-text focus:border-cyan outline-none disabled:opacity-50"
+            class="w-full min-w-0 max-w-full bg-bg border border-border rounded-none px-3 py-2.5 text-[13px] text-text focus:border-text outline-none disabled:opacity-50"
           >
             <option :value="false">No-RAG 基线</option>
             <option :value="true">选择性安全知识 RAG</option>
           </select>
         </label>
 
-        <div v-if="activeDataset" class="min-w-0 sm:col-span-2 xl:col-span-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-text-mute">
+        <div v-if="activeDataset" class="min-w-0 sm:col-span-2 xl:col-span-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-text-mute">
           <span>真阳 {{ activeDataset.labels?.['真阳'] || 0 }}</span>
           <span>假阳 {{ activeDataset.labels?.['假阳'] || 0 }}</span>
           <span>标签：{{ activeDataset.label_basis }}</span>
@@ -600,105 +673,26 @@ const progressPercent = computed(() => {
             {{ activeDataset.label_warning }}
           </span>
         </div>
-        <div class="min-w-0 break-words sm:col-span-2 xl:col-span-6 text-[10px] text-text-mute">
-          三种策略均可独立组合 RAG。多智能体仅对待查、低置信或具备真实多源证据的样本启动，标签不会传给任何 Agent。
+        <div class="min-w-0 break-words sm:col-span-2 xl:col-span-6 text-[11px] text-text-mute">
+          三种策略均可独立组合 RAG。多智能体策略会自主规划任务，并在每次工具观测后动态重规划；标签不会传给任何 Agent。
         </div>
-      </div>
-    </div>
-
-    <!-- 持久化评测历史 -->
-    <div class="card w-full max-w-full overflow-hidden">
-      <div class="p-5 border-b border-border flex items-center justify-between gap-3">
-        <div>
-          <h3 class="font-bold text-sm flex items-center gap-2"><span>🗂️</span> 评测历史</h3>
-          <div class="text-[10px] text-text-mute mt-1">结果保存在本机 SQLite，中断前已完成的样本也可恢复</div>
-        </div>
-        <button
-          @click="loadHistory"
-          :disabled="historyLoading"
-          class="px-3 py-1.5 rounded-lg border border-border text-xs text-text-dim hover:border-cyan hover:text-cyan"
-        >{{ historyLoading ? '刷新中...' : '↻ 刷新' }}</button>
-      </div>
-
-      <div v-if="historyRuns.length" class="divide-y divide-border">
-        <div
-          v-for="(run, runIndex) in historyRuns"
-          :key="run.id"
-          class="p-4 hover:bg-bg-2/60 transition-colors"
-          :class="viewingRunId === run.id ? 'bg-cyan/5' : ''"
-        >
-          <div class="flex flex-wrap items-center gap-3">
-            <code class="font-mono text-xs text-cyan" :title="`原始运行ID：${run.id}`">{{ runNumber(runIndex) }}</code>
-            <span class="chip text-[10px]" :class="statusClass(run.status)">{{ statusText[run.status] || run.status }}</span>
-            <span class="text-xs text-pink">
-              真实模型
-            </span>
-            <span class="chip text-[10px] text-text-dim">
-              {{ strategyLabel(run.strategy) }}
-            </span>
-            <span class="text-[10px] text-text-mute">{{ formatTime(run.started_at) }}</span>
-            <span v-if="run.experiment_config?.model" class="text-[10px] text-text-mute font-mono">
-              {{ run.experiment_config.model }} · {{ run.experiment_config.prompt_version }}
-            </span>
-            <span class="ml-auto text-xs font-mono text-text-dim">{{ run.completed }} / {{ run.total }}</span>
-          </div>
-
-          <div class="h-1.5 rounded-full bg-bg mt-3 overflow-hidden">
-            <div
-              class="h-full rounded-full bg-gradient-to-r from-cyan to-purple"
-              :style="{ width: (run.total ? run.completed / run.total * 100 : 0) + '%' }"
-            ></div>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-4 mt-3">
-            <template v-if="run.metrics">
-              <span class="text-[10px] text-text-mute">准确率 <b class="text-green">{{ (run.metrics.accuracy * 100).toFixed(1) }}%</b></span>
-              <span class="text-[10px] text-text-mute">F1 <b class="text-cyan">{{ (run.metrics.f1 * 100).toFixed(1) }}</b></span>
-              <span class="text-[10px] text-text-mute">Macro-F1 <b class="text-purple">{{ ((run.metrics.macro_f1 ?? run.metrics.f1) * 100).toFixed(1) }}</b></span>
-              <span class="text-[10px] text-text-mute">调用 <b class="text-text-dim">{{ run.metrics.llm_calls ?? '-' }}</b></span>
-              <span class="text-[10px] text-text-mute">Token <b class="text-text-dim">{{ run.metrics.total_tokens ?? '-' }}</b></span>
-              <span class="text-[10px] text-text-mute">平均延迟 <b class="text-text-dim">{{ run.metrics.avg_latency_s.toFixed(2) }}s</b></span>
-            </template>
-            <span v-if="run.error" class="text-[10px] text-yellow truncate max-w-md" :title="run.error">{{ run.error }}</span>
-            <div class="ml-auto flex gap-2">
-              <button
-                @click="viewHistory(run)"
-                class="px-3 py-1.5 rounded-lg border border-cyan/40 text-xs text-cyan hover:bg-cyan/10"
-              >查看 {{ run.completed }} 条结果</button>
-              <button
-                v-if="['interrupted', 'failed'].includes(run.status) && run.completed < run.total"
-                @click="resumeHistory(run)"
-                :disabled="loading"
-                class="px-3 py-1.5 rounded-lg border border-yellow/40 text-xs text-yellow hover:bg-yellow/10 disabled:opacity-40"
-              >继续</button>
-              <button
-                @click="removeHistory(run)"
-                :disabled="run.status === 'running'"
-                class="px-3 py-1.5 rounded-lg border border-red/30 text-xs text-red disabled:opacity-30 hover:bg-red/10"
-              >删除</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div v-else class="p-8 text-center text-xs text-text-mute">
-        {{ historyLoading ? '正在读取历史...' : '暂无评测历史，运行一次评测后会自动保存' }}
       </div>
     </div>
 
     <!-- 错误 -->
-    <div v-if="errorMsg" class="p-4 rounded-lg bg-red/10 border border-red/40 text-red">
-      ⚠ {{ errorMsg }}
+    <div v-if="errorMsg" role="alert" class="p-4 rounded-none bg-red/10 border border-red/40 text-red flex items-center gap-2">
+      <PhWarning :size="16" weight="bold" aria-hidden="true" /> {{ errorMsg }}
     </div>
 
     <!-- 加载中 -->
-    <div v-if="loading" class="card p-10 text-center">
+    <div v-if="loading" class="card p-6 text-center">
       <div class="animate-pulse-dot text-cyan text-3xl mb-3">●</div>
       <div class="text-sm text-text-dim">
         评测进行中：{{ progress.completed }} / {{ progress.total }}（{{ progressPercent }}%）
       </div>
-      <div class="max-w-xl h-2 mx-auto mt-4 rounded-full bg-bg-2 overflow-hidden">
+      <div class="max-w-xl h-2 mx-auto mt-4 rounded-none bg-bg-2 overflow-hidden">
         <div
-          class="h-full bg-gradient-to-r from-cyan to-purple rounded-full transition-all duration-300"
+          class="h-full bg-cyan transition-all duration-300"
           :style="{ width: progressPercent + '%' }"
         ></div>
       </div>
@@ -709,7 +703,7 @@ const progressPercent = computed(() => {
       </div>
       <div
         v-if="liveAgentEvents.length"
-        class="max-w-3xl mx-auto mt-5 text-left border border-border rounded-lg bg-bg-1/70 overflow-hidden"
+        class="max-w-3xl mx-auto mt-5 text-left border border-border rounded-none bg-card overflow-hidden"
       >
         <div class="px-4 py-2 border-b border-border text-xs text-text-dim flex justify-between">
           <span>实时 Agent 轨迹</span>
@@ -748,55 +742,77 @@ const progressPercent = computed(() => {
         v-if="result?.experiment_config?.rag_enabled && result?.paired_rag"
         class="card px-5 py-4 grid grid-cols-2 md:grid-cols-6 gap-4 text-xs"
       >
-        <div><div class="text-text-mute">无 RAG 初判</div><div class="text-lg font-bold text-text">{{ (result.paired_rag.initial_accuracy * 100).toFixed(1) }}%</div></div>
-        <div><div class="text-text-mute">RAG 后融合</div><div class="text-lg font-bold text-cyan">{{ (result.paired_rag.final_accuracy * 100).toFixed(1) }}%</div></div>
-        <div><div class="text-text-mute">RAG 净变化</div><div class="text-lg font-bold" :class="result.paired_rag.accuracy_delta >= 0 ? 'text-green' : 'text-red'">{{ result.paired_rag.accuracy_delta >= 0 ? '+' : '' }}{{ (result.paired_rag.accuracy_delta * 100).toFixed(1) }} pp</div></div>
-        <div><div class="text-text-mute">触发 / 采纳</div><div class="text-lg font-bold text-purple">{{ result.paired_rag.triggered }} / {{ result.paired_rag.refinement_accepted }}</div></div>
-        <div><div class="text-text-mute">修正 / 退化</div><div class="text-lg font-bold"><span class="text-green">{{ result.paired_rag.fixes }}</span> / <span class="text-red">{{ result.paired_rag.regressions }}</span></div></div>
-        <div><div class="text-text-mute">后融合失败</div><div class="text-lg font-bold" :class="result.paired_rag.refinement_errors ? 'text-red' : 'text-green'">{{ result.paired_rag.refinement_errors }}</div></div>
+        <div><div class="text-text-mute">无 RAG 初判</div><div class="text-xl font-bold text-text">{{ (result.paired_rag.initial_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">RAG 后融合</div><div class="text-xl font-bold text-cyan">{{ (result.paired_rag.final_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">RAG 净变化</div><div class="text-xl font-bold" :class="result.paired_rag.accuracy_delta >= 0 ? 'text-green' : 'text-red'">{{ result.paired_rag.accuracy_delta >= 0 ? '+' : '' }}{{ (result.paired_rag.accuracy_delta * 100).toFixed(1) }} pp</div></div>
+        <div><div class="text-text-mute">触发 / 采纳</div><div class="text-xl font-bold text-purple">{{ result.paired_rag.triggered }} / {{ result.paired_rag.refinement_accepted }}</div></div>
+        <div><div class="text-text-mute">修正 / 退化</div><div class="text-xl font-bold"><span class="text-green">{{ result.paired_rag.fixes }}</span> / <span class="text-red">{{ result.paired_rag.regressions }}</span></div></div>
+        <div><div class="text-text-mute">后融合失败</div><div class="text-xl font-bold" :class="result.paired_rag.refinement_errors ? 'text-red' : 'text-green'">{{ result.paired_rag.refinement_errors }}</div></div>
       </div>
       <div
         v-if="result?.strategy === 'react' && result?.paired_react"
         class="card px-5 py-4 grid grid-cols-2 md:grid-cols-6 gap-4 text-xs"
       >
-        <div><div class="text-text-mute">{{ result?.experiment_config?.rag_enabled ? 'RAG 后判定' : '同轮初判' }}</div><div class="text-lg font-bold text-text">{{ (result.paired_react.initial_accuracy * 100).toFixed(1) }}%</div></div>
-        <div><div class="text-text-mute">ReAct 最终</div><div class="text-lg font-bold text-cyan">{{ (result.paired_react.final_accuracy * 100).toFixed(1) }}%</div></div>
-        <div><div class="text-text-mute">净变化</div><div class="text-lg font-bold" :class="result.paired_react.accuracy_delta >= 0 ? 'text-green' : 'text-red'">{{ result.paired_react.accuracy_delta >= 0 ? '+' : '' }}{{ (result.paired_react.accuracy_delta * 100).toFixed(1) }} pp</div></div>
-        <div><div class="text-text-mute">修正</div><div class="text-lg font-bold text-green">{{ result.paired_react.fixes }}</div></div>
-        <div><div class="text-text-mute">退化</div><div class="text-lg font-bold text-red">{{ result.paired_react.regressions }}</div></div>
-        <div><div class="text-text-mute">改变但仍错</div><div class="text-lg font-bold text-yellow">{{ result.paired_react.changed_wrong }}</div></div>
+        <div><div class="text-text-mute">{{ result?.experiment_config?.rag_enabled ? 'RAG 后判定' : '同轮初判' }}</div><div class="text-xl font-bold text-text">{{ (result.paired_react.initial_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">ReAct 最终</div><div class="text-xl font-bold text-cyan">{{ (result.paired_react.final_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">净变化</div><div class="text-xl font-bold" :class="result.paired_react.accuracy_delta >= 0 ? 'text-green' : 'text-red'">{{ result.paired_react.accuracy_delta >= 0 ? '+' : '' }}{{ (result.paired_react.accuracy_delta * 100).toFixed(1) }} pp</div></div>
+        <div><div class="text-text-mute">修正</div><div class="text-xl font-bold text-green">{{ result.paired_react.fixes }}</div></div>
+        <div><div class="text-text-mute">退化</div><div class="text-xl font-bold text-red">{{ result.paired_react.regressions }}</div></div>
+        <div><div class="text-text-mute">改变但仍错</div><div class="text-xl font-bold text-yellow">{{ result.paired_react.changed_wrong }}</div></div>
       </div>
       <div
         v-if="result?.strategy === 'multi_agent' && result?.paired_multi_agent"
         class="card px-5 py-4 grid grid-cols-2 md:grid-cols-6 gap-4 text-xs"
       >
-        <div><div class="text-text-mute">{{ result?.experiment_config?.rag_enabled ? 'RAG 后判定' : '同轮初判' }}</div><div class="text-lg font-bold text-text">{{ (result.paired_multi_agent.initial_accuracy * 100).toFixed(1) }}%</div></div>
-        <div><div class="text-text-mute">多智能体最终</div><div class="text-lg font-bold text-cyan">{{ (result.paired_multi_agent.final_accuracy * 100).toFixed(1) }}%</div></div>
-        <div><div class="text-text-mute">净变化</div><div class="text-lg font-bold" :class="result.paired_multi_agent.accuracy_delta >= 0 ? 'text-green' : 'text-red'">{{ result.paired_multi_agent.accuracy_delta >= 0 ? '+' : '' }}{{ (result.paired_multi_agent.accuracy_delta * 100).toFixed(1) }} pp</div></div>
-        <div><div class="text-text-mute">触发 / 完成验证</div><div class="text-lg font-bold text-purple">{{ result.paired_multi_agent.triggered }} / {{ result.paired_multi_agent.verified }}</div></div>
-        <div><div class="text-text-mute">修正 / 退化</div><div class="text-lg font-bold"><span class="text-green">{{ result.paired_multi_agent.fixes }}</span> / <span class="text-red">{{ result.paired_multi_agent.regressions }}</span></div></div>
-        <div><div class="text-text-mute">改变但仍错</div><div class="text-lg font-bold text-yellow">{{ result.paired_multi_agent.changed_wrong }}</div></div>
+        <div><div class="text-text-mute">{{ result?.experiment_config?.rag_enabled ? 'RAG 后判定' : '同轮初判' }}</div><div class="text-xl font-bold text-text">{{ (result.paired_multi_agent.initial_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">多智能体最终</div><div class="text-xl font-bold text-cyan">{{ (result.paired_multi_agent.final_accuracy * 100).toFixed(1) }}%</div></div>
+        <div><div class="text-text-mute">净变化</div><div class="text-xl font-bold" :class="result.paired_multi_agent.accuracy_delta >= 0 ? 'text-green' : 'text-red'">{{ result.paired_multi_agent.accuracy_delta >= 0 ? '+' : '' }}{{ (result.paired_multi_agent.accuracy_delta * 100).toFixed(1) }} pp</div></div>
+        <div><div class="text-text-mute">触发 / 完成验证</div><div class="text-xl font-bold text-purple">{{ result.paired_multi_agent.triggered }} / {{ result.paired_multi_agent.verified }}</div></div>
+        <div><div class="text-text-mute">修正 / 退化</div><div class="text-xl font-bold"><span class="text-green">{{ result.paired_multi_agent.fixes }}</span> / <span class="text-red">{{ result.paired_multi_agent.regressions }}</span></div></div>
+        <div><div class="text-text-mute">改变但仍错</div><div class="text-xl font-bold text-yellow">{{ result.paired_multi_agent.changed_wrong }}</div></div>
       </div>
-      <!-- 指标卡 -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="样本数" :value="metrics.n" color="cyan" />
-        <StatCard label="准确率 (Accuracy)" :value="(metrics.accuracy * 100).toFixed(1) + '%'" color="green" />
-        <StatCard label="精确率 (Precision)" :value="(metrics.precision * 100).toFixed(1) + '%'" color="purple" />
-        <StatCard label="召回率 (Recall)" :value="(metrics.recall * 100).toFixed(1) + '%'" color="pink" />
-      </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Macro-F1" :value="((metrics.macro_f1 ?? metrics.f1) * 100).toFixed(1)" color="purple" />
-        <StatCard label="覆盖率" :value="(metrics.coverage * 100).toFixed(1) + '%'" color="cyan" />
-        <StatCard label="LLM 调用" :value="metrics.llm_calls ?? 0" color="pink" />
-        <StatCard label="Token" :value="metrics.total_tokens ?? 0" color="green" />
+      <!-- 指标数据轨:单容器 8 格,细线分隔(取代卡片堆叠) -->
+      <div class="ev-rail">
+        <div class="ev-cell">
+          <div class="ev-label">样本数 <small>SAMPLES</small></div>
+          <strong class="ev-cyan">{{ metrics.n }}</strong>
+        </div>
+        <div class="ev-cell">
+          <div class="ev-label">准确率 <small>ACCURACY</small></div>
+          <strong class="ev-green">{{ (metrics.accuracy * 100).toFixed(1) }}%</strong>
+        </div>
+        <div class="ev-cell">
+          <div class="ev-label">精确率 <small>PRECISION</small></div>
+          <strong class="ev-purple">{{ (metrics.precision * 100).toFixed(1) }}%</strong>
+        </div>
+        <div class="ev-cell">
+          <div class="ev-label">召回率 <small>RECALL</small></div>
+          <strong class="ev-pink">{{ (metrics.recall * 100).toFixed(1) }}%</strong>
+        </div>
+        <div class="ev-cell">
+          <div class="ev-label">Macro-F1 <small>MACRO</small></div>
+          <strong class="ev-purple">{{ ((metrics.macro_f1 ?? metrics.f1) * 100).toFixed(1) }}</strong>
+        </div>
+        <div class="ev-cell">
+          <div class="ev-label">覆盖率 <small>COVERAGE</small></div>
+          <strong class="ev-cyan">{{ (metrics.coverage * 100).toFixed(1) }}%</strong>
+        </div>
+        <div class="ev-cell">
+          <div class="ev-label">LLM 调用 <small>CALLS</small></div>
+          <strong class="ev-pink">{{ metrics.llm_calls ?? 0 }}</strong>
+        </div>
+        <div class="ev-cell">
+          <div class="ev-label">Token <small>TOTAL</small></div>
+          <strong class="ev-green">{{ metrics.total_tokens ?? 0 }}</strong>
+        </div>
       </div>
 
       <!-- F1 + 混淆矩阵 -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="card p-6 lg:col-span-1">
-          <div class="text-xs text-text-dim mb-1">F1 分数</div>
-          <div class="text-5xl font-black gradient-text-cyan">{{ (metrics.f1 * 100).toFixed(1) }}</div>
-          <div class="text-xs text-text-mute mt-1">F1 = 2·P·R / (P+R)</div>
+          <div class="text-sm text-text-dim mb-2">F1 分数</div>
+          <div class="text-6xl font-black gradient-text-cyan">{{ (metrics.f1 * 100).toFixed(1) }}</div>
+          <div class="text-sm text-text-mute mt-1">F1 = 2·P·R / (P+R)</div>
           <div class="mt-4 pt-4 border-t border-border text-xs space-y-1">
             <div class="flex justify-between">
               <span class="text-text-dim">平均延迟</span>
@@ -819,7 +835,7 @@ const progressPercent = computed(() => {
 
         <!-- 混淆矩阵 -->
         <div class="card p-6 lg:col-span-2">
-          <h3 class="font-bold text-sm mb-4">混淆矩阵</h3>
+            <h3 class="font-bold text-base mb-4">混淆矩阵</h3>
           <div class="grid grid-cols-4 gap-2 text-center text-xs">
             <div></div>
             <div class="text-text-dim pb-2">预测：真阳</div>
@@ -827,31 +843,31 @@ const progressPercent = computed(() => {
             <div class="text-text-dim pb-2">预测：待查</div>
 
             <div class="text-text-dim pr-2 flex items-center">真实：真阳</div>
-            <div class="p-4 rounded-lg bg-green/10 border border-green/30">
-              <div class="text-2xl font-black text-green">{{ metrics.confusion_matrix.tp }}</div>
-              <div class="text-[10px] text-text-mute mt-1">TP（正确识别攻击）</div>
+            <div class="p-3 rounded-none bg-green/10 border border-green/30">
+              <div class="text-3xl font-black text-green">{{ metrics.confusion_matrix.tp }}</div>
+              <div class="text-[11px] text-text-mute mt-1">TP（正确识别攻击）</div>
             </div>
-            <div class="p-4 rounded-lg bg-red/10 border border-red/30">
-              <div class="text-2xl font-black text-red">{{ metrics.confusion_matrix.explicit_fn ?? metrics.confusion_matrix.fn }}</div>
-              <div class="text-[10px] text-text-mute mt-1">真阳误判为假阳</div>
+            <div class="p-3 rounded-none bg-red/10 border border-red/30">
+              <div class="text-3xl font-black text-red">{{ metrics.confusion_matrix.explicit_fn ?? metrics.confusion_matrix.fn }}</div>
+              <div class="text-[11px] text-text-mute mt-1">真阳误判为假阳</div>
             </div>
-            <div class="p-4 rounded-lg bg-yellow/10 border border-yellow/30">
-              <div class="text-2xl font-black text-yellow">{{ metrics.confusion_matrix.abstain_positive ?? 0 }}</div>
-              <div class="text-[10px] text-text-mute mt-1">真阳待查</div>
+            <div class="p-3 rounded-none bg-yellow/10 border border-yellow/30">
+              <div class="text-3xl font-black text-yellow">{{ metrics.confusion_matrix.abstain_positive ?? 0 }}</div>
+              <div class="text-[11px] text-text-mute mt-1">真阳待查</div>
             </div>
 
             <div class="text-text-dim pr-2 flex items-center">真实：假阳</div>
-            <div class="p-4 rounded-lg bg-orange/10 border border-orange/30">
-              <div class="text-2xl font-black text-orange">{{ metrics.confusion_matrix.fp }}</div>
-              <div class="text-[10px] text-text-mute mt-1">FP（误报，正常判成攻击）</div>
+            <div class="p-3 rounded-none bg-pink/10 border border-pink/30">
+              <div class="text-3xl font-black text-pink">{{ metrics.confusion_matrix.fp }}</div>
+              <div class="text-[11px] text-text-mute mt-1">FP（误报，正常判成攻击）</div>
             </div>
-            <div class="p-4 rounded-lg bg-cyan/10 border border-cyan/30">
-              <div class="text-2xl font-black text-cyan">{{ metrics.confusion_matrix.tn }}</div>
-              <div class="text-[10px] text-text-mute mt-1">TN（正确识别误报）</div>
+            <div class="p-3 rounded-none bg-cyan/10 border border-cyan/30">
+              <div class="text-3xl font-black text-cyan">{{ metrics.confusion_matrix.tn }}</div>
+              <div class="text-[11px] text-text-mute mt-1">TN（正确识别误报）</div>
             </div>
-            <div class="p-4 rounded-lg bg-yellow/10 border border-yellow/30">
-              <div class="text-2xl font-black text-yellow">{{ metrics.confusion_matrix.abstain_negative ?? 0 }}</div>
-              <div class="text-[10px] text-text-mute mt-1">假阳待查</div>
+            <div class="p-3 rounded-none bg-yellow/10 border border-yellow/30">
+              <div class="text-3xl font-black text-yellow">{{ metrics.confusion_matrix.abstain_negative ?? 0 }}</div>
+              <div class="text-[11px] text-text-mute mt-1">假阳待查</div>
             </div>
           </div>
         </div>
@@ -860,13 +876,13 @@ const progressPercent = computed(() => {
       <!-- 明细表 -->
       <div class="card overflow-hidden">
         <div class="p-5 border-b border-border flex items-center justify-between gap-3">
-          <h3 class="font-bold text-sm flex items-center gap-2">
-            <span>📋</span> 样本明细（{{ details.length }} 条）
+          <h3 class="font-bold text-base flex items-center gap-2">
+            <PhClipboardText :size="18" weight="bold" class="text-cyan" aria-hidden="true" /> 样本明细（{{ details.length }} 条）
           </h3>
-          <span class="text-[10px] text-text-mute">点击任意样本查看完整研判流程</span>
+          <span class="text-[11px] text-text-mute">点击任意样本查看完整研判流程</span>
         </div>
         <div class="overflow-x-auto">
-          <table class="w-full text-xs">
+          <table class="w-full text-sm">
             <thead>
               <tr class="bg-bg-2 text-text-mute">
                 <th class="px-4 py-3 text-left font-medium">样本编号</th>
@@ -903,8 +919,9 @@ const progressPercent = computed(() => {
                   {{ d.llm_calls ?? '-' }} / {{ d.token_usage?.total_tokens ?? '-' }}
                 </td>
                 <td class="px-4 py-2.5">
-                  <span :class="d.correct ? 'text-green' : 'text-red'" class="font-bold">
-                    {{ d.correct ? '✓' : '✗' }}
+                  <span :class="d.correct ? 'text-green' : 'text-red'" class="font-bold inline-flex items-center">
+                    <PhCheck v-if="d.correct" :size="14" weight="bold" aria-hidden="true" />
+                    <PhX v-else :size="14" weight="bold" aria-hidden="true" />
                   </span>
                 </td>
                 <td class="px-4 py-2.5 text-text-dim max-w-xs truncate" :title="d.reason">
@@ -917,18 +934,106 @@ const progressPercent = computed(() => {
       </div>
     </template>
 
-    <!-- 空状态 -->
-    <div v-if="!metrics && !loading && !errorMsg" class="card p-16 text-center">
-      <div class="text-5xl mb-3 opacity-40">📊</div>
-      <div class="text-sm text-text-dim mb-1">尚未运行评测</div>
-      <div class="text-xs text-text-mute">点击上方“真实评测”按钮开始</div>
+    <!-- 持久化评测历史 -->
+    <div class="card w-full max-w-full overflow-hidden">
+      <div class="p-5 border-b border-border flex items-center justify-between gap-3">
+        <div>
+          <h3 class="font-bold text-base flex items-center gap-2"><PhFolderOpen :size="18" weight="bold" class="text-cyan" aria-hidden="true" /> 评测历史</h3>
+          <div class="text-[11px] text-text-mute mt-1">结果保存在本机 SQLite，中断前已完成的样本也可恢复</div>
+        </div>
+        <button
+          @click="loadHistory"
+          :disabled="historyLoading"
+          class="px-3 py-1.5 rounded-none border border-border text-[13px] text-text-dim hover:border-text hover:text-text inline-flex items-center gap-1.5"
+        >
+          <PhArrowsClockwise :size="13" weight="bold" aria-hidden="true" />
+          {{ historyLoading ? '刷新中...' : '刷新' }}
+        </button>
+      </div>
+
+      <div v-if="historyRuns.length" class="divide-y divide-border">
+        <div
+          v-for="(run, runIndex) in historyRuns"
+          :key="run.id"
+          class="p-4 hover:bg-bg-2/60 transition-colors"
+          :class="viewingRunId === run.id ? 'bg-cyan/5' : ''"
+        >
+          <div class="flex flex-wrap items-center gap-3">
+            <code class="font-mono text-xs text-cyan" :title="`原始运行ID：${run.id}`">{{ runNumber(runIndex) }}</code>
+            <span class="chip text-[11px]" :class="statusClass(run.status)">{{ statusText[run.status] || run.status }}</span>
+            <span class="text-xs text-pink">
+              真实模型
+            </span>
+            <span class="chip text-[11px] text-text-dim">
+              {{ strategyLabel(run.strategy) }}
+            </span>
+            <span class="text-[11px] text-text-mute">{{ formatTime(run.started_at) }}</span>
+            <span v-if="run.experiment_config?.model" class="text-[11px] text-text-mute font-mono">
+              {{ run.experiment_config.model }} · {{ run.experiment_config.prompt_version }}
+            </span>
+            <span class="ml-auto text-xs font-mono text-text-dim">{{ run.completed }} / {{ run.total }}</span>
+          </div>
+
+          <div class="h-1.5 rounded-none bg-bg-2 mt-3 overflow-hidden">
+            <div
+              class="h-full bg-cyan transition-all duration-300"
+              :style="{ width: (run.total ? run.completed / run.total * 100 : 0) + '%' }"
+            ></div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4 mt-3">
+            <template v-if="run.metrics">
+              <span class="text-[11px] text-text-mute">准确率 <b class="text-green">{{ (run.metrics.accuracy * 100).toFixed(1) }}%</b></span>
+              <span class="text-[11px] text-text-mute">F1 <b class="text-cyan">{{ (run.metrics.f1 * 100).toFixed(1) }}</b></span>
+              <span class="text-[11px] text-text-mute">Macro-F1 <b class="text-purple">{{ ((run.metrics.macro_f1 ?? run.metrics.f1) * 100).toFixed(1) }}</b></span>
+              <span class="text-[11px] text-text-mute">调用 <b class="text-text-dim">{{ run.metrics.llm_calls ?? '-' }}</b></span>
+              <span class="text-[11px] text-text-mute">Token <b class="text-text-dim">{{ run.metrics.total_tokens ?? '-' }}</b></span>
+              <span class="text-[11px] text-text-mute">平均延迟 <b class="text-text-dim">{{ run.metrics.avg_latency_s.toFixed(2) }}s</b></span>
+            </template>
+            <span v-if="run.error" class="text-[11px] text-yellow truncate max-w-md" :title="run.error">{{ run.error }}</span>
+            <div class="ml-auto flex gap-2">
+              <button
+                @click="viewHistory(run)"
+                class="px-3 py-1.5 rounded-none border border-cyan/40 text-[13px] text-cyan hover:bg-cyan/10"
+              >查看 {{ run.completed }} 条结果</button>
+              <button
+                v-if="['interrupted', 'failed'].includes(run.status) && run.completed < run.total"
+                @click="resumeHistory(run)"
+                :disabled="loading"
+                class="px-3 py-1.5 rounded-none border border-yellow/40 text-[13px] text-yellow hover:bg-yellow/10 disabled:opacity-40"
+              >继续</button>
+              <button
+                @click="removeHistory(run)"
+                :disabled="run.status === 'running'"
+                class="px-3 py-1.5 rounded-none border border-red/30 text-[13px] text-red disabled:opacity-30 hover:bg-red/10"
+              >删除</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else class="p-6 text-center text-xs text-text-mute">
+        {{ historyLoading ? '正在读取历史...' : '暂无评测历史，运行一次评测后会自动保存' }}
+      </div>
+    </div>
+
+    <!-- 空状态:横条式,不占大片纵向空间 -->
+    <div v-if="!metrics && !loading && !errorMsg" class="card ev-empty">
+      <PhChartBar :size="22" weight="bold" class="text-text-mute shrink-0" aria-hidden="true" />
+      <div class="min-w-0">
+        <b>尚未运行评测</b>
+        <span>选择数据集与策略后点击「真实评测」，将生成准确率 / F1 / 混淆矩阵与逐样本明细</span>
+      </div>
     </div>
 
     <!-- 已完成样本的完整研判流程；仅展示本次已有结果，不会重复调用模型。 -->
     <div
       v-if="selectedDetail"
-      class="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-start justify-center p-4 md:p-8 overflow-y-auto"
-      @click.self="selectedDetail = null"
+      class="fixed inset-0 z-[100] bg-[rgb(var(--overlay)/0.7)] backdrop-blur-sm flex items-start justify-center p-4 md:p-8 overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="`评测样本 ${sampleNumber(selectedDetailIndex)} 研判详情`"
+      @click.self="closeDetail"
+      @keydown.esc="closeDetail"
     >
       <div class="card eval-detail-board w-[96vw] max-w-[1600px] p-6 md:p-8 my-6">
         <div class="flex items-start justify-between gap-4 mb-6">
@@ -940,9 +1045,11 @@ const progressPercent = computed(() => {
             <div class="text-sm text-text-dim mt-1">{{ selectedDetail.alert?.rule_name }}</div>
           </div>
           <button
-            @click="selectedDetail = null"
-            class="w-9 h-9 rounded-lg border border-border text-text-dim hover:text-text hover:border-cyan"
-          >✕</button>
+            ref="detailCloseBtn"
+            @click="closeDetail"
+            aria-label="关闭详情"
+            class="w-9 h-9 rounded-none border border-border text-text-dim hover:text-text hover:border-cyan inline-flex items-center justify-center"
+          ><PhX :size="16" weight="bold" aria-hidden="true" /></button>
         </div>
 
         <div v-if="selectedDetail.agent_result" class="space-y-6">
@@ -953,8 +1060,10 @@ const progressPercent = computed(() => {
             <div class="card p-4 md:col-span-2">
               <div class="flex flex-wrap items-center gap-3 mb-3">
                 <JudgmentBadge :judgment="selectedDetail.agent_result.judgment" size="lg" />
-                <span :class="selectedDetail.correct ? 'text-green' : 'text-red'" class="text-sm font-bold">
-                  {{ selectedDetail.correct ? '✓ 与标签一致' : '✗ 与标签不一致' }}
+                <span :class="selectedDetail.correct ? 'text-green' : 'text-red'" class="text-sm font-bold inline-flex items-center gap-1">
+                  <PhCheck v-if="selectedDetail.correct" :size="14" weight="bold" aria-hidden="true" />
+                  <PhX v-else :size="14" weight="bold" aria-hidden="true" />
+                  {{ selectedDetail.correct ? '与标签一致' : '与标签不一致' }}
                 </span>
                 <span class="text-sm text-text-mute">真实标签：{{ selectedDetail.label }}</span>
               </div>
@@ -1001,13 +1110,15 @@ const progressPercent = computed(() => {
             </div>
             <div
               v-if="selectedDetail.agent_result.rag_refinement?.diagnostics?.length"
-              class="mb-3 rounded-lg p-3 text-xs"
+              class="mb-3 rounded-none p-3 text-xs"
               :class="selectedDetail.agent_result.rag_refinement?.accepted
                 ? 'border border-yellow/35 bg-yellow/5 text-yellow'
                 : 'border border-red/30 bg-red/5 text-red'"
             >
-              <b class="mr-2">
-                {{ selectedDetail.agent_result.rag_refinement?.accepted ? '⚠ 首次请求异常，备用路径已恢复' : '✕ 后融合失败' }}
+              <b class="mr-2 inline-flex items-center gap-1.5">
+                <PhWarning v-if="selectedDetail.agent_result.rag_refinement?.accepted" :size="14" weight="bold" aria-hidden="true" />
+                <PhX v-else :size="14" weight="bold" aria-hidden="true" />
+                {{ selectedDetail.agent_result.rag_refinement?.accepted ? '首次请求异常，备用路径已恢复' : '后融合失败' }}
               </b>
               {{ selectedDetail.agent_result.rag_refinement.diagnostics.join(' · ') }}
             </div>
@@ -1057,22 +1168,72 @@ const progressPercent = computed(() => {
 
           <section v-if="selectedDetail.agent_result.disposition">
             <div class="section-title mb-3">03 · 处置闭环</div>
-            <DispositionCard :disposition="selectedDetail.agent_result.disposition" />
+            <DispositionCard
+              :disposition="selectedDetail.agent_result.disposition"
+              :response-execution="selectedDetail.agent_result.response_execution"
+            />
           </section>
 
           <details class="card p-4">
             <summary class="text-sm font-bold text-text-dim cursor-pointer">查看原始告警与归一化特征</summary>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <pre class="text-xs text-text-dim bg-bg rounded-lg p-3 overflow-auto">{{ JSON.stringify(selectedDetail.alert, null, 2) }}</pre>
-              <pre class="text-xs text-text-dim bg-bg rounded-lg p-3 overflow-auto">{{ JSON.stringify(selectedDetail.agent_result.features, null, 2) }}</pre>
+              <pre class="text-xs text-text-dim bg-bg rounded-none p-3 overflow-auto">{{ JSON.stringify(selectedDetail.alert, null, 2) }}</pre>
+              <pre class="text-xs text-text-dim bg-bg rounded-none p-3 overflow-auto">{{ JSON.stringify(selectedDetail.agent_result.features, null, 2) }}</pre>
             </div>
           </details>
         </div>
 
-        <div v-else class="p-5 rounded-lg bg-red/10 border border-red/40 text-sm text-red">
+        <div v-else class="p-5 rounded-none bg-red/10 border border-red/40 text-sm text-red">
           该样本调用失败，没有可展示的完整Agent流程。{{ selectedDetail.reason }}
         </div>
       </div>
     </div>
+
+    <!-- 站内确认对话框:消耗 Token 的评测启动与历史删除 -->
+    <ConfirmDialog
+      :open="!!confirmRequest"
+      :title="confirmRequest?.title || ''"
+      :body="confirmRequest?.body || ''"
+      :confirm-label="confirmRequest?.confirmLabel || '确认'"
+      :tone="confirmRequest?.tone || 'accent'"
+      @confirm="handleConfirm"
+      @cancel="confirmRequest = null"
+    />
   </div>
 </template>
+
+<style scoped>
+/* 指标数据轨:单容器 8 格,细线分隔,与概览页数据轨同一结构语言 */
+.ev-rail { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid rgb(var(--border)); background: rgb(var(--card)); }
+.ev-cell { position: relative; min-height: 92px; padding: 13px 18px 11px; overflow: hidden; }
+.ev-cell::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 2px; background: var(--cell-tone, rgb(var(--text-dim))); }
+.ev-cell:nth-child(4n + 2) { border-left: 1px solid rgb(var(--border)); }
+.ev-cell:nth-child(4n + 3) { border-left: 1px solid rgb(var(--border)); }
+.ev-cell:nth-child(4n + 4) { border-left: 1px solid rgb(var(--border)); }
+.ev-cell:nth-child(n + 5) { border-top: 1px solid rgb(var(--border)); }
+.ev-label { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; color: rgb(var(--text-dim)); font-size: 12.5px; font-weight: 600; }
+.ev-label small { color: rgb(var(--text-mute)); font: 9px 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .08em; }
+.ev-cell strong { display: block; margin-top: 8px; font: 800 28px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.ev-cyan { --cell-tone: rgb(var(--cyan)); color: rgb(var(--cyan)); }
+.ev-green { --cell-tone: rgb(var(--green)); color: rgb(var(--green)); }
+.ev-purple { --cell-tone: rgb(var(--purple)); color: rgb(var(--purple)); }
+.ev-pink { --cell-tone: rgb(var(--pink)); color: rgb(var(--pink)); }
+
+/* 空态横条 */
+.ev-empty { display: flex; align-items: center; gap: 12px; padding: 14px 18px; }
+.ev-empty b { display: block; color: rgb(var(--text-dim)); font-size: 13.5px; }
+.ev-empty span { display: block; margin-top: 2px; color: rgb(var(--text-mute)); font-size: 12px; }
+
+@media (max-width: 900px) {
+  .ev-rail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ev-cell:nth-child(2n) { border-left: 1px solid rgb(var(--border)); }
+  .ev-cell:nth-child(2n + 1) { border-left: 0; }
+  .ev-cell:nth-child(n + 3) { border-top: 1px solid rgb(var(--border)); }
+  .ev-cell strong { font-size: 26px; }
+}
+@media (max-width: 520px) {
+  .ev-rail { grid-template-columns: 1fr; }
+  .ev-cell { border-left: 0 !important; }
+  .ev-cell + .ev-cell { border-top: 1px solid rgb(var(--border)); }
+}
+</style>

@@ -70,6 +70,46 @@ def check_command(cmd: str) -> bool:
     return which(cmd) is not None
 
 
+def detect_python(use_venv_only: bool = False) -> list[str] | None:
+    """自动检测可用的 Python 解释器启动命令。
+
+    优先级：
+      1. backend/.venv 中的虚拟环境解释器（最贴合项目依赖）
+      2. 当前运行本脚本的解释器（sys.executable）
+      3. PATH 中的 python / python3
+
+    返回形如 [<解释器路径>] 的命令前缀；找不到返回 None。
+    """
+    candidates: list[str] = []
+    venv_dir = BACKEND_DIR / ".venv"
+    if is_windows():
+        candidates.append(str(venv_dir / "Scripts" / "python.exe"))
+    else:
+        candidates.append(str(venv_dir / "bin" / "python"))
+    if use_venv_only:
+        pass  # 仅检测虚拟环境解释器
+    else:
+        if sys.executable:
+            candidates.append(sys.executable)
+        candidates += ["python", "python3"]
+
+    for exe in candidates:
+        is_path = Path(exe).exists()
+        if not is_path and not check_command(exe):
+            continue
+        try:
+            r = subprocess.run(
+                [exe, "--version"],
+                capture_output=True,
+                shell=is_windows() and not is_path,
+            )
+            if r.returncode == 0:
+                return [exe]
+        except OSError:
+            continue
+    return None
+
+
 def port_in_use(port: int) -> bool:
     """检查端口是否被占用。"""
     import socket
@@ -97,10 +137,17 @@ def preflight() -> bool:
         err(f"前端目录不存在或缺少 package.json: {FRONTEND_DIR}")
         return False
 
-    # 3. uv 命令
-    if not check_command("uv"):
-        err("未找到 'uv' 命令。请先安装: https://docs.astral.sh/uv/")
+    # 3. Python 解释器（自动检测）
+    python_cmd = detect_python()
+    if python_cmd is None:
+        err("未找到可用的 Python 解释器（backend/.venv / python / python3）。")
         return False
+    ok(f"Python 解释器: {python_cmd[0]}")
+
+    # 4. 若无虚拟环境解释器，则需要 uv 命令兜底
+    if not (BACKEND_DIR / ".venv").exists() and not check_command("uv"):
+        warn("未找到 backend/.venv 且未找到 'uv' 命令，依赖可能未安装。")
+        warn("建议执行: uv sync（https://docs.astral.sh/uv/）")
 
     # 4. node / npm
     if not check_command("node") or not check_command("npm"):
@@ -140,6 +187,35 @@ def preflight() -> bool:
 # ============================================================
 
 
+def ensure_backend_env() -> None:
+    """确保 backend/.venv 可用。
+
+    若 .venv 存在但其中的解释器已损坏（例如项目从别的机器拷贝过来，
+    venv 记录的基础解释器路径在本机不存在），则删除并用 uv 重建。
+    """
+    venv_dir = BACKEND_DIR / ".venv"
+    if not venv_dir.exists() or detect_python(use_venv_only=True) is not None:
+        return  # 无 venv 或 venv 正常，交给后续逻辑处理
+
+    warn(f"检测到损坏的虚拟环境: {venv_dir}")
+    warn("（通常是项目从其他机器拷贝，venv 内记录的解释器路径在本机不存在）")
+    if not check_command("uv"):
+        err("重建环境需要 'uv' 命令。请安装: https://docs.astral.sh/uv/")
+        raise SystemExit(1)
+    info("正在删除损坏的 venv 并重建依赖（uv sync）...")
+    import shutil
+    shutil.rmtree(venv_dir)
+    r = subprocess.run(
+        ["uv", "sync"],
+        cwd=BACKEND_DIR,
+        shell=is_windows(),
+    )
+    if r.returncode != 0 or detect_python(use_venv_only=True) is None:
+        err("uv sync 失败，后端环境重建未成功")
+        raise SystemExit(1)
+    ok("后端环境重建完成")
+
+
 def start_backend() -> subprocess.Popen:
     """启动 FastAPI 后端。
 
@@ -151,13 +227,25 @@ def start_backend() -> subprocess.Popen:
     env = os.environ.copy()
     env["BACKEND_PORT"] = str(BACKEND_PORT)
 
-    cmd = [
-        "uv", "run", "uvicorn", "app.main:app",
+    ensure_backend_env()
+
+    # 有 venv 解释器直接用；否则用 uv run（uv 会自动管理环境）
+    venv_python = detect_python(use_venv_only=True)
+    if venv_python is not None:
+        info(f"使用虚拟环境解释器: {venv_python[0]}")
+        cmd = venv_python + [
+            "-m", "uvicorn", "app.main:app",
+        ]
+    else:
+        cmd = [
+            "uv", "run", "uvicorn", "app.main:app",
+        ]
+    cmd += [
         "--host", "0.0.0.0",   # 所有 IPv4 接口
         "--port", str(BACKEND_PORT),
         "--reload",  # 改后端代码自动重载
     ]
-    info(f"启动后端: uvicorn --host 0.0.0.0 --port {BACKEND_PORT}")
+    info(f"启动后端: uvicorn app.main:app --host 0.0.0.0 --port {BACKEND_PORT} --reload")
     return subprocess.Popen(
         cmd,
         cwd=BACKEND_DIR,

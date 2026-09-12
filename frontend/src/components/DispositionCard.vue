@@ -1,8 +1,18 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
+import {
+  PhArrowCounterClockwise,
+  PhCheck,
+  PhCircleDashed,
+  PhClock,
+  PhShieldCheck,
+  PhXCircle,
+} from '@phosphor-icons/vue'
 import type { Disposition } from '../env'
 
-defineProps<{
+const props = defineProps<{
   disposition: Disposition
+  responseExecution?: Record<string, any>
 }>()
 
 const actionLabels: Record<string, string> = {
@@ -16,21 +26,54 @@ const actionLabels: Record<string, string> = {
 
 const severityColors: Record<string, string> = {
   critical: 'text-red border-red/40',
-  high: 'text-orange border-orange/40',
+  high: 'text-pink border-pink/40',
   medium: 'text-yellow border-yellow/40',
   low: 'text-cyan border-cyan/40',
   info: 'text-text-dim border-border',
+}
+
+const responseLabels: Record<string, string> = {
+  awaiting_observation: '等待效果验证',
+  retry_required: '反馈后重试',
+  rollback_required: '准备补偿回滚',
+  contained: '已执行并验证生效',
+  rolled_back: '执行不完整，已安全回滚',
+  manual_required: '自动处置失败，人工接管',
+  skipped: '未触发自动执行',
+}
+
+function actionResult(ticketId: string): Record<string, any> | undefined {
+  return props.responseExecution?.actions?.find(
+    (item: Record<string, any>) => item.action_id === ticketId,
+  )
+}
+
+function actionStatus(ticketId: string): { icon: Component; label: string } {
+  const item = actionResult(ticketId)
+  if (item?.verified) return { icon: PhCheck, label: '已验证生效' }
+  if (item?.rollback?.rolled_back) return { icon: PhArrowCounterClockwise, label: '已回滚' }
+  if (item?.executed) return { icon: PhCircleDashed, label: '已执行待验证' }
+  if (item?.status === 'failed' || item?.status === 'rejected') return { icon: PhXCircle, label: '执行失败' }
+  return { icon: PhClock, label: '已规划' }
+}
+
+function actionStatusClass(ticketId: string): string {
+  const item = actionResult(ticketId)
+  if (item?.verified) return 'border-green text-green'
+  if (item?.rollback?.rolled_back) return 'border-yellow text-yellow'
+  if (item?.status === 'failed' || item?.status === 'rejected') return 'border-red text-red'
+  return 'border-cyan text-cyan'
 }
 </script>
 
 <template>
   <div class="card p-5">
     <div class="flex items-center justify-between mb-3">
-      <h3 class="font-bold text-sm flex items-center gap-2">
-        <span>🛡️</span> 处置建议
+      <h3 class="font-bold text-base flex items-center gap-2">
+        <PhShieldCheck :size="18" weight="bold" class="text-cyan" aria-hidden="true" /> 自主处置闭环
       </h3>
       <span
-        class="chip text-[10px]"
+        class="chip text-[11px]"
         :class="severityColors[disposition.severity]"
       >
         {{ disposition.severity.toUpperCase() }}
@@ -44,24 +87,41 @@ const severityColors: Record<string, string> = {
     </div>
 
     <!-- 总结 -->
-    <p class="text-sm text-text-dim leading-relaxed mb-3">{{ disposition.summary }}</p>
+    <p class="text-[15px] text-text-dim leading-relaxed mb-3">{{ disposition.summary }}</p>
+
+    <div
+      v-if="responseExecution?.status"
+      class="mb-3 rounded-none border border-cyan/30 bg-cyan/5 px-3 py-2 text-xs"
+    >
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <b class="text-cyan">{{ responseLabels[responseExecution.status] || responseExecution.status }}</b>
+        <span class="font-mono text-[11px] text-text-mute">
+          {{ responseExecution.mode }} · 尝试 {{ responseExecution.attempt || 0 }}/{{ responseExecution.max_attempts || 0 }}
+        </span>
+      </div>
+      <p class="mt-1 text-text-dim">{{ responseExecution.reason }}</p>
+    </div>
 
     <!-- 工单 -->
     <div v-if="disposition.tickets.length" class="space-y-2">
-      <div class="text-[10px] text-text-mute font-mono mb-1">生成工单（未执行，待人工确认）</div>
+      <div class="text-[11px] text-text-mute font-mono mb-1">处置动作与效果观测</div>
       <div
         v-for="t in disposition.tickets"
         :key="t.ticket_id"
-        class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-bg-2 border border-border-light"
+        class="flex items-center justify-between gap-3 px-3 py-2 rounded-none bg-bg-2 border border-border-light"
       >
         <div class="min-w-0">
           <code class="text-xs font-mono text-cyan">{{ t.ticket_id }}</code>
           <div class="text-xs text-text-dim mt-0.5">
-            {{ t.action }} → <span class="text-pink font-mono">{{ t.target }}</span>
+            {{ t.action }} <span class="text-text-mute">→</span> <span class="text-pink font-mono">{{ t.target }}</span>
           </div>
         </div>
-        <span class="chip text-[10px] border-yellow text-yellow shrink-0">
-          ⏸ 待执行
+        <span
+          class="chip text-[11px] shrink-0"
+          :class="actionStatusClass(t.ticket_id)"
+        >
+          <component :is="actionStatus(t.ticket_id).icon" :size="12" weight="bold" aria-hidden="true" />
+          {{ actionStatus(t.ticket_id).label }}
         </span>
       </div>
     </div>

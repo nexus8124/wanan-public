@@ -122,7 +122,7 @@ UNSW 官方说明允许永久免费的学术研究使用；商业使用需要联
 - 网络样本：`inspect_alert_context` + `fetch_network_flows`，返回该条真实 Zeek/Argus 特征记录。
 - Modbus 样本：`inspect_alert_context` + `fetch_endpoint_logs`，返回该条真实设备遥测，并明确它不是独立 EDR 日志。
 - ToN_IoT 正式样本不会回退到演示 Mock 威胁情报或 Mock 历史告警。
-- 多智能体协调器根据 `evidence_capabilities` 只派发本模态可用的专业任务。
+- 多智能体协调器根据告警和 `evidence_capabilities` 自主生成计划；每次工具观测后动态重规划，且只执行通过能力、权限、目标、去重和预算校验的任务。
 
 构造和运行：
 
@@ -136,7 +136,14 @@ uv run python -m app.eval.run \
 
 ToN_IoT 报告标题建议使用“工业互联网网络流与 Modbus 遥测双模态外部验证”，不要写成“跨源事件级关联评测”。
 
-## 4. 推荐发布表述
+## 4. 自动处置评测隔离
+
+- AIT-ADS 与 ToN_IoT 属于离线公开评测数据，只允许使用 `simulate` 或 `disabled` 响应模式。
+- 即使误把系统配置为 `webhook`，公开评测数据的 `dataset` 标识也会触发硬性拒绝，不得向真实防火墙或 EDR 发送动作。
+- 自动处置闭环应单独报告执行成功率、效果验证率、重试次数、回滚结果与人工接管率，不得与告警分类准确率混算。
+- 真实设备联调只能使用经过授权的非评测测试告警，并要求有效事件证据、显式启用开关和完整审计回执。
+
+## 5. 推荐发布表述
 
 通过 AIT 冻结门槛后：
 

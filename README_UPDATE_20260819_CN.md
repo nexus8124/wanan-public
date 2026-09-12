@@ -1,4 +1,4 @@
-# 2026-08-19 中文更新说明
+# 中文更新说明（更新至 2026-09-10）
 
 ## 一、本次更新解决了什么问题
 
@@ -87,7 +87,7 @@
 
 - 网络流样本可调用 `inspect_alert_context` 和 `fetch_network_flows`。
 - Modbus 样本可调用 `inspect_alert_context` 和 `fetch_endpoint_logs`。
-- 多智能体协调器根据 `evidence_capabilities` 只分派该模态真实可用的工具。
+- 多智能体协调器先根据告警、当前假设和 `evidence_capabilities` 自主规划，再由框架过滤掉不可用、越权、重复或目标不合法的任务。
 - ToN_IoT 正式样本不会使用项目内置的演示 Mock 证据。
 
 ### 3. 必须保留的限制说明
@@ -143,7 +143,7 @@ uv run python -m app.eval.run \
 | `backend/app/data/source_catalog.json` | 固定数据来源、版本和完整性校验信息 |
 | `backend/app/data/catalog.py` | 增加两套正式评测集的一键构造命令 |
 | `backend/app/agent/tools.py` | 接入 AIT 官方证据、ToN_IoT 网络流和 Modbus 遥测工具 |
-| `backend/app/agent/multi_agent.py` | 根据真实证据能力进行多智能体任务分派 |
+| `backend/app/agent/multi_agent.py` | 多智能体自主规划、专业取证、观察反馈和动态重规划 |
 | `backend/app/agent/prompts.py` | 增加证据类型、ToN_IoT 时间限制和禁止夸大规则 |
 | `backend/app/eval/metrics.py` | 增加 Wilson 下界与可信 85% 组合门槛 |
 | `backend/app/eval/dataset.py` | 支持前端发现和选择嵌套目录中的正式评测集 |
@@ -158,7 +158,18 @@ uv run python -m app.eval.run \
 - ToN_IoT 网络与 Modbus 原始文件通过固定版本完整性校验。
 - 数据集目录能够发现全部三个 AIT 正式拆分和 ToN_IoT 外部验证集。
 
-## 八、数据文件为什么没有直接提交到 Git
+## 八、2026-09-10 SuperAgent 自主闭环升级
+
+- 多智能体与 ReAct 已合并为同一执行链，不再二选一。
+- 首轮任务由模型根据告警和真实证据能力自主制定，不再按固定顺序派工。
+- 每次专业智能体返回工具观测后，协调器会重新判断下一步：继续原路线、改查其他证据，或进入最终验证。
+- 任务只有通过工具所有权、数据能力、真实查询目标、重复调用和步数预算校验后才会执行。
+- 前端会展示自主重规划次数，流式事件会显示“协调器根据新证据重新规划”。
+- 真阳且达到阈值后会进入 `response_execute → response_observe`：默认由模拟防火墙和模拟 EDR 自动执行并验证。
+- 模拟动作失败会自动重试；原子处置仍不完整时补偿回滚并升级人工，完整轨迹随研判结果持久化。
+- 可配置通用安全 webhook 对接真实防火墙/EDR，但必须显式开启真实执行、引用有效事件证据；AIT-ADS 和 ToN_IoT 正式评测数据被硬性禁止触发真实设备。
+
+## 九、数据文件为什么没有直接提交到 Git
 
 AIT-ADS 原始归档仍由 `.gitignore` 排除；为了保证克隆或部署仓库后前端可以直接发现正式评测集，仓库现在随附已经构造完成的三个 AIT-ADS 分片及其 1,800 份案例证据：
 
@@ -176,7 +187,7 @@ AIT-ADS 原始归档仍由 `.gitignore` 排除；为了保证克隆或部署仓�
 
 使用前述 `prepare-*` 命令仍可在本地从官方原始数据重新生成相同的评测结构。ToN_IoT 外部验证集可继续按需构造；已部署环境中已有的 ToN_IoT 文件不会被覆盖。
 
-## 九、当前可以和不可以宣称的结果
+## 十、当前可以和不可以宣称的结果
 
 可以宣称：
 

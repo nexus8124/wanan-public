@@ -336,6 +336,87 @@ def build_react_prompt(tool_catalog: str) -> ChatPromptTemplate:
 
 
 # ============================================================
+# SuperAgent 自主规划 / ReAct 重规划 Prompt
+# ============================================================
+
+MULTI_AGENT_PLAN_SYSTEM_PROMPT = """你是 SOC SuperAgent 协调器。你的职责不是直接判案，
+而是根据告警、当前假设和实际可用的数据源，自主制定一个最小但足够的调查计划。
+
+必须遵守：
+1. 每项任务只能使用给定工具目录中的调查工具，严禁调用处置工具。
+2. agent 与工具所有权必须匹配：context/inspect，endpoint/fetch_endpoint_logs，
+   network/fetch_network_flows，intel/check_threat_intel，history/query_similar_alerts，
+   knowledge/search_* 或 lookup_cve。
+3. 只能查询告警或 query_targets 中真实出现的 IP、规则和指标，不能编造参数。
+4. evidence_capabilities 声明了数据覆盖时，只规划其中确实可用的事件证据源。
+5. 优先选择能够验证或推翻当前假设的任务，最多三项，并说明成功标准。
+6. 输出简短、可展示的依据摘要，不输出冗长的内部思考。
+
+可用工具：
+{tool_catalog}
+"""
+
+MULTI_AGENT_PLAN_USER_TEMPLATE = """【原始告警】
+{alert_json}
+
+【当前判断】
+判定：{current_judgment}；置信度：{current_confidence}；理由：{current_reason}
+
+【可用证据能力】
+{capabilities}
+
+请输出结构化调查计划。"""
+
+MULTI_AGENT_REPLAN_SYSTEM_PROMPT = """你是 SOC SuperAgent 的 ReAct 重规划器。
+专业智能体刚刚返回了一次工具观测。你需要比较原计划、最新证据和剩余预算，决定：
+- continue：替换后续任务，继续收集最有价值的证据；
+- verify：证据已经足够，或剩余调查不再有价值，交给验证智能体。
+
+规则：不得重复完全相同的调用；不得调用处置工具；不得查询未声明的数据源；
+not_found/timeout/failed 不是安全证据；最多返回剩余预算允许的任务。
+输出简短的观测摘要和重规划依据，不输出冗长的内部思考。
+
+可用工具：
+{tool_catalog}
+"""
+
+MULTI_AGENT_REPLAN_USER_TEMPLATE = """【原始告警】
+{alert_json}
+
+【任务账本】
+{task_ledger}
+
+【已完成的行动与观测】
+{agent_findings}
+
+【尚未执行的候选任务】
+{remaining_tasks}
+
+【剩余工具调用预算】
+{remaining_budget}
+
+请根据新观测决定继续调查还是进入最终验证。"""
+
+
+def build_multi_agent_plan_prompt(tool_catalog: str) -> ChatPromptTemplate:
+    system = MULTI_AGENT_PLAN_SYSTEM_PROMPT.replace(
+        "{tool_catalog}", _escape(tool_catalog)
+    )
+    return ChatPromptTemplate.from_messages(
+        [("system", system), ("user", MULTI_AGENT_PLAN_USER_TEMPLATE)]
+    )
+
+
+def build_multi_agent_replan_prompt(tool_catalog: str) -> ChatPromptTemplate:
+    system = MULTI_AGENT_REPLAN_SYSTEM_PROMPT.replace(
+        "{tool_catalog}", _escape(tool_catalog)
+    )
+    return ChatPromptTemplate.from_messages(
+        [("system", system), ("user", MULTI_AGENT_REPLAN_USER_TEMPLATE)]
+    )
+
+
+# ============================================================
 # 多智能体证据融合 Prompt
 # ============================================================
 

@@ -316,7 +316,7 @@ def run_eval(
             agent_result = judge_alert(
                 alert_dict,
                 llm=llm,
-                enable_react=strategy == "react",
+                enable_react=strategy in {"react", "multi_agent"},
                 enable_multi_agent=strategy == "multi_agent",
                 enable_rag=enable_rag,
                 callbacks=callbacks,

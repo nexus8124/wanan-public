@@ -2,51 +2,174 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * 双主题令牌层(唯一色源):
+ * 亮色 = 冷纸白编辑风;暗色 = 深空蓝黑 SOC 作战室。
+ * 主强调 = 电光蓝(蓝底亮字/亮蓝底深字,按主题切换 --on-accent 保证对比度);
+ * 红绿黄 = 研判语义色,紫 = 多智能体,粉 = 评测。
+ * 所有组件(含 scoped CSS)一律引用 var(--*),禁止再硬编码 hex,
+ * 换肤只需改这一处。RGB 三元组格式配合 tailwind <alpha-value> 透明度修饰符。
+ */
+:root {
+  color-scheme: light;
+
+  /* 亮色底色与文字 */
+  --bg: 245 247 250;          /* #f5f7fa 冷纸白 */
+  --bg-2: 238 241 246;        /* #eef1f6 */
+  --card: 255 255 255;        /* #ffffff */
+  --card-hover: 250 251 253;  /* #fafbfd */
+  --border: 224 229 237;      /* #e0e5ed */
+  --border-light: 206 214 226;/* #ced6e2 */
+  --text: 20 33 61;           /* #14213d 藏蓝墨 */
+  --text-dim: 71 85 105;      /* #475569 */
+  --text-mute: 122 136 155;   /* #7a889b */
+
+  /* 强调与语义色:蓝=唯一强调(CTA/激活/RAG),红绿黄=研判语义,紫=多智能体,粉=评测 */
+  --cyan: 37 99 235;          /* #2563eb 电光蓝(主强调位,沿用既有 token 名) */
+  --purple: 106 92 214;       /* #6a5cd6 */
+  --pink: 204 41 108;         /* #cc296c */
+  --green: 4 120 87;          /* #047857 */
+  --yellow: 154 106 8;        /* #9a6a08 */
+  --red: 220 38 38;           /* #dc2626 */
+  --teal: 15 118 110;         /* #0f766e 证据类型色(关联上下文) */
+
+  /* 派生表面(组件 scoped CSS 用):遮罩、网格纸、发光底 */
+  --grid-line: 206 214 226;   /* 网格纸线 */
+  --overlay: 20 33 61;        /* 模态遮罩基色 */
+  --glow-track: 224 229 237;  /* 仪表/进度底轨 */
+
+  /* 蓝底上的文字:亮色主题配白字(对 #2563eb ≈5.4:1) */
+  --on-accent: 255 255 255;
+}
+
+/* 暗色:跟随系统(未手动锁定时) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --bg: 10 14 26;           /* #0a0e1a 深空蓝黑 */
+    --bg-2: 15 20 35;         /* #0f1423 */
+    --card: 16 23 40;         /* #101728 */
+    --card-hover: 20 28 48;   /* #141c30 */
+    --border: 30 40 62;       /* #1e283e */
+    --border-light: 43 56 84; /* #2b3854 */
+    --text: 226 232 244;      /* #e2e8f4 */
+    --text-dim: 175 186 205;  /* #afbacd 正文级,卡片上 ≥8:1 */
+    --text-mute: 132 145 168; /* #8491a8 辅助级,卡片上 ≥5.5:1 */
+
+    /* 暗底语义色整体提亮,保证 ≥4.5:1(正文)或大字/图形可辨 */
+    --cyan: 93 141 255;       /* #5d8dff 亮电光蓝 */
+    --purple: 165 153 242;    /* #a599f2 */
+    --pink: 233 110 168;      /* #e96ea8 */
+    --green: 52 211 153;      /* #34d399 */
+    --yellow: 217 169 63;     /* #d9a93f */
+    --red: 242 92 92;         /* #f25c5c */
+    --teal: 52 211 196;       /* #34d3c4 */
+
+    --grid-line: 43 56 84;    /* #2b3854 */
+    --overlay: 4 7 14;        /* #04070e */
+    --glow-track: 30 40 62;   /* #1e283e */
+
+    /* 亮蓝底配深字(对 #5d8dff ≈5.6:1),白字仅 3.2:1 不达标 */
+    --on-accent: 10 14 26;
+  }
+}
+
+/* 暗色:手动锁定 */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: 10 14 26;
+  --bg-2: 15 20 35;
+  --card: 16 23 40;
+  --card-hover: 20 28 48;
+  --border: 30 40 62;
+  --border-light: 43 56 84;
+  --text: 226 232 244;
+  --text-dim: 175 186 205;
+  --text-mute: 132 145 168;
+
+  --cyan: 93 141 255;
+  --purple: 165 153 242;
+  --pink: 233 110 168;
+  --green: 52 211 153;
+  --yellow: 217 169 63;
+  --red: 242 92 92;
+  --teal: 52 211 196;
+
+  --grid-line: 43 56 84;
+  --overlay: 4 7 14;
+  --glow-track: 30 40 62;
+  --on-accent: 10 14 26;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
   }
   body {
     @apply bg-bg text-text font-sans antialiased;
-    background-image:
-      radial-gradient(circle at 18% -10%, rgba(66, 105, 173, 0.08), transparent 32%),
-      radial-gradient(circle at 90% 20%, rgba(31, 70, 126, 0.045), transparent 28%);
+    background-image: none;
     overflow-x: hidden;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+  ::selection {
+    background: rgb(var(--cyan));
+    color: #ffffff;
+  }
+  /* 键盘可达性:全局焦点环 */
+  :focus-visible {
+    outline: 2px solid rgb(var(--cyan));
+    outline-offset: 2px;
+  }
+  /* 数据数字统一等宽表格数字 */
+  .font-mono,
+  code,
+  strong[class*='font-mono'] {
+    font-variant-numeric: tabular-nums;
+  }
+  /* 按压反馈:按钮按下轻微下沉,模拟物理点击 */
+  button {
+    transition: transform 0.12s ease;
+  }
+  button:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  button:disabled {
+    cursor: not-allowed;
   }
 }
 
 @layer components {
-  /* 卡片 */
+  /* 卡片:面板底 + 细边,hover 加重边框。全直角为全站形状签名 */
   .card {
-    @apply bg-card border border-border rounded-lg transition-all duration-300;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    @apply bg-card border border-border rounded-none transition-all duration-300;
+    box-shadow: none;
   }
   .card:hover {
     @apply border-border-light bg-card-hover;
   }
 
-  /* 章节标题 */
+  /* 章节标题:强调色宽字距小标签 */
   .section-title {
-    @apply text-cyan text-xs font-semibold tracking-[0.2em] uppercase;
+    @apply text-cyan text-[13px] font-bold tracking-[0.18em] uppercase;
   }
 
-  /* 渐变文字 */
+  /* 强调文字 */
   .gradient-text {
-    background: linear-gradient(135deg, #00d9ff 0%, #a78bfa 50%, #f472b6 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: rgb(var(--cyan));
+    background: none;
+    -webkit-text-fill-color: currentColor;
   }
   .gradient-text-cyan {
-    background: linear-gradient(135deg, #00d9ff 0%, #34d399 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: rgb(var(--green));
+    background: none;
+    -webkit-text-fill-color: currentColor;
   }
 
   /* 标签 chip */
   .chip {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium border border-border-light bg-bg-2;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-none text-xs font-medium border border-border-light bg-bg-2 text-text-dim;
   }
 
   /* 导航链接 */
@@ -54,34 +177,74 @@
     @apply text-text-dim transition-colors relative text-sm;
   }
   .nav-link:hover {
-    @apply text-cyan;
+    @apply text-text;
   }
   .nav-link.router-link-active {
-    @apply text-cyan;
+    @apply text-text;
   }
   .nav-link.router-link-active::after {
     content: '';
-    @apply absolute -bottom-1.5 left-0 w-full h-0.5 bg-cyan;
+    @apply absolute -bottom-1.5 left-0 w-full h-0.5 bg-text;
   }
 }
 
-/* 滚动条 */
+/* 滚动条(跟随主题) */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #070b16;
+  background: rgb(var(--bg-2));
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a3754;
-  border-radius: 5px;
+  background: rgb(var(--border-light));
+  border-radius: 0;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #0891b2;
+  background: rgb(var(--text-mute));
 }
 
 /* SSE 流式时新元素滑入 */
 .stream-item {
   animation: slide-up 0.4s ease-out;
+}
+
+/* 路由视图进场:各视图根元素挂载时播放一次性上浮淡入。
+   用纯 CSS 动画而非 <Transition>:懒加载路由组件下 Transition 进场不可靠 */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.page-enter {
+  animation: page-enter 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* Tailwind 的 outline-none 会吞掉全局焦点环:为下拉选择恢复键盘焦点指示
+   (伪类选择器特异性高于 .outline-none 工具类,可覆盖 transparent 轮廓) */
+select:focus-visible {
+  outline: 2px solid rgb(var(--cyan));
+  outline-offset: 1px;
+}
+
+/* 动效可及性:状态动画(live 脉冲/流式滑入等)在减少动态偏好下降级为静态 */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .stream-item {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
