@@ -11,13 +11,12 @@ const radius = size / 2 - 8
 const circumference = Math.PI * radius // 半圆周长
 
 const percent = computed(() => Math.max(0, Math.min(1, props.confidence)))
-// 0→红, 0.5→黄, 1→绿
+// 0→红, 0.5→黄, 1→绿(引用主题令牌,随亮暗自适应;三段式,不留橙色区段)
 const color = computed(() => {
   const p = percent.value
-  if (p >= 0.85) return '#34d399'
-  if (p >= 0.6) return '#fbbf24'
-  if (p >= 0.3) return '#fb923c'
-  return '#f87171'
+  if (p >= 0.85) return 'rgb(var(--green))'
+  if (p >= 0.5) return 'rgb(var(--yellow))'
+  return 'rgb(var(--red))'
 })
 const dashOffset = computed(() => circumference * (1 - percent.value))
 </script>
@@ -29,12 +28,13 @@ const dashOffset = computed(() => circumference * (1 - percent.value))
       <path
         :d="`M 8 ${size / 2} A ${radius} ${radius} 0 0 1 ${size - 8} ${size / 2}`"
         fill="none"
-        stroke="#1f2a44"
+        stroke="rgb(var(--glow-track))"
         :stroke-width="8"
         stroke-linecap="round"
       />
-      <!-- 进度半圆 -->
+      <!-- 进度半圆(0% 时不渲染,避免圆头线帽留下残影点) -->
       <path
+        v-if="percent > 0"
         :d="`M 8 ${size / 2} A ${radius} ${radius} 0 0 1 ${size - 8} ${size / 2}`"
         fill="none"
         :stroke="color"
@@ -56,6 +56,6 @@ const dashOffset = computed(() => circumference * (1 - percent.value))
         {{ (percent * 100).toFixed(0) }}%
       </text>
     </svg>
-    <div class="text-xs text-text-dim mt-1">置信度</div>
+    <div class="text-sm font-medium text-text-dim mt-1">置信度</div>
   </div>
 </template>

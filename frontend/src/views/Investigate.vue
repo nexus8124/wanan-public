@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { computed, ref, reactive, onMounted } from 'vue'
+import { PhBrain, PhCheck, PhDownloadSimple, PhPlay, PhStop, PhWarning } from '@phosphor-icons/vue'
 import { streamJudgeAlert } from '../api/client'
 import {
   loadModelSelection,
@@ -42,7 +43,7 @@ const presetsCommon = [
   {
     name: 'SQL 注入',
     desc: 'WAF 命中 SQLi 规则',
-    color: 'border-orange',
+    color: 'border-pink',
     data: {
       alert_id: 'DEMO-TP4', timestamp: '2026-07-18T05:18:39Z', source: 'waf', severity: 'high',
       src_ip: '203.0.113.77', dst_ip: '10.10.20.5', src_port: 51888, dst_port: 443, protocol: 'HTTPS',
@@ -88,7 +89,7 @@ const presetsMore = [
   {
     name: 'LDAP 暴力破解',
     desc: '3 分钟 1284 次登录尝试',
-    color: 'border-orange',
+    color: 'border-pink',
     data: {
       alert_id: 'DEMO-TP5', timestamp: '2026-07-18T06:51:03Z', source: 'siem', severity: 'medium',
       src_ip: '10.20.35.99', dst_ip: '10.20.40.7', src_port: null, dst_port: 389, protocol: 'LDAP',
@@ -168,6 +169,9 @@ const trace = reactive({
   reason: '',
   done: false,
 })
+
+// 工作区是否已有轨迹可展示(进入研判或已结束)
+const traceActive = computed(() => Boolean(trace.currentNode || streaming.value || trace.done))
 
 function loadPreset(p: { name: string; desc: string; color: string; data: Record<string, any> }) {
   alertJson.value = JSON.stringify(p.data, null, 2)
@@ -262,29 +266,43 @@ function stopStream() {
   streaming.value = false
 }
 
+// JSON 编辑器内 Ctrl/Cmd + Enter 快速开始/中止
+function runShortcut() {
+  if (streaming.value) stopStream()
+  else if (alertJson.value) startStream()
+}
+
 </script>
 
 <template>
-  <div class="grid grid-cols-12 gap-5">
-    <!-- 左：告警输入 -->
-    <div class="col-span-12 lg:col-span-3 space-y-4">
+  <div class="inv-page page-enter">
+    <!-- 页面头:与概览页同一指挥头区语言,压缩高度 -->
+    <header class="inv-command">
+      <div class="inv-eyebrow">ALERT ADJUDICATION WORKSPACE</div>
+      <h2>告警研判工作区</h2>
+      <p>加载示例告警或粘贴 JSON，实时观察研判管线、思维链、多智能体协同与处置闭环</p>
+    </header>
+
+    <div class="inv-layout">
+    <!-- 左:告警收件箱(示例 + JSON + 开关 + 启动) -->
+    <aside class="inv-inbox">
       <div class="card p-5">
-        <h3 class="font-bold text-sm mb-3 flex items-center gap-2">
-          <span>📥</span> 告警输入
+        <h3 class="font-bold text-base mb-3 flex items-center gap-2">
+          <PhDownloadSimple :size="18" weight="bold" class="text-cyan" aria-hidden="true" /> 告警输入
         </h3>
 
         <!-- 示例按钮 -->
-        <div class="text-[10px] text-text-mute mb-2">一键加载示例</div>
+        <div class="text-[11px] text-text-mute mb-2">一键加载示例</div>
         <div class="grid grid-cols-1 gap-2">
           <button
             v-for="p in presetsCommon"
             :key="p.name"
             @click="loadPreset(p)"
-            class="text-left p-2 rounded-lg border bg-bg-2 hover:bg-card-hover transition-all"
+            class="text-left p-2 rounded-none border bg-bg-2 hover:bg-card-hover hover:border-text transition-all"
             :class="p.color"
           >
-            <div class="text-xs font-semibold text-text">{{ p.name }}</div>
-            <div class="text-[10px] text-text-dim mt-0.5">{{ p.desc }}</div>
+            <div class="text-sm font-semibold text-text">{{ p.name }}</div>
+            <div class="text-[11px] text-text-dim mt-0.5">{{ p.desc }}</div>
           </button>
         </div>
 
@@ -292,7 +310,7 @@ function stopStream() {
         <button
           v-if="!showMore"
           @click="showMore = true"
-          class="mt-2 text-[10px] text-cyan hover:text-cyan-dim transition-colors"
+          class="mt-2 text-[11px] text-cyan hover:text-cyan-dim transition-colors"
         >
           更多示例 ▾
         </button>
@@ -301,33 +319,38 @@ function stopStream() {
             v-for="p in presetsMore"
             :key="p.name"
             @click="loadPreset(p)"
-            class="text-left p-2 rounded-lg border bg-bg-2 hover:bg-card-hover transition-all"
+            class="text-left p-2 rounded-none border bg-bg-2 hover:bg-card-hover hover:border-text transition-all"
             :class="p.color"
           >
-            <div class="text-xs font-semibold text-text">{{ p.name }}</div>
-            <div class="text-[10px] text-text-dim mt-0.5">{{ p.desc }}</div>
+            <div class="text-sm font-semibold text-text">{{ p.name }}</div>
+            <div class="text-[11px] text-text-dim mt-0.5">{{ p.desc }}</div>
           </button>
           <button
             @click="showMore = false"
-            class="text-[10px] text-text-mute hover:text-text-dim transition-colors text-center py-1"
+            class="text-[11px] text-text-mute hover:text-text-dim transition-colors text-center py-1"
           >
             收起 ▴
           </button>
         </div>
 
         <!-- JSON 编辑 -->
-        <div class="text-[10px] text-text-mute mb-1">告警 JSON（可编辑）</div>
+        <div class="mt-3 mb-1 flex items-center justify-between gap-2">
+          <div class="text-[11px] text-text-mute">告警 JSON（可编辑）</div>
+          <div class="text-[10px] text-text-mute font-mono">Ctrl + Enter 快速研判</div>
+        </div>
         <textarea
           v-model="alertJson"
-          rows="14"
-          class="w-full bg-bg border border-border rounded-lg p-3 text-xs font-mono text-text focus:border-cyan focus:outline-none resize-none"
+          rows="12"
+          class="w-full bg-card border border-border rounded-none p-3 text-[13px] font-mono text-text focus:border-text focus:outline-none resize-none"
           placeholder='点击上方示例加载，或粘贴告警 JSON...'
+          @keydown.ctrl.enter.prevent="runShortcut"
+          @keydown.meta.enter.prevent="runShortcut"
         ></textarea>
 
-        <label class="mt-3 flex items-center justify-between rounded-lg border border-border bg-bg px-3 py-2 text-xs">
+        <label class="mt-3 flex items-center justify-between rounded-none border border-border bg-card px-3 py-2 text-xs">
           <span>
             <b class="text-text">安全知识 RAG</b>
-            <span class="block text-[10px] text-text-mute">仅对低置信初判检索并后融合</span>
+            <span class="block text-[11px] text-text-mute">仅对低置信初判检索并后融合</span>
           </span>
           <input
             v-model="ragEnabled"
@@ -337,10 +360,10 @@ function stopStream() {
           />
         </label>
 
-        <label class="mt-2 flex items-center justify-between rounded-lg border border-border bg-bg px-3 py-2 text-xs">
+        <label class="mt-2 flex items-center justify-between rounded-none border border-border bg-card px-3 py-2 text-xs">
           <span>
             <b class="text-text">多智能体研判</b>
-            <span class="block text-[10px] text-text-mute">自主规划并按新证据动态重规划</span>
+            <span class="block text-[11px] text-text-mute">自主规划并按新证据动态重规划</span>
           </span>
           <input
             v-model="multiAgentEnabled"
@@ -350,125 +373,110 @@ function stopStream() {
           />
         </label>
 
-        <div v-if="multiAgentEnabled" class="mt-2 rounded-md border border-purple/30 bg-purple/5 px-3 py-2 text-[10px] text-text-mute">
+        <div v-if="multiAgentEnabled" class="mt-2 rounded-none border border-purple/30 bg-purple/5 px-3 py-2 text-[11px] text-text-mute">
           开启后进入多智能体 ReAct 闭环：协调器自主制定计划，专业智能体取证，每次观测后重新决定下一步；可与 RAG 同时使用。
         </div>
 
         <button
           @click="streaming ? stopStream() : startStream()"
           :disabled="!alertJson && !streaming"
-          class="mt-3 w-full py-2.5 rounded-lg font-bold transition-all"
+          class="mt-3 w-full py-2.5 rounded-none font-bold transition-all inline-flex items-center justify-center gap-1.5"
           :class="streaming
-            ? 'bg-red/20 text-red border border-red/40 hover:bg-red/30'
-            : 'bg-gradient-to-r from-cyan to-purple text-bg hover:opacity-90'"
+            ? 'bg-red/10 text-red border border-red/40 hover:bg-red/20'
+            : 'bg-cyan text-on-accent border border-cyan hover:bg-text hover:text-bg hover:border-text'"
         >
-          {{ streaming ? '⏹ 中止研判' : '🚀 开始研判' }}
+          <PhStop v-if="streaming" :size="14" weight="fill" aria-hidden="true" />
+          <PhPlay v-else :size="14" weight="fill" aria-hidden="true" />
+          {{ streaming ? '中止研判' : '开始研判' }}
         </button>
       </div>
-    </div>
+    </aside>
 
-    <!-- 右侧主工作区：顶部进度与结果，底部实时展开研判轨迹 -->
-    <div class="col-span-12 lg:col-span-9 grid grid-cols-12 gap-5 items-start">
-    <!-- 实时进度与最终结果合并为一个全宽总览组件 -->
-    <div class="col-span-12">
-      <div class="card p-5 min-h-[300px]">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-bold text-sm flex items-center gap-2">
-            <span>🧠</span> 实时研判总览
-          </h3>
-          <div v-if="streaming" class="chip border-cyan text-cyan">
-            <span class="w-1.5 h-1.5 rounded-full bg-cyan animate-pulse-dot"></span>
-            {{ trace.currentNode || '启动中' }}
+    <!-- 右:研判工作区(判定条 + 编号分区) -->
+    <div class="inv-workspace">
+      <!-- 判定条:置信度仪表 + 结论 + 实时状态与计数 -->
+      <section v-if="traceActive" class="ws-verdict">
+        <div class="verdict-gauge">
+          <ConfidenceGauge :confidence="trace.confidence" :size="104" />
+        </div>
+
+        <div class="verdict-main">
+          <div class="verdict-head">
+            <JudgmentBadge v-if="trace.judgment" :judgment="trace.judgment" size="lg" />
+            <span v-else class="verdict-pending">研判中…</span>
+            <div v-if="streaming" class="chip border-cyan text-cyan">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan animate-pulse-dot"></span>
+              {{ trace.currentNode || '启动中' }}
+            </div>
+            <div v-else-if="trace.done" class="chip border-green text-green">
+              <PhCheck :size="13" weight="bold" aria-hidden="true" /> 完成
+            </div>
           </div>
-          <div v-else-if="trace.done" class="chip border-green text-green">✓ 完成</div>
-        </div>
-
-        <!-- 错误 -->
-        <div v-if="errorMsg" class="p-3 rounded-lg bg-red/10 border border-red/40 text-sm text-red">
-          ⚠ {{ errorMsg }}
-        </div>
-
-        <div
-          v-if="trace.currentNode || streaming || trace.done"
-          class="grid grid-cols-12 gap-5 items-stretch"
-        >
-          <!-- 左侧：横向实时进度 -->
-          <section class="col-span-12 xl:col-span-9">
-            <div class="section-title mb-3 flex items-center justify-between gap-3">
-              <span>研判进度</span>
-              <span class="normal-case tracking-normal text-[9px] text-text-mute">LIVE PROGRESS</span>
-            </div>
-            <AgentProcessMap
-              :current-node="trace.currentNode"
-              :visited-nodes="trace.visitedNodes"
-              :streaming="streaming"
-              :done="trace.done"
-              :rag-enabled="ragEnabled"
-              :multi-agent-enabled="multiAgentEnabled"
-            />
-          </section>
-
-          <!-- 右侧：同一卡片内的最终结果 -->
-          <section class="col-span-12 xl:col-span-3 border-t xl:border-t-0 xl:border-l border-border pt-5 xl:pt-0 xl:pl-5 flex flex-col">
-            <div class="section-title mb-2">最终结果</div>
-            <div class="flex justify-center">
-              <ConfidenceGauge :confidence="trace.confidence" :size="112" />
-            </div>
-            <div class="text-center -mt-1 mb-3">
-              <JudgmentBadge v-if="trace.judgment" :judgment="trace.judgment" size="lg" />
-              <span v-else class="text-text-mute text-sm italic">研判中...</span>
-            </div>
-            <div
-              v-if="trace.reason"
-              class="mt-auto text-xs text-text-dim leading-relaxed p-3 rounded-lg bg-bg-2 border border-border"
-            >
-              {{ trace.reason }}
-            </div>
-          </section>
-        </div>
-
-        <!-- 空状态 -->
-        <div
-          v-if="!trace.currentNode && !streaming && !trace.done && !errorMsg"
-          class="min-h-[220px] flex flex-col items-center justify-center text-center text-text-mute"
-        >
-          <div class="text-sm text-text-dim">选择左侧告警示例或粘贴告警 JSON，然后开始研判</div>
-          <div class="text-xs mt-2">研判开始后，思维链、多智能体协作与证据调用将在这里实时展示</div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- 研判开始后，紧跟进度区实时展示思维链与多智能体过程 -->
-    <section
-      v-if="trace.currentNode && !errorMsg"
-      class="col-span-12 card p-6 space-y-6"
-    >
-      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-        <div>
-          <div class="section-title">研判过程可视化</div>
-          <div class="mt-1 text-xs text-text-mute">
-            {{ streaming
-              ? '正在实时接收模型推理、智能体调度、工具调用与证据返回'
-              : '本次告警分析已完成，可点击智能体、工具与证据节点查看详细内容' }}
+          <p v-if="trace.reason" class="verdict-reason">{{ trace.reason }}</p>
+          <div class="verdict-chips">
+            <span class="chip border-cyan text-cyan" v-if="ragEnabled">RAG 知识增强</span>
+            <span class="chip border-purple text-purple" v-if="multiAgentEnabled">多智能体协同</span>
           </div>
         </div>
-        <div class="flex flex-wrap gap-2 text-xs">
-          <span class="chip border-purple text-purple" v-if="multiAgentEnabled">多智能体协同</span>
-          <span class="chip border-cyan text-cyan" v-if="ragEnabled">RAG 知识增强</span>
-          <span class="chip border-green text-green">{{ trace.judgment || '待查' }}</span>
+
+        <div class="verdict-stats">
+          <div class="vstat">
+            <b>{{ trace.cotTrace.length }}</b>
+            <small>推理步骤</small>
+          </div>
+          <div class="vstat">
+            <b>{{ trace.toolsCalled.length }}</b>
+            <small>工具调用</small>
+          </div>
+          <div class="vstat">
+            <b>{{ trace.citedEvidence.length }}</b>
+            <small>引用证据</small>
+          </div>
         </div>
+      </section>
+
+      <!-- 错误 -->
+      <div v-if="errorMsg" role="alert" class="ws-error">
+        <PhWarning :size="16" weight="bold" aria-hidden="true" /> {{ errorMsg }}
       </div>
 
-      <section v-if="trace.cotTrace.length">
-        <div class="section-title mb-3">01 · 可解释研判链</div>
+      <!-- 01 研判管线 -->
+      <section v-if="traceActive && !errorMsg" class="ws-section">
+        <header class="ws-head">
+          <span class="ws-index">01</span>
+          <div class="ws-copy"><b>研判管线</b><small>LIVE PIPELINE</small></div>
+          <span class="ws-note">{{ streaming ? '节点状态随流式事件实时推进' : '本次运行经过的节点' }}</span>
+        </header>
+        <AgentProcessMap
+          :current-node="trace.currentNode"
+          :visited-nodes="trace.visitedNodes"
+          :streaming="streaming"
+          :done="trace.done"
+          :rag-enabled="ragEnabled"
+          :multi-agent-enabled="multiAgentEnabled"
+        />
+      </section>
+
+      <!-- 02 可解释研判链 -->
+      <section v-if="traceActive && !errorMsg && trace.cotTrace.length" class="ws-section">
+        <header class="ws-head">
+          <span class="ws-index">02</span>
+          <div class="ws-copy"><b>可解释研判链</b><small>EVIDENCE CHAIN</small></div>
+          <span class="ws-note">点击节点查看该步依据</span>
+        </header>
         <CoTTimeline :steps="trace.cotTrace" :streaming="streaming && trace.currentNode === 'judge'" />
       </section>
 
+      <!-- 03 调查轨迹:多智能体 或 ReAct -->
       <section
-        v-if="multiAgentEnabled && (trace.multiAgentSteps.length || Object.keys(trace.progressLedger).length)"
+        v-if="traceActive && !errorMsg && multiAgentEnabled && (trace.multiAgentSteps.length || Object.keys(trace.progressLedger).length)"
+        class="ws-section"
       >
-        <div class="section-title mb-3">02 · 多智能体调查轨迹</div>
+        <header class="ws-head">
+          <span class="ws-index">03</span>
+          <div class="ws-copy"><b>多智能体调查轨迹</b><small>MULTI-AGENT TRACE</small></div>
+          <span class="ws-note">{{ streaming ? '正在接收智能体调度与证据返回' : '可点击智能体、工具与证据节点查看详情' }}</span>
+        </header>
         <MultiAgentFlow
           :steps="trace.multiAgentSteps"
           :ledger="trace.progressLedger"
@@ -480,9 +488,13 @@ function stopStream() {
         />
       </section>
 
-      <section v-else-if="trace.reactSteps.length">
-        <div class="section-title mb-3">02 · ReAct 工具调查轨迹</div>
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+      <section v-else-if="traceActive && !errorMsg && trace.reactSteps.length" class="ws-section">
+        <header class="ws-head">
+          <span class="ws-index">03</span>
+          <div class="ws-copy"><b>ReAct 工具调查轨迹</b><small>REACT TRACE</small></div>
+          <span class="ws-note">按执行顺序展示每一步受控工具调用</span>
+        </header>
+        <div class="ws-tool-grid">
           <ToolCard
             v-for="rs in trace.reactSteps"
             :key="rs.step"
@@ -492,14 +504,129 @@ function stopStream() {
         </div>
       </section>
 
-      <section v-if="trace.disposition">
-        <div class="section-title mb-3">03 · 处置闭环</div>
+      <!-- 04 处置闭环 -->
+      <section v-if="traceActive && !errorMsg && trace.disposition" class="ws-section">
+        <header class="ws-head">
+          <span class="ws-index">04</span>
+          <div class="ws-copy"><b>处置闭环</b><small>RESPONSE LOOP</small></div>
+          <span class="ws-note">动作执行后独立验证生效，失败有界重试并可回滚</span>
+        </header>
         <DispositionCard
           :disposition="trace.disposition"
           :response-execution="trace.responseExecution"
         />
       </section>
-    </section>
+
+      <!-- 空状态指引:以流程预告填充工作区,而非大片空白 -->
+      <div v-if="!traceActive && !errorMsg" class="ws-guide">
+        <div class="guide-head">
+          <PhBrain :size="22" weight="bold" class="guide-head-icon" aria-hidden="true" />
+          <div>
+            <b>等待研判输入</b>
+            <span>选择左侧告警示例或粘贴 JSON，点击「开始研判」后，以下内容将在这里实时展开</span>
+          </div>
+        </div>
+        <div class="guide-grid">
+          <div class="guide-card">
+            <span>01</span>
+            <b>研判管线</b>
+            <small>七个节点的实时推进状态，RAG 知识增强与多智能体按需启用</small>
+          </div>
+          <div class="guide-card">
+            <span>02</span>
+            <b>可解释研判链</b>
+            <small>五类证据汇入最终判定的交互式关系图，点击节点可查看依据</small>
+          </div>
+          <div class="guide-card">
+            <span>03</span>
+            <b>调查轨迹</b>
+            <small>ReAct 受控工具调用，或多智能体协同取证与动态重规划</small>
+          </div>
+          <div class="guide-card">
+            <span>04</span>
+            <b>处置闭环</b>
+            <small>处置工单执行、效果独立观测，失败有界重试并可补偿回滚</small>
+          </div>
+        </div>
+        <div class="guide-tip">左侧可开启「安全知识 RAG」与「多智能体研判」，两者可叠加；JSON 编辑器内 Ctrl + Enter 快速开始</div>
+      </div>
+    </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* 页面容器:标题头 + 工作区 */
+.inv-page { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+/* 页面头:与概览页指挥头区同语言(眉标 + 大标题 + 一句说明) */
+.inv-command { padding: 2px 0 12px; border-bottom: 1px solid rgb(var(--text)); }
+.inv-eyebrow { margin-bottom: 8px; color: rgb(var(--cyan)); font: 700 11px/1.2 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .22em; }
+.inv-command h2 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: rgb(var(--text)); }
+.inv-command p { margin: 7px 0 0; color: rgb(var(--text-dim)); font-size: 13px; max-width: 60ch; }
+
+/* 工作区布局:左收件箱 + 右工作区 */
+.inv-layout { display: grid; grid-template-columns: minmax(280px, 3fr) minmax(0, 9fr); gap: 16px; align-items: start; }
+.inv-inbox { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.inv-workspace { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+
+/* 判定条:仪表 + 结论 + 计数,细线分栏的连续条 */
+.ws-verdict { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; border: 1px solid rgb(var(--border)); background: rgb(var(--card)); }
+.verdict-gauge { display: grid; place-items: center; padding: 14px 22px; border-right: 1px solid rgb(var(--border)); }
+.verdict-main { min-width: 0; padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+.verdict-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.verdict-pending { color: rgb(var(--text-mute)); font-size: 15px; font-style: italic; }
+.verdict-reason { margin: 0; color: rgb(var(--text-dim)); font-size: 13.5px; line-height: 1.7; }
+.verdict-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.verdict-stats { display: grid; grid-template-columns: repeat(3, minmax(74px, 1fr)); border-left: 1px solid rgb(var(--border)); }
+.vstat { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 12px 14px; }
+.vstat + .vstat { border-left: 1px solid rgb(var(--border)); }
+.vstat b { color: rgb(var(--text)); font: 700 22px/1 'JetBrains Mono', ui-monospace, monospace; }
+.vstat small { color: rgb(var(--text-mute)); font-size: 10.5px; }
+
+/* 错误条 */
+.ws-error { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border: 1px solid rgb(var(--red) / .4); background: rgb(var(--red) / .05); color: rgb(var(--red)); font-size: 13.5px; }
+
+/* 编号分区头 */
+.ws-head { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border: 1px solid rgb(var(--border)); border-bottom: 0; background: rgb(var(--bg)); }
+.ws-index { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid rgb(var(--text)); background: rgb(var(--text)); color: rgb(var(--bg)); font: 700 12px 'JetBrains Mono', ui-monospace, monospace; flex: 0 0 auto; }
+.ws-copy { min-width: 0; }
+.ws-copy b { display: block; color: rgb(var(--text)); font-size: 14.5px; font-weight: 800; letter-spacing: -0.01em; }
+.ws-copy small { display: block; margin-top: 2px; color: rgb(var(--text-mute)); font: 9px 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .14em; }
+.ws-note { margin-left: auto; color: rgb(var(--text-mute)); font-size: 11px; text-align: right; }
+.ws-section { min-width: 0; }
+/* 分区体:内容组件自带边框,与头部拼接 */
+.ws-section > :deep(.process-map),
+.ws-section > :deep(.reasoning-graph-shell),
+.ws-section > :deep(.agent-flow),
+.ws-section > .card { border-top: 0; }
+.ws-tool-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; border: 1px solid rgb(var(--border)); border-top: 0; background: rgb(var(--bg-2) / .4); padding: 14px; }
+
+/* 空状态:以流程预告卡片填充工作区 */
+.ws-guide { display: flex; flex-direction: column; gap: 13px; padding: 18px; border: 1px dashed rgb(var(--border-light)); }
+.guide-head { display: flex; align-items: center; gap: 12px; }
+.guide-head-icon { flex: 0 0 auto; color: rgb(var(--cyan)); opacity: .8; }
+.guide-head b { display: block; color: rgb(var(--text-dim)); font-size: 15px; }
+.guide-head span { display: block; margin-top: 3px; color: rgb(var(--text-mute)); font-size: 12.5px; }
+.guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.guide-card { padding: 14px 16px; border: 1px solid rgb(var(--border)); background: rgb(var(--card)); }
+.guide-card > span { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 4px; border: 1px solid rgb(var(--text)); background: rgb(var(--text)); color: rgb(var(--bg)); font: 700 11px 'JetBrains Mono', ui-monospace, monospace; }
+.guide-card b { display: block; margin-top: 10px; color: rgb(var(--text)); font-size: 14px; font-weight: 700; }
+.guide-card small { display: block; margin-top: 5px; color: rgb(var(--text-mute)); font-size: 12px; line-height: 1.7; }
+.guide-tip { padding: 10px 12px; border-left: 2px solid rgb(var(--cyan)); background: rgb(var(--cyan) / .05); color: rgb(var(--text-dim)); font-size: 12px; }
+
+@media (max-width: 1240px) {
+  .inv-layout { grid-template-columns: 1fr; }
+  .ws-tool-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 820px) {
+  .ws-verdict { grid-template-columns: 1fr; }
+  .verdict-gauge { border-right: 0; border-bottom: 1px solid rgb(var(--border)); }
+  .verdict-stats { grid-template-columns: repeat(3, 1fr); border-left: 0; border-top: 1px solid rgb(var(--border)); }
+  .ws-note { display: none; }
+}
+@media (max-width: 640px) {
+  .inv-command h2 { font-size: 22px; }
+  .inv-command p { font-size: 13px; }
+  .guide-grid { grid-template-columns: 1fr; }
+}
+</style>
